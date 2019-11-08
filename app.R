@@ -33,7 +33,7 @@ ui <- fluidPage(
           label = "Distribution:",
           choices = c("Beta", "Binomial", "Cauchy", "Chi-square", "Exponential", "Fisher", "Gamma", "Geometric", "Hypergeometric", "Logistic", "Log-Normal", "Negative Binomial (Pascal)", "Normal", "Poisson", "Student", "Weibull"),
           multiple = FALSE,
-          selected = "Cauchy"
+          selected = "Exponential"
         ),
         hr(),
         tags$b("Parameter(s)"),
@@ -62,6 +62,11 @@ ui <- fluidPage(
           condition = "input.distribution == 'Chi-square'",
           numericInput("df_chisquare", "Degrees of freedom:",
                        value = 6, min = 1, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Exponential'",
+          numericInput("rate_exponential", "Rate \\(\\lambda\\):",
+                       value = 1, min = 0, step = 0.5)
         ),
         conditionalPanel(
           condition = "input.distribution == 'Fisher'",
