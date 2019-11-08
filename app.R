@@ -39,16 +39,16 @@ ui <- fluidPage(
         tags$b("Parameter(s)"),
         conditionalPanel(
           condition = "input.distribution == 'Beta'",
-          numericInput("alpha_beta", "Alpha \\(\\alpha\\):",
+          numericInput("alpha_beta", "Shape \\(\\alpha\\):",
                        value = 1, min = 0, step = 1),
-          numericInput("beta_beta", "Beta \\(\\beta\\):",
+          numericInput("beta_beta", "Shape \\(\\beta\\):",
                        value = 3, min = 0, step = 1)
         ),
         conditionalPanel(
           condition = "input.distribution == 'Binomial'",
-          numericInput("n_binomial", "n:",
+          numericInput("n_binomial", "Number of trials \\(n\\):",
                        value = 20, min = 0, step = 1),
-          numericInput("p_binomial", "p:",
+          numericInput("p_binomial", "Probability of success \\(p\\):",
                        value = 0.5, min = 0, max = 1, step = 0.01)
         ),
         conditionalPanel(
@@ -60,7 +60,7 @@ ui <- fluidPage(
         ),
         conditionalPanel(
           condition = "input.distribution == 'Chi-square'",
-          numericInput("df_chisquare", "Degrees of freedom:",
+          numericInput("df_chisquare", "Degrees of freedom \\(df\\):",
                        value = 6, min = 1, step = 1)
         ),
         conditionalPanel(
@@ -70,16 +70,16 @@ ui <- fluidPage(
         ),
         conditionalPanel(
           condition = "input.distribution == 'Fisher'",
-          numericInput("df1_fisher", "Degrees of freedom 1:",
+          numericInput("df1_fisher", "Degrees of freedom \\(df_1\\):",
                        value = 10, min = 1, step = 1),
-          numericInput("df2_fisher", "Degrees of freedom 2:",
+          numericInput("df2_fisher", "Degrees of freedom \\(df_2\\):",
                        value = 5, min = 1, step = 1)
         ),
         conditionalPanel(
           condition = "input.distribution == 'Gamma'",
-          numericInput("alpha_gamma", "Alpha \\(\\alpha\\):",
+          numericInput("alpha_gamma", "Shape \\(\\alpha\\):",
                        value = 3, min = 0, step = 1),
-          numericInput("beta_gamma", "Beta \\(\\beta\\):",
+          numericInput("beta_gamma", "Rate \\(\\beta\\):",
                        value = 2, min = 0, step = 1)
         ),
         conditionalPanel(
@@ -107,12 +107,12 @@ ui <- fluidPage(
         ),
         conditionalPanel(
           condition = "input.distribution == 'Poisson'",
-          numericInput("lambda_poisson", "Lambda \\(\\lambda\\):",
+          numericInput("lambda_poisson", "Rate \\(\\lambda\\):",
                        value = 4, min = 1, step = 1)
         ),
         conditionalPanel(
           condition = "input.distribution == 'Student'",
-          numericInput("df_student", "Degrees of freedom:",
+          numericInput("df_student", "Degrees of freedom \\(df\\):",
                        value = 10, min = 1, step = 1)
         ),
         hr(),
