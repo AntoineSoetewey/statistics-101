@@ -25,18 +25,18 @@ ui <- fluidPage(
      # tabPanel(
      #   title = "Distributions",
    
-   # Sidebar with a slider input for number of bins 
+   # Sidebar with a slider input for number of bins
    sidebarLayout(
       sidebarPanel(
         selectInput(
           inputId = "distribution",
           label = "Distribution:",
-          choices = c("Beta", "Binomial", "Cauchy", "Chi-square", "Exponential", "Fisher", "Gamma", "Geometric", "Hypergeometric", "Logistic", "Log-Normal", "Negative Binomial", "Normal", "Poisson", "Student", "Weibull"),
+          choices = c("Beta", "Binomial", "Cauchy", "Chi-square", "Exponential", "Fisher", "Gamma", "Geometric", "Hypergeometric", "Logistic", "Log-Normal", "Negative Binomial", "Normal", "Poisson", "Student", "Uniform", "Weibull"),
           multiple = FALSE,
-          selected = "Gamma"
+          selected = "Geometric"
         ),
         hr(),
-        tags$b("Parameter(s)"),
+        # tags$b("Parameter(s)"),
         conditionalPanel(
           condition = "input.distribution == 'Beta'",
           numericInput("alpha_beta", "Shape \\(\\alpha\\):",
@@ -81,6 +81,11 @@ ui <- fluidPage(
                        value = 3, min = 0, step = 1),
           numericInput("beta_gamma", "Rate \\(\\beta\\):",
                        value = 2, min = 0, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Geometric'",
+          numericInput("p_geometric", "Probability of success \\(p\\):",
+                       value = 0.5, min = 0, max = 1, step = 0.01)
         ),
         conditionalPanel(
           condition = "input.distribution == 'Normal'",
@@ -429,6 +434,26 @@ ui <- fluidPage(
                        value = 2.4, min = 0, step = 1)
         ),
         conditionalPanel(
+          condition = "input.distribution == 'Geometric' && input.lower_tail_geometric == 'lower.tail'",
+          helpText("Number of failures before the \\(1^{st}\\) success"),
+          numericInput("x1_geometric", "x:",
+                       value = 1, min = 0, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Geometric' && input.lower_tail_geometric == 'upper.tail'",
+          helpText("Number of failures before the \\(1^{st}\\) success"),
+          numericInput("x2_geometric", "x:",
+                       value = 1, min = 0, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Geometric' && input.lower_tail_geometric == 'interval'",
+          helpText("Number of failures before the \\(1^{st}\\) success"),
+          numericInput("a_geometric", "a:",
+                       value = 1, min = 0, step = 1),
+          numericInput("b_geometric", "b: (where a ≤ b)",
+                       value = 3, min = 0, step = 1)
+        ),
+        conditionalPanel(
           condition = "input.distribution == 'Normal' && input.lower_tail_normal == 'lower.tail'",
           numericInput("x1_normal", "x:",
                        value = 1, step = 1)
@@ -574,6 +599,18 @@ ui <- fluidPage(
           plotOutput("gammaPlot_interval")
         ),
         conditionalPanel(
+          condition = "input.distribution == 'Geometric' && input.lower_tail_geometric == 'lower.tail'",
+          plotOutput("geometricPlot_lower")
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Geometric' && input.lower_tail_geometric == 'upper.tail'",
+          plotOutput("geometricPlot_upper")
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Geometric' && input.lower_tail_geometric == 'interval'",
+          plotOutput("geometricPlot_interval")
+        ),
+        conditionalPanel(
           condition = "input.distribution == 'Normal' && input.lower_tail_normal == 'lower.tail'",
           plotOutput("normalPlot_lower")
         ),
@@ -700,11 +737,17 @@ server <- function(input, output) {
                                                                                                                                                     input$lower_tail_gamma == "upper.tail" ~ paste0("\\(P(X > \\)", " ", input$x2_gamma, "\\()\\)", " ", "\\( = \\)", " ", round(pgamma(input$x2_gamma, shape = input$alpha_gamma, rate = input$beta_gamma, lower.tail = FALSE), 4)),
                                                                                                                                                     input$lower_tail_gamma == "interval" ~ paste0("\\(P(\\)", input$a_gamma, " ", "\\(\\leq X\\leq \\)", " ", input$b_gamma, "\\()\\)", " ", "\\( = \\)", " ", ifelse(input$a_gamma > input$b_gamma, "a must be less than or equal to b", round(pgamma(input$b_gamma, shape = input$alpha_gamma, rate = input$beta_gamma, lower.tail = TRUE) - pgamma(input$a_gamma, shape = input$alpha_gamma, rate = input$beta_gamma, lower.tail = TRUE), 4)))))
       )
+    } else if (input$distribution == "Geometric") {
+      withMathJax(
+        paste0("\\(X \\sim Geom(p = \\)", " ", input$p_geometric, "\\()\\)", " and ", case_when(input$lower_tail_geometric == "lower.tail" ~ paste0("\\(P(X \\leq \\)", " ", input$x1_geometric, "\\()\\)", " ", "\\( = \\)", " ", round(pgeom(input$x1_geometric, prob = input$p_geometric, lower.tail = TRUE), 4)),
+                                                                                                          input$lower_tail_geometric == "upper.tail" ~ paste0("\\(P(X > \\)", " ", input$x2_geometric, "\\()\\)", " ", "\\( = \\)", " ", round(pgeom(input$x2_geometric, prob = input$p_geometric, lower.tail = FALSE), 4)),
+                                                                                                          input$lower_tail_geometric == "interval" ~ paste0("\\(P(\\)", input$a_geometric, " ", "\\(\\leq X\\leq \\)", " ", input$b_geometric, "\\()\\)", " ", "\\( = \\)", " ", ifelse(input$a_geometric > input$b_geometric, "a must be less than or equal to b", round(pgeom(input$b_geometric, prob = input$p_geometric, lower.tail = TRUE) - pgeom(input$a_geometric - 1, prob = input$p_geometric, lower.tail = TRUE), 4)))))
+      )
     } else if (input$distribution == "Normal") {
       withMathJax(
-        paste0("\\(X \\sim \\mathcal{N}(\\mu = \\)", " ", input$mean_normal, ", ", ifelse(input$variance_sd == "variance_true", paste0("\\(\\sigma^2 = \\)", " ", input$variance_normal), paste0("\\(\\sigma^2 = \\)", " ", input$sd_normal^2)), "\\()\\)", " and ", case_when(input$lower_tail_normal == "lower.tail" ~ paste0("\\(P(X \\leq \\)", " ", input$x1_normal, "\\()\\)", " ", "\\( = \\)", " ", round(pnorm(input$x1_normal, mean = input$mean_normal, sd = ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal), lower.tail = TRUE), 4)),
-                                                                                                                                                                                                    input$lower_tail_normal == "upper.tail" ~ paste0("\\(P(X > \\)", " ", input$x2_normal, "\\()\\)", " ", "\\( = \\)", " ", round(pnorm(input$x2_normal, mean = input$mean_normal, sd = ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal), lower.tail = FALSE), 4)),
-                                                                                                                                                                                                    input$lower_tail_normal == "interval" ~ paste0("\\(P(\\)", input$a_normal, " ", "\\(\\leq X\\leq \\)", " ", input$b_normal, "\\()\\)", " ", "\\( = \\)", " ", ifelse(input$a_normal > input$b_normal, "a must be less than or equal to b", round(pnorm(input$b_normal, mean = input$mean_normal, sd = ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal), lower.tail = TRUE) - pnorm(input$a_normal, mean = input$mean_normal, sd = ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal), lower.tail = TRUE), 4)))))
+        paste0("\\(X \\sim \\mathcal{N}(\\mu = \\)", " ", input$mean_normal, ", ", ifelse(input$variance_sd == "variance_true", paste0("\\(\\sigma^2 = \\)", " ", input$variance_normal), paste0("\\(\\sigma^2 = \\)", " ", input$sd_normal^2)), "\\()\\)", " and ", case_when(input$lower_tail_normal == "lower.tail" ~ paste0("\\(P(X \\leq \\)", " ", input$x1_normal, "\\()\\)", " ", "\\( = \\)", " ", "\\(P(Z \\leq \\)", " ", round((input$x1_normal - input$mean_normal) / ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal), 2), "\\()\\)", " ", "\\( = \\)", " " , round(pnorm(input$x1_normal, mean = input$mean_normal, sd = ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal), lower.tail = TRUE), 4)),
+                                                                                                                                                                                                    input$lower_tail_normal == "upper.tail" ~ paste0("\\(P(X > \\)", " ", input$x2_normal, "\\()\\)", " ", "\\( = \\)", " ", "\\(P(Z > \\)", " ", round((input$x2_normal - input$mean_normal) / ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal), 2), "\\()\\)", " ", "\\( = \\)", " ", round(pnorm(input$x2_normal, mean = input$mean_normal, sd = ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal), lower.tail = FALSE), 4)),
+                                                                                                                                                                                                    input$lower_tail_normal == "interval" ~ paste0("\\(P(\\)", input$a_normal, " ", "\\(\\leq X\\leq \\)", " ", input$b_normal, "\\()\\)", " ", "\\( = \\)", " ", "\\(P(\\)", round((input$a_normal - input$mean_normal) / ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal), 2), " ", "\\(\\leq Z\\leq \\)", " ", round((input$b_normal - input$mean_normal) / ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal), 2), "\\()\\)", " ", "\\( = \\)", " ", ifelse(input$a_normal > input$b_normal, "a must be less than or equal to b", round(pnorm(input$b_normal, mean = input$mean_normal, sd = ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal), lower.tail = TRUE) - pnorm(input$a_normal, mean = input$mean_normal, sd = ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal), lower.tail = TRUE), 4)))))
       )
     } else if (input$distribution == "Poisson") {
       withMathJax(
@@ -731,7 +774,7 @@ server <- function(input, output) {
     }
     p <- ggplot(data.frame(x = c(0, 1)), aes(x = x)) +
       stat_function(fun = dbeta, args = list(shape1 = input$alpha_beta, shape2 = input$beta_beta)) +
-      stat_function(fun=funcShaded, geom="area", alpha=1) +
+      stat_function(fun=funcShaded, geom="area", alpha=0.8) +
       theme_minimal() +
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
@@ -747,7 +790,7 @@ server <- function(input, output) {
     }
     p <- ggplot(data.frame(x = c(0, 1)), aes(x = x)) +
       stat_function(fun = dbeta, args = list(shape1 = input$alpha_beta, shape2 = input$beta_beta)) +
-      stat_function(fun=funcShaded, geom="area", alpha=1) +
+      stat_function(fun=funcShaded, geom="area", alpha=0.8) +
       theme_minimal() +
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
@@ -763,7 +806,7 @@ server <- function(input, output) {
     }
     p <- ggplot(data.frame(x = c(0, 1)), aes(x = x)) +
       stat_function(fun = dbeta, args = list(shape1 = input$alpha_beta, shape2 = input$beta_beta)) +
-      stat_function(fun=funcShaded, geom="area", alpha=1) +
+      stat_function(fun=funcShaded, geom="area", alpha=0.8) +
       theme_minimal() +
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
@@ -778,7 +821,7 @@ server <- function(input, output) {
       ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
       geom_col() +
       geom_text(
-        aes(label = round(prob,4), y = prob + 0.005),
+        aes(label = round(prob,3), y = prob + 0.005),
         position = position_dodge(0.9),
         size = 3,
         vjust = 0
@@ -797,7 +840,7 @@ server <- function(input, output) {
       ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
       geom_col() +
       geom_text(
-        aes(label = round(prob,4), y = prob + 0.005),
+        aes(label = round(prob,3), y = prob + 0.005),
         position = position_dodge(0.9),
         size = 3,
         vjust = 0
@@ -816,7 +859,7 @@ server <- function(input, output) {
       ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
       geom_col() +
       geom_text(
-        aes(label = round(prob,4), y = prob + 0.005),
+        aes(label = round(prob,3), y = prob + 0.005),
         position = position_dodge(0.9),
         size = 3,
         vjust = 0
@@ -838,7 +881,7 @@ server <- function(input, output) {
     }
     p <- ggplot(data.frame(x = c(input$location_cauchy - (6*input$scale_cauchy), input$location_cauchy + (6*input$scale_cauchy))), aes(x = x)) +
       stat_function(fun = dcauchy, args = list(location = input$location_cauchy, scale = input$scale_cauchy)) +
-      stat_function(fun=funcShaded, geom="area", alpha=1) +
+      stat_function(fun=funcShaded, geom="area", alpha=0.8) +
       theme_minimal() +
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
@@ -854,7 +897,7 @@ server <- function(input, output) {
     }
     p <- ggplot(data.frame(x = c(input$location_cauchy - (6*input$scale_cauchy), input$location_cauchy + (6*input$scale_cauchy))), aes(x = x)) +
       stat_function(fun = dcauchy, args = list(location = input$location_cauchy, scale = input$scale_cauchy)) +
-      stat_function(fun=funcShaded, geom="area", alpha=1) +
+      stat_function(fun=funcShaded, geom="area", alpha=0.8) +
       theme_minimal() +
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
@@ -870,7 +913,7 @@ server <- function(input, output) {
     }
     p <- ggplot(data.frame(x = c(input$location_cauchy - (6*input$scale_cauchy), input$location_cauchy + (6*input$scale_cauchy))), aes(x = x)) +
       stat_function(fun = dcauchy, args = list(location = input$location_cauchy, scale = input$scale_cauchy)) +
-      stat_function(fun=funcShaded, geom="area", alpha=1) +
+      stat_function(fun=funcShaded, geom="area", alpha=0.8) +
       theme_minimal() +
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
@@ -887,7 +930,7 @@ server <- function(input, output) {
     }
     p <- ggplot(data.frame(x = c(0, input$df_chisquare + (4*sqrt(2*input$df_chisquare)))), aes(x = x)) +
       stat_function(fun = dchisq, args = list(df = input$df_chisquare)) +
-      stat_function(fun=funcShaded, geom="area", alpha=1) +
+      stat_function(fun=funcShaded, geom="area", alpha=0.8) +
       theme_minimal() +
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
@@ -903,7 +946,7 @@ server <- function(input, output) {
     }
     p <- ggplot(data.frame(x = c(0, input$df_chisquare + (4*sqrt(2*input$df_chisquare)))), aes(x = x)) +
       stat_function(fun = dchisq, args = list(df = input$df_chisquare)) +
-      stat_function(fun=funcShaded, geom="area", alpha=1) +
+      stat_function(fun=funcShaded, geom="area", alpha=0.8) +
       theme_minimal() +
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
@@ -919,7 +962,7 @@ server <- function(input, output) {
     }
     p <- ggplot(data.frame(x = c(0, input$df_chisquare + (4*sqrt(2*input$df_chisquare)))), aes(x = x)) +
       stat_function(fun = dchisq, args = list(df = input$df_chisquare)) +
-      stat_function(fun=funcShaded, geom="area", alpha=1) +
+      stat_function(fun=funcShaded, geom="area", alpha=0.8) +
       theme_minimal() +
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
@@ -936,7 +979,7 @@ server <- function(input, output) {
     }
     p <- ggplot(data.frame(x = c(0, 1/input$rate_exponential + (5*1/input$rate_exponential))), aes(x = x)) +
       stat_function(fun = dexp, args = list(rate = input$rate_exponential)) +
-      stat_function(fun=funcShaded, geom="area", alpha=1) +
+      stat_function(fun=funcShaded, geom="area", alpha=0.8) +
       theme_minimal() +
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
@@ -952,7 +995,7 @@ server <- function(input, output) {
     }
     p <- ggplot(data.frame(x = c(0, 1/input$rate_exponential + (5*1/input$rate_exponential))), aes(x = x)) +
       stat_function(fun = dexp, args = list(rate = input$rate_exponential)) +
-      stat_function(fun=funcShaded, geom="area", alpha=1) +
+      stat_function(fun=funcShaded, geom="area", alpha=0.8) +
       theme_minimal() +
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
@@ -968,7 +1011,7 @@ server <- function(input, output) {
     }
     p <- ggplot(data.frame(x = c(0, 1/input$rate_exponential + (5*1/input$rate_exponential))), aes(x = x)) +
       stat_function(fun = dexp, args = list(rate = input$rate_exponential)) +
-      stat_function(fun=funcShaded, geom="area", alpha=1) +
+      stat_function(fun=funcShaded, geom="area", alpha=0.8) +
       theme_minimal() +
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
@@ -985,7 +1028,7 @@ server <- function(input, output) {
     }
     p <- ggplot(data.frame(x = c(0, 5)), aes(x = x)) +
       stat_function(fun = df, args = list(df1 = input$df1_fisher, df2 = input$df2_fisher)) +
-      stat_function(fun=funcShaded, geom="area", alpha=1) +
+      stat_function(fun=funcShaded, geom="area", alpha=0.8) +
       theme_minimal() +
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
@@ -1001,7 +1044,7 @@ server <- function(input, output) {
     }
     p <- ggplot(data.frame(x = c(0, 5)), aes(x = x)) +
       stat_function(fun = df, args = list(df1 = input$df1_fisher, df2 = input$df2_fisher)) +
-      stat_function(fun=funcShaded, geom="area", alpha=1) +
+      stat_function(fun=funcShaded, geom="area", alpha=0.8) +
       theme_minimal() +
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
@@ -1017,7 +1060,7 @@ server <- function(input, output) {
     }
     p <- ggplot(data.frame(x = c(0, 5)), aes(x = x)) +
       stat_function(fun = df, args = list(df1 = input$df1_fisher, df2 = input$df2_fisher)) +
-      stat_function(fun=funcShaded, geom="area", alpha=1) +
+      stat_function(fun=funcShaded, geom="area", alpha=0.8) +
       theme_minimal() +
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
@@ -1034,7 +1077,7 @@ server <- function(input, output) {
     }
     p <- ggplot(data.frame(x = c(0, (input$alpha_gamma / input$beta_gamma) + (4*sqrt(input$alpha_gamma/(input$beta_gamma^2))))), aes(x = x)) +
       stat_function(fun = dgamma, args = list(shape = input$alpha_gamma, rate = input$beta_gamma)) +
-      stat_function(fun=funcShaded, geom="area", alpha=1) +
+      stat_function(fun=funcShaded, geom="area", alpha=0.8) +
       theme_minimal() +
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
@@ -1050,7 +1093,7 @@ server <- function(input, output) {
     }
     p <- ggplot(data.frame(x = c(0, (input$alpha_gamma / input$beta_gamma) + (4*sqrt(input$alpha_gamma/(input$beta_gamma^2))))), aes(x = x)) +
       stat_function(fun = dgamma, args = list(shape = input$alpha_gamma, rate = input$beta_gamma)) +
-      stat_function(fun=funcShaded, geom="area", alpha=1) +
+      stat_function(fun=funcShaded, geom="area", alpha=0.8) +
       theme_minimal() +
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
@@ -1066,8 +1109,66 @@ server <- function(input, output) {
     }
     p <- ggplot(data.frame(x = c(0, (input$alpha_gamma / input$beta_gamma) + (4*sqrt(input$alpha_gamma/(input$beta_gamma^2))))), aes(x = x)) +
       stat_function(fun = dgamma, args = list(shape = input$alpha_gamma, rate = input$beta_gamma)) +
-      stat_function(fun=funcShaded, geom="area", alpha=1) +
+      stat_function(fun=funcShaded, geom="area", alpha=0.8) +
       theme_minimal() +
+      ggtitle(paste0(input$distribution, " distribution")) +
+      theme(plot.title = element_text(face="bold", hjust = 0.5)) +
+      ylab("Density") +
+      xlab("X")
+    p
+  })
+  
+  output$geometricPlot_lower <- renderPlot({
+    p <- data.frame(heads = 0:(input$p_geometric + (5*sqrt((1-input$p_geometric)/(input$p_geometric^2)))), prob = dgeom(x = 0:(input$p_geometric + (5*sqrt((1-input$p_geometric)/(input$p_geometric^2)))), prob = input$p_geometric)) %>%
+      mutate(Heads = ifelse(heads <= input$x1_geometric, "2", "Other")) %>%
+      ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
+      geom_col() +
+      geom_text(
+        aes(label = round(prob,3), y = prob + 0.005),
+        position = position_dodge(0.9),
+        size = 3,
+        vjust = 0
+      ) +
+      theme_minimal() +
+      theme(legend.position = "none") +
+      ggtitle(paste0(input$distribution, " distribution")) +
+      theme(plot.title = element_text(face="bold", hjust = 0.5)) +
+      ylab("Density") +
+      xlab("X")
+    p
+  })
+  output$geometricPlot_upper <- renderPlot({
+    p <- data.frame(heads = 0:(input$p_geometric + (5*sqrt((1-input$p_geometric)/(input$p_geometric^2)))), prob = dgeom(x = 0:(input$p_geometric + (5*sqrt((1-input$p_geometric)/(input$p_geometric^2)))), prob = input$p_geometric)) %>%
+      mutate(Heads = ifelse(heads > input$x2_geometric, "2", "other")) %>%
+      ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
+      geom_col() +
+      geom_text(
+        aes(label = round(prob,3), y = prob + 0.005),
+        position = position_dodge(0.9),
+        size = 3,
+        vjust = 0
+      ) +
+      theme_minimal() +
+      theme(legend.position = "none") +
+      ggtitle(paste0(input$distribution, " distribution")) +
+      theme(plot.title = element_text(face="bold", hjust = 0.5)) +
+      ylab("Density") +
+      xlab("X")
+    p
+  })
+  output$geometricPlot_interval <- renderPlot({
+    p <- data.frame(heads = 0:(input$p_geometric + (5*sqrt((1-input$p_geometric)/(input$p_geometric^2)))), prob = dgeom(x = 0:(input$p_geometric + (5*sqrt((1-input$p_geometric)/(input$p_geometric^2)))), prob = input$p_geometric)) %>%
+      mutate(Heads = ifelse(heads >= input$a_geometric & heads <= input$b_geometric, "2", "other")) %>%
+      ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
+      geom_col() +
+      geom_text(
+        aes(label = round(prob,3), y = prob + 0.005),
+        position = position_dodge(0.9),
+        size = 3,
+        vjust = 0
+      ) +
+      theme_minimal() +
+      theme(legend.position = "none") +
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
       ylab("Density") +
@@ -1085,7 +1186,7 @@ server <- function(input, output) {
     p <- ggplot(data.frame(x = c(input$mean_normal - 4 * ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal), input$mean_normal + 4 * ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal))), aes(x = x)) +
       stat_function(fun = dnorm, args = list(mean=input$mean_normal,
                                              sd=ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal))) +
-      stat_function(fun=funcShaded, geom="area", alpha=1) +
+      stat_function(fun=funcShaded, geom="area", alpha=0.8) +
       theme_minimal() +
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
@@ -1103,7 +1204,7 @@ server <- function(input, output) {
     p <- ggplot(data.frame(x = c(input$mean_normal - 4 * ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal), input$mean_normal + 4 * ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal))), aes(x = x)) +
       stat_function(fun = dnorm, args = list(mean=input$mean_normal,
                                           sd=ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal))) +
-      stat_function(fun=funcShaded, geom="area", alpha=1) +
+      stat_function(fun=funcShaded, geom="area", alpha=0.8) +
       theme_minimal() +
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
@@ -1121,7 +1222,7 @@ server <- function(input, output) {
     p <- ggplot(data.frame(x = c(input$mean_normal - 4 * ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal), input$mean_normal + 4 * ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal))), aes(x = x)) +
       stat_function(fun = dnorm, args = list(mean=input$mean_normal,
                                              sd=ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal))) +
-      stat_function(fun=funcShaded, geom="area", alpha=1) +
+      stat_function(fun=funcShaded, geom="area", alpha=0.8) +
       theme_minimal() +
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
@@ -1136,7 +1237,7 @@ server <- function(input, output) {
       ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
       geom_col() +
       geom_text(
-        aes(label = round(prob,4), y = prob + 0.005),
+        aes(label = round(prob,3), y = prob + 0.005),
         position = position_dodge(0.9),
         size = 3,
         vjust = 0
@@ -1155,7 +1256,7 @@ server <- function(input, output) {
       ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
       geom_col() +
       geom_text(
-        aes(label = round(prob,4), y = prob + 0.005),
+        aes(label = round(prob,3), y = prob + 0.005),
         position = position_dodge(0.9),
         size = 3,
         vjust = 0
@@ -1174,7 +1275,7 @@ server <- function(input, output) {
       ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
       geom_col() +
       geom_text(
-        aes(label = round(prob,4), y = prob + 0.005),
+        aes(label = round(prob,3), y = prob + 0.005),
         position = position_dodge(0.9),
         size = 3,
         vjust = 0
@@ -1196,7 +1297,7 @@ server <- function(input, output) {
     }
     p <- ggplot(data.frame(x = c(-4, 4)), aes(x = x)) +
       stat_function(fun = dt, args = list(df = input$df_student)) +
-      stat_function(fun=funcShaded, geom="area", alpha=1) +
+      stat_function(fun=funcShaded, geom="area", alpha=0.8) +
       theme_minimal() +
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
@@ -1212,7 +1313,7 @@ server <- function(input, output) {
     }
     p <- ggplot(data.frame(x = c(-4, 4)), aes(x = x)) +
       stat_function(fun = dt, args = list(df = input$df_student)) +
-      stat_function(fun=funcShaded, geom="area", alpha=1) +
+      stat_function(fun=funcShaded, geom="area", alpha=0.8) +
       theme_minimal() +
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
@@ -1228,7 +1329,7 @@ server <- function(input, output) {
     }
     p <- ggplot(data.frame(x = c(-4, 4)), aes(x = x)) +
       stat_function(fun = dt, args = list(df = input$df_student)) +
-      stat_function(fun=funcShaded, geom="area", alpha=1) +
+      stat_function(fun=funcShaded, geom="area", alpha=0.8) +
       theme_minimal() +
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
@@ -1275,6 +1376,11 @@ server <- function(input, output) {
         helpText("\\(\\mu = E(X) = \\frac{\\alpha}{\\beta} = \\)", round(input$alpha_gamma  / input$beta_gamma, 3)),
         helpText("\\(\\sigma = SD(X) = \\sqrt{\\frac{\\alpha}{\\beta^2}} = \\)", round(sqrt(input$alpha_gamma / (input$beta_gamma^2)), 3)),
         helpText("\\(\\sigma^2 = Var(X) = \\frac{\\alpha}{\\beta^2} = \\)", round(input$alpha_gamma / (input$beta_gamma^2), 3)))
+    } else if (input$distribution == "Geometric") {
+      withMathJax(
+        helpText("\\(\\mu = E(X) = \\frac{1-p}{p} = \\)", round((1 - input$p_geometric) / input$p_geometric, 3)),
+        helpText("\\(\\sigma = SD(X) = \\sqrt{\\frac{1-p}{p^2}} = \\)", round(sqrt((1 - input$p_geometric) / (input$p_geometric^2)), 3)),
+        helpText("\\(\\sigma^2 = Var(X) = \\frac{1-p}{p^2} = \\)", round((1 - input$p_geometric) / (input$p_geometric^2), 3)))
     } else if (input$distribution == "Normal") {
       withMathJax(
         helpText("\\(\\mu = E(X) = \\)", round(input$mean_normal, 3)),
