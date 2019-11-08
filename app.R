@@ -33,7 +33,7 @@ ui <- fluidPage(
           label = "Distribution:",
           choices = c("Beta", "Binomial", "Cauchy", "Chi-square", "Exponential", "Fisher", "Gamma", "Geometric", "Hypergeometric", "Logistic", "Log-Normal", "Negative Binomial", "Normal", "Poisson", "Student", "Uniform", "Weibull"),
           multiple = FALSE,
-          selected = "Geometric"
+          selected = "Normal"
         ),
         hr(),
         # tags$b("Parameter(s)"),
@@ -86,6 +86,22 @@ ui <- fluidPage(
           condition = "input.distribution == 'Geometric'",
           numericInput("p_geometric", "Probability of success \\(p\\):",
                        value = 0.5, min = 0, max = 1, step = 0.01)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Hypergeometric'",
+          numericInput("n_hypergeometric", "Sample size \\(n\\):",
+                       value = 100, min = 0, step = 1),
+          numericInput("N_hypergeometric", "Total number of objects \\(N\\):",
+                       value = 500, min = 0, step = 1),
+          numericInput("M_hypergeometric", "Number of successes \\(M\\):",
+                       value = 50, min = 0, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Logistic'",
+          numericInput("location_logistic", "Location \\(\\mu\\):",
+                       value = 0, step = 1),
+          numericInput("scale_logistic", "Scale \\(s\\):",
+                       value = 1, min = 0, step = 1)
         ),
         conditionalPanel(
           condition = "input.distribution == 'Normal'",
@@ -454,6 +470,40 @@ ui <- fluidPage(
                        value = 3, min = 0, step = 1)
         ),
         conditionalPanel(
+          condition = "input.distribution == 'Hypergeometric' && input.lower_tail_hypergeometric == 'lower.tail'",
+          numericInput("x1_hypergeometric", "x:",
+                       value = 8, min = 0, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Hypergeometric' && input.lower_tail_hypergeometric == 'upper.tail'",
+          numericInput("x2_hypergeometric", "x:",
+                       value = 8, min = 0, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Hypergeometric' && input.lower_tail_hypergeometric == 'interval'",
+          numericInput("a_hypergeometric", "a:",
+                       value = 8, min = 0, step = 1),
+          numericInput("b_hypergeometric", "b: (where a ≤ b)",
+                       value = 12, min = 0, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Logistic' && input.lower_tail_logistic == 'lower.tail'",
+          numericInput("x1_logistic", "x:",
+                       value = 1.2, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Logistic' && input.lower_tail_logistic == 'upper.tail'",
+          numericInput("x2_logistic", "x:",
+                       value = 1.2, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Logistic' && input.lower_tail_logistic == 'interval'",
+          numericInput("a_logistic", "a:",
+                       value = -1.2, step = 1),
+          numericInput("b_logistic", "b: (where a ≤ b)",
+                       value = 1.2, step = 1)
+        ),
+        conditionalPanel(
           condition = "input.distribution == 'Normal' && input.lower_tail_normal == 'lower.tail'",
           numericInput("x1_normal", "x:",
                        value = 1, step = 1)
@@ -611,6 +661,54 @@ ui <- fluidPage(
           plotOutput("geometricPlot_interval")
         ),
         conditionalPanel(
+          condition = "input.distribution == 'Hypergeometric' && input.lower_tail_hypergeometric == 'lower.tail'",
+          plotOutput("hypergeometricPlot_lower")
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Hypergeometric' && input.lower_tail_hypergeometric == 'upper.tail'",
+          plotOutput("hypergeometricPlot_upper")
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Hypergeometric' && input.lower_tail_hypergeometric == 'interval'",
+          plotOutput("hypergeometricPlot_interval")
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Logistic' && input.lower_tail_logistic == 'lower.tail'",
+          plotOutput("logisticPlot_lower")
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Logistic' && input.lower_tail_logistic == 'upper.tail'",
+          plotOutput("logisticPlot_upper")
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Logistic' && input.lower_tail_logistic == 'interval'",
+          plotOutput("logisticPlot_interval")
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Log-Normal' && input.lower_tail_lognormal == 'lower.tail'",
+          plotOutput("lognormalPlot_lower")
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Log-Normal' && input.lower_tail_lognormal == 'upper.tail'",
+          plotOutput("lognormalPlot_upper")
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Log-Normal' && input.lower_tail_lognormal == 'interval'",
+          plotOutput("lognormalPlot_interval")
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Negative Binomial' && input.lower_tail_negativebinomial == 'lower.tail'",
+          plotOutput("negativebinomialPlot_lower")
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Negative Binomial' && input.lower_tail_negativebinomial == 'upper.tail'",
+          plotOutput("negativebinomialPlot_upper")
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Negative Binomial' && input.lower_tail_negativebinomial == 'interval'",
+          plotOutput("negativebinomialPlot_interval")
+        ),
+        conditionalPanel(
           condition = "input.distribution == 'Normal' && input.lower_tail_normal == 'lower.tail'",
           plotOutput("normalPlot_lower")
         ),
@@ -645,6 +743,30 @@ ui <- fluidPage(
         conditionalPanel(
           condition = "input.distribution == 'Student' && input.lower_tail_student == 'interval'",
           plotOutput("studentPlot_interval")
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Uniform' && input.lower_tail_uniform == 'lower.tail'",
+          plotOutput("uniformPlot_lower")
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Uniform' && input.lower_tail_uniform == 'upper.tail'",
+          plotOutput("uniformPlot_upper")
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Uniform' && input.lower_tail_uniform == 'interval'",
+          plotOutput("uniformPlot_interval")
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Weibull' && input.lower_tail_weibull == 'lower.tail'",
+          plotOutput("weibullPlot_lower")
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Weibull' && input.lower_tail_weibull == 'upper.tail'",
+          plotOutput("weibullPlot_upper")
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Weibull' && input.lower_tail_weibull == 'interval'",
+          plotOutput("weibullPlot_interval")
         ),
         br(),
         uiOutput("parameters_distribution"),
@@ -742,6 +864,18 @@ server <- function(input, output) {
         paste0("\\(X \\sim Geom(p = \\)", " ", input$p_geometric, "\\()\\)", " and ", case_when(input$lower_tail_geometric == "lower.tail" ~ paste0("\\(P(X \\leq \\)", " ", input$x1_geometric, "\\()\\)", " ", "\\( = \\)", " ", round(pgeom(input$x1_geometric, prob = input$p_geometric, lower.tail = TRUE), 4)),
                                                                                                           input$lower_tail_geometric == "upper.tail" ~ paste0("\\(P(X > \\)", " ", input$x2_geometric, "\\()\\)", " ", "\\( = \\)", " ", round(pgeom(input$x2_geometric, prob = input$p_geometric, lower.tail = FALSE), 4)),
                                                                                                           input$lower_tail_geometric == "interval" ~ paste0("\\(P(\\)", input$a_geometric, " ", "\\(\\leq X\\leq \\)", " ", input$b_geometric, "\\()\\)", " ", "\\( = \\)", " ", ifelse(input$a_geometric > input$b_geometric, "a must be less than or equal to b", round(pgeom(input$b_geometric, prob = input$p_geometric, lower.tail = TRUE) - pgeom(input$a_geometric - 1, prob = input$p_geometric, lower.tail = TRUE), 4)))))
+      )
+    } else if (input$distribution == "Hypergeometric") {
+      withMathJax(
+        paste0("\\(X \\sim HG(n = \\)", " ", input$n_hypergeometric, ", ", "\\(N = \\)", " ", input$N_hypergeometric, ", ", "\\(M = \\)", " ", input$M_hypergeometric, "\\()\\)", " and ", case_when(input$lower_tail_hypergeometric == "lower.tail" ~ paste0("\\(P(X \\leq \\)", " ", input$x1_hypergeometric, "\\()\\)", " ", "\\( = \\)", " ", round(phyper(input$x1_hypergeometric, m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric, lower.tail = TRUE), 4)),
+                                                                                                input$lower_tail_hypergeometric == "upper.tail" ~ paste0("\\(P(X > \\)", " ", input$x2_hypergeometric, "\\()\\)", " ", "\\( = \\)", " ", round(phyper(input$x2_hypergeometric, m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric, lower.tail = FALSE), 4)),
+                                                                                                input$lower_tail_hypergeometric == "interval" ~ paste0("\\(P(\\)", input$a_hypergeometric, " ", "\\(\\leq X\\leq \\)", " ", input$b_hypergeometric, "\\()\\)", " ", "\\( = \\)", " ", ifelse(input$a_hypergeometric > input$b_hypergeometric, "a must be less than or equal to b", round(phyper(input$b_hypergeometric, m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric, lower.tail = TRUE) - phyper(input$a_hypergeometric - 1, m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric, lower.tail = TRUE), 4)))))
+      )
+    } else if (input$distribution == "Logistic") {
+      withMathJax(
+        paste0("\\(X \\sim Logi(\\mu = \\)", " ", input$location_logistic, ", ", "\\(s = \\)", " ", input$scale_logistic, "\\()\\)", " and ", case_when(input$lower_tail_logistic == "lower.tail" ~ paste0("\\(P(X \\leq \\)", " ", input$x1_logistic, "\\()\\)", " ", "\\( = \\)", " ", round(plogis(input$x1_logistic, location = input$location_logistic, scale = input$scale_logistic, lower.tail = TRUE), 4)),
+                                                                                                                                                           input$lower_tail_logistic == "upper.tail" ~ paste0("\\(P(X > \\)", " ", input$x2_logistic, "\\()\\)", " ", "\\( = \\)", " ", round(plogis(input$x2_logistic, location = input$location_logistic, scale = input$scale_logistic, lower.tail = FALSE), 4)),
+                                                                                                                                                           input$lower_tail_logistic == "interval" ~ paste0("\\(P(\\)", input$a_logistic, " ", "\\(\\leq X\\leq \\)", " ", input$b_logistic, "\\()\\)", " ", "\\( = \\)", " ", ifelse(input$a_logistic > input$b_logistic, "a must be less than or equal to b", round(plogis(input$b_logistic, location = input$location_logistic, scale = input$scale_logistic, lower.tail = TRUE) - plogis(input$a_logistic, location = input$location_logistic, scale = input$scale_logistic, lower.tail = TRUE), 4)))))
       )
     } else if (input$distribution == "Normal") {
       withMathJax(
@@ -1176,6 +1310,113 @@ server <- function(input, output) {
     p
   })
   
+  output$hypergeometricPlot_lower <- renderPlot({
+    p <- data.frame(heads = 0:(input$n_hypergeometric*(input$M_hypergeometric/input$N_hypergeometric) + (5*sqrt(input$n_hypergeometric*input$M_hypergeometric/input$N_hypergeometric*(1-(input$M_hypergeometric/input$N_hypergeometric))*((input$N_hypergeometric-input$n_hypergeometric)/(input$N_hypergeometric-1))))), prob = dhyper(x = 0:(input$n_hypergeometric*(input$M_hypergeometric/input$N_hypergeometric) + (5*sqrt(input$n_hypergeometric*input$M_hypergeometric/input$N_hypergeometric*(1-(input$M_hypergeometric/input$N_hypergeometric))*((input$N_hypergeometric-input$n_hypergeometric)/(input$N_hypergeometric-1))))), m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric)) %>%
+      mutate(Heads = ifelse(heads <= input$x1_hypergeometric, "2", "Other")) %>%
+      ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
+      geom_col() +
+      geom_text(
+        aes(label = round(prob,3), y = prob + 0.005),
+        position = position_dodge(0.9),
+        size = 3,
+        vjust = 0
+      ) +
+      theme_minimal() +
+      theme(legend.position = "none") +
+      ggtitle(paste0(input$distribution, " distribution")) +
+      theme(plot.title = element_text(face="bold", hjust = 0.5)) +
+      ylab("Density") +
+      xlab("X")
+    p
+  })
+  output$hypergeometricPlot_upper <- renderPlot({
+    p <- data.frame(heads = 0:(input$n_hypergeometric*(input$M_hypergeometric/input$N_hypergeometric) + (5*sqrt(input$n_hypergeometric*input$M_hypergeometric/input$N_hypergeometric*(1-(input$M_hypergeometric/input$N_hypergeometric))*((input$N_hypergeometric-input$n_hypergeometric)/(input$N_hypergeometric-1))))), prob = dhyper(x = 0:(input$n_hypergeometric*(input$M_hypergeometric/input$N_hypergeometric) + (5*sqrt(input$n_hypergeometric*input$M_hypergeometric/input$N_hypergeometric*(1-(input$M_hypergeometric/input$N_hypergeometric))*((input$N_hypergeometric-input$n_hypergeometric)/(input$N_hypergeometric-1))))), m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric)) %>%
+      mutate(Heads = ifelse(heads > input$x2_hypergeometric, "2", "other")) %>%
+      ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
+      geom_col() +
+      geom_text(
+        aes(label = round(prob,3), y = prob + 0.005),
+        position = position_dodge(0.9),
+        size = 3,
+        vjust = 0
+      ) +
+      theme_minimal() +
+      theme(legend.position = "none") +
+      ggtitle(paste0(input$distribution, " distribution")) +
+      theme(plot.title = element_text(face="bold", hjust = 0.5)) +
+      ylab("Density") +
+      xlab("X")
+    p
+  })
+  output$hypergeometricPlot_interval <- renderPlot({
+    p <- data.frame(heads = 0:(input$n_hypergeometric*(input$M_hypergeometric/input$N_hypergeometric) + (5*sqrt(input$n_hypergeometric*input$M_hypergeometric/input$N_hypergeometric*(1-(input$M_hypergeometric/input$N_hypergeometric))*((input$N_hypergeometric-input$n_hypergeometric)/(input$N_hypergeometric-1))))), prob = dhyper(x = 0:(input$n_hypergeometric*(input$M_hypergeometric/input$N_hypergeometric) + (5*sqrt(input$n_hypergeometric*input$M_hypergeometric/input$N_hypergeometric*(1-(input$M_hypergeometric/input$N_hypergeometric))*((input$N_hypergeometric-input$n_hypergeometric)/(input$N_hypergeometric-1))))), m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric)) %>%
+      mutate(Heads = ifelse(heads >= input$a_hypergeometric & heads <= input$b_hypergeometric, "2", "other")) %>%
+      ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
+      geom_col() +
+      geom_text(
+        aes(label = round(prob,3), y = prob + 0.005),
+        position = position_dodge(0.9),
+        size = 3,
+        vjust = 0
+      ) +
+      theme_minimal() +
+      theme(legend.position = "none") +
+      ggtitle(paste0(input$distribution, " distribution")) +
+      theme(plot.title = element_text(face="bold", hjust = 0.5)) +
+      ylab("Density") +
+      xlab("X")
+    p
+  })
+  
+  output$logisticPlot_lower <- renderPlot({
+    funcShaded <- function(x) {
+      y <- dlogis(x, location = input$location_logistic, scale = input$scale_logistic)
+      y[x > input$x1_logistic] <- NA
+      return(y)
+    }
+    p <- ggplot(data.frame(x = c(input$location_logistic - (6*input$scale_logistic), input$location_logistic + (6*input$scale_logistic))), aes(x = x)) +
+      stat_function(fun = dlogis, args = list(location = input$location_logistic, scale = input$scale_logistic)) +
+      stat_function(fun=funcShaded, geom="area", alpha=0.8) +
+      theme_minimal() +
+      ggtitle(paste0(input$distribution, " distribution")) +
+      theme(plot.title = element_text(face="bold", hjust = 0.5)) +
+      ylab("Density") +
+      xlab("X")
+    p
+  })
+  output$logisticPlot_upper <- renderPlot({
+    funcShaded <- function(x) {
+      y <- dlogis(x, location = input$location_logistic, scale = input$scale_logistic)
+      y[x < input$x2_logistic] <- NA
+      return(y)
+    }
+    p <- ggplot(data.frame(x = c(input$location_logistic - (6*input$scale_logistic), input$location_logistic + (6*input$scale_logistic))), aes(x = x)) +
+      stat_function(fun = dlogis, args = list(location = input$location_logistic, scale = input$scale_logistic)) +
+      stat_function(fun=funcShaded, geom="area", alpha=0.8) +
+      theme_minimal() +
+      ggtitle(paste0(input$distribution, " distribution")) +
+      theme(plot.title = element_text(face="bold", hjust = 0.5)) +
+      ylab("Density") +
+      xlab("X")
+    p
+  })
+  output$logisticPlot_interval <- renderPlot({
+    funcShaded <- function(x) {
+      y <- dlogis(x, location = input$location_logistic, scale = input$scale_logistic)
+      y[x < input$a_logistic | x > input$b_logistic] <- NA
+      return(y)
+    }
+    p <- ggplot(data.frame(x = c(input$location_logistic - (6*input$scale_logistic), input$location_logistic + (6*input$scale_logistic))), aes(x = x)) +
+      stat_function(fun = dlogis, args = list(location = input$location_logistic, scale = input$scale_logistic)) +
+      stat_function(fun=funcShaded, geom="area", alpha=0.8) +
+      theme_minimal() +
+      ggtitle(paste0(input$distribution, " distribution")) +
+      theme(plot.title = element_text(face="bold", hjust = 0.5)) +
+      ylab("Density") +
+      xlab("X")
+    p
+  })
+  
   output$normalPlot_lower <- renderPlot({
     funcShaded <- function(x) {
       y <- dnorm(x, mean=input$mean_normal,
@@ -1381,6 +1622,16 @@ server <- function(input, output) {
         helpText("\\(\\mu = E(X) = \\frac{1-p}{p} = \\)", round((1 - input$p_geometric) / input$p_geometric, 3)),
         helpText("\\(\\sigma = SD(X) = \\sqrt{\\frac{1-p}{p^2}} = \\)", round(sqrt((1 - input$p_geometric) / (input$p_geometric^2)), 3)),
         helpText("\\(\\sigma^2 = Var(X) = \\frac{1-p}{p^2} = \\)", round((1 - input$p_geometric) / (input$p_geometric^2), 3)))
+    } else if (input$distribution == "Hypergeometric") {
+      withMathJax(
+        helpText("\\(\\mu = E(X) = n\\frac{M}{N} = \\)", round(input$n_hypergeometric*(input$M_hypergeometric/input$N_hypergeometric), 3)),
+        helpText("\\(\\sigma = SD(X) = \\sqrt{n\\frac{M}{N}\\big(1 - \\frac{M}{N}\\big)\\big(\\frac{N-n}{N-1}\\big)} = \\)", round(sqrt(input$n_hypergeometric*input$M_hypergeometric/input$N_hypergeometric*(1-(input$M_hypergeometric/input$N_hypergeometric))*((input$N_hypergeometric-input$n_hypergeometric)/(input$N_hypergeometric-1))), 3)),
+        helpText("\\(\\sigma^2 = Var(X) = n\\frac{M}{N}\\big(1 - \\frac{M}{N}\\big)\\big(\\frac{N-n}{N-1}\\big) = \\)", round(input$n_hypergeometric*input$M_hypergeometric/input$N_hypergeometric*(1-(input$M_hypergeometric/input$N_hypergeometric))*((input$N_hypergeometric-input$n_hypergeometric)/(input$N_hypergeometric-1)), 3)))
+    } else if (input$distribution == "Logistic") {
+      withMathJax(
+        helpText("\\(\\mu = E(X) = \\mu = \\)", round(input$location_logistic, 3)),
+        helpText("\\(\\sigma = SD(X) = \\sqrt{\\frac{s^2\\pi^2}{3}} = \\)", round(sqrt(((input$scale_logistic^2)*(pi^2))/3), 3)),
+        helpText("\\(\\sigma^2 = Var(X) = \\frac{s^2\\pi^2}{3} = \\)", round(((input$scale_logistic^2)*(pi^2))/3, 3)))
     } else if (input$distribution == "Normal") {
       withMathJax(
         helpText("\\(\\mu = E(X) = \\)", round(input$mean_normal, 3)),
