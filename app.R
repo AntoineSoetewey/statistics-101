@@ -31,9 +31,9 @@ ui <- fluidPage(
         selectInput(
           inputId = "distribution",
           label = "Distribution:",
-          choices = c("Beta", "Binomial", "Cauchy", "Chi-square", "Exponential", "Fisher", "Gamma", "Geometric", "Hypergeometric", "Logistic", "Log-Normal", "Negative Binomial (Pascal)", "Normal", "Poisson", "Student", "Weibull"),
+          choices = c("Beta", "Binomial", "Cauchy", "Chi-square", "Exponential", "Fisher", "Gamma", "Geometric", "Hypergeometric", "Logistic", "Log-Normal", "Negative Binomial", "Normal", "Poisson", "Student", "Weibull"),
           multiple = FALSE,
-          selected = "Exponential"
+          selected = "Gamma"
         ),
         hr(),
         tags$b("Parameter(s)"),
@@ -74,6 +74,13 @@ ui <- fluidPage(
                        value = 10, min = 1, step = 1),
           numericInput("df2_fisher", "Degrees of freedom 2:",
                        value = 5, min = 1, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Gamma'",
+          numericInput("alpha_gamma", "Alpha \\(\\alpha\\):",
+                       value = 3, min = 0, step = 1),
+          numericInput("beta_gamma", "Beta \\(\\beta\\):",
+                       value = 2, min = 0, step = 1)
         ),
         conditionalPanel(
           condition = "input.distribution == 'Normal'",
@@ -158,9 +165,93 @@ ui <- fluidPage(
           )
         ),
         conditionalPanel(
+          condition = "input.distribution == 'Exponential'",
+          radioButtons(
+            inputId = "lower_tail_exponential",
+            label = NULL,
+            choices = c(
+              "Lower tail : P(X ≤ x)" = "lower.tail",
+              "Upper tail : P(X > x)" = "upper.tail",
+              "Interval : P(a ≤ X ≤ b)" = "interval"
+            )
+          )
+        ),
+        conditionalPanel(
           condition = "input.distribution == 'Fisher'",
           radioButtons(
             inputId = "lower_tail_fisher",
+            label = NULL,
+            choices = c(
+              "Lower tail : P(X ≤ x)" = "lower.tail",
+              "Upper tail : P(X > x)" = "upper.tail",
+              "Interval : P(a ≤ X ≤ b)" = "interval"
+            )
+          )
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Gamma'",
+          radioButtons(
+            inputId = "lower_tail_gamma",
+            label = NULL,
+            choices = c(
+              "Lower tail : P(X ≤ x)" = "lower.tail",
+              "Upper tail : P(X > x)" = "upper.tail",
+              "Interval : P(a ≤ X ≤ b)" = "interval"
+            )
+          )
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Geometric'",
+          radioButtons(
+            inputId = "lower_tail_geometric",
+            label = NULL,
+            choices = c(
+              "Lower tail : P(X ≤ x)" = "lower.tail",
+              "Upper tail : P(X > x)" = "upper.tail",
+              "Interval : P(a ≤ X ≤ b)" = "interval"
+            )
+          )
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Hypergeometric'",
+          radioButtons(
+            inputId = "lower_tail_hypergeometric",
+            label = NULL,
+            choices = c(
+              "Lower tail : P(X ≤ x)" = "lower.tail",
+              "Upper tail : P(X > x)" = "upper.tail",
+              "Interval : P(a ≤ X ≤ b)" = "interval"
+            )
+          )
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Logistic'",
+          radioButtons(
+            inputId = "lower_tail_logistic",
+            label = NULL,
+            choices = c(
+              "Lower tail : P(X ≤ x)" = "lower.tail",
+              "Upper tail : P(X > x)" = "upper.tail",
+              "Interval : P(a ≤ X ≤ b)" = "interval"
+            )
+          )
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Log-Normal'",
+          radioButtons(
+            inputId = "lower_tail_lognormal",
+            label = NULL,
+            choices = c(
+              "Lower tail : P(X ≤ x)" = "lower.tail",
+              "Upper tail : P(X > x)" = "upper.tail",
+              "Interval : P(a ≤ X ≤ b)" = "interval"
+            )
+          )
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Negative Binomial'",
+          radioButtons(
+            inputId = "lower_tail_negativebinomial",
             label = NULL,
             choices = c(
               "Lower tail : P(X ≤ x)" = "lower.tail",
@@ -197,6 +288,18 @@ ui <- fluidPage(
           condition = "input.distribution == 'Student'",
           radioButtons(
             inputId = "lower_tail_student",
+            label = NULL,
+            choices = c(
+              "Lower tail : P(X ≤ x)" = "lower.tail",
+              "Upper tail : P(X > x)" = "upper.tail",
+              "Interval : P(a ≤ X ≤ b)" = "interval"
+            )
+          )
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Weibull'",
+          radioButtons(
+            inputId = "lower_tail_weibull",
             label = NULL,
             choices = c(
               "Lower tail : P(X ≤ x)" = "lower.tail",
@@ -275,6 +378,23 @@ ui <- fluidPage(
                        value = 14.4, min = 0, step = 1)
         ),
         conditionalPanel(
+          condition = "input.distribution == 'Exponential' && input.lower_tail_exponential == 'lower.tail'",
+          numericInput("x1_exponential", "x:",
+                       value = 2.24, min = 0, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Exponential' && input.lower_tail_exponential == 'upper.tail'",
+          numericInput("x2_exponential", "x:",
+                       value = 2.24, min = 0, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Exponential' && input.lower_tail_exponential == 'interval'",
+          numericInput("a_exponential", "a:",
+                       value = 2.24, min = 0, step = 1),
+          numericInput("b_exponential", "b: (where a ≤ b)",
+                       value = 3.36, min = 0, step = 1)
+        ),
+        conditionalPanel(
           condition = "input.distribution == 'Fisher' && input.lower_tail_fisher == 'lower.tail'",
           numericInput("x1_fisher", "x:",
                        value = 4.14, min = 0, step = 1)
@@ -290,6 +410,23 @@ ui <- fluidPage(
                        value = 2.76, min = 0, step = 1),
           numericInput("b_fisher", "b: (where a ≤ b)",
                        value = 4.14, min = 0, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Gamma' && input.lower_tail_gamma == 'lower.tail'",
+          numericInput("x1_gamma", "x:",
+                       value = 2.4, min = 0, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Gamma' && input.lower_tail_gamma == 'upper.tail'",
+          numericInput("x2_gamma", "x:",
+                       value = 2.4, min = 0, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Gamma' && input.lower_tail_gamma == 'interval'",
+          numericInput("a_gamma", "a:",
+                       value = 0.8, min = 0, step = 1),
+          numericInput("b_gamma", "b: (where a ≤ b)",
+                       value = 2.4, min = 0, step = 1)
         ),
         conditionalPanel(
           condition = "input.distribution == 'Normal' && input.lower_tail_normal == 'lower.tail'",
@@ -343,7 +480,7 @@ ui <- fluidPage(
                        value = 1, step = 1)
         ),
         hr(),
-        HTML('<p>Report a bug or request the code <a href="https://www.antoinesoetewey.com/contact/">here</a>.</p>')
+        HTML('<p>Report a <a href="https://github.com/AntoineSoetewey/statistics-101/issues">bug</a> or view the <a href="https://github.com/AntoineSoetewey/statistics-101/blob/master/app.R">code</a>.</p>')
         ),
       
       # Show a plot of the generated distribution
@@ -401,6 +538,18 @@ ui <- fluidPage(
           plotOutput("chisquarePlot_interval")
         ),
         conditionalPanel(
+          condition = "input.distribution == 'Exponential' && input.lower_tail_exponential == 'lower.tail'",
+          plotOutput("exponentialPlot_lower")
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Exponential' && input.lower_tail_exponential == 'upper.tail'",
+          plotOutput("exponentialPlot_upper")
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Exponential' && input.lower_tail_exponential == 'interval'",
+          plotOutput("exponentialPlot_interval")
+        ),
+        conditionalPanel(
           condition = "input.distribution == 'Fisher' && input.lower_tail_fisher == 'lower.tail'",
           plotOutput("fisherPlot_lower")
         ),
@@ -411,6 +560,18 @@ ui <- fluidPage(
         conditionalPanel(
           condition = "input.distribution == 'Fisher' && input.lower_tail_fisher == 'interval'",
           plotOutput("fisherPlot_interval")
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Gamma' && input.lower_tail_gamma == 'lower.tail'",
+          plotOutput("gammaPlot_lower")
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Gamma' && input.lower_tail_gamma == 'upper.tail'",
+          plotOutput("gammaPlot_upper")
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Gamma' && input.lower_tail_gamma == 'interval'",
+          plotOutput("gammaPlot_interval")
         ),
         conditionalPanel(
           condition = "input.distribution == 'Normal' && input.lower_tail_normal == 'lower.tail'",
@@ -521,11 +682,23 @@ server <- function(input, output) {
                                                                        input$lower_tail_chisquare == "upper.tail" ~ paste0("\\(P(X > \\)", " ", input$x2_chisquare, "\\()\\)", " ", "\\( = \\)", " ", round(pchisq(input$x2_chisquare, df = input$df_chisquare, lower.tail = FALSE), 4)),
                                                                        input$lower_tail_chisquare == "interval" ~ paste0("\\(P(\\)", input$a_chisquare, " ", "\\(\\leq X\\leq \\)", " ", input$b_chisquare, "\\()\\)", " ", "\\( = \\)", " ", ifelse(input$a_chisquare > input$b_chisquare, "a must be less than or equal to b", round(pchisq(input$b_chisquare, df = input$df_chisquare, lower.tail = TRUE) - pchisq(input$a_chisquare, df = input$df_chisquare, lower.tail = TRUE), 4)))))
       )
+    } else if (input$distribution == "Exponential") {
+      withMathJax(
+        paste0("\\(X \\sim \\exp(\\lambda = \\)", " ", input$rate_exponential, "\\()\\)", " and ", case_when(input$lower_tail_exponential == "lower.tail" ~ paste0("\\(P(X \\leq \\)", " ", input$x1_exponential, "\\()\\)", " ", "\\( = \\)", " ", round(pexp(input$x1_exponential, rate = input$rate_exponential, lower.tail = TRUE), 4)),
+                                                                                                     input$lower_tail_exponential == "upper.tail" ~ paste0("\\(P(X > \\)", " ", input$x2_exponential, "\\()\\)", " ", "\\( = \\)", " ", round(pexp(input$x2_exponential, rate = input$rate_exponential, lower.tail = FALSE), 4)),
+                                                                                                     input$lower_tail_exponential == "interval" ~ paste0("\\(P(\\)", input$a_exponential, " ", "\\(\\leq X\\leq \\)", " ", input$b_exponential, "\\()\\)", " ", "\\( = \\)", " ", ifelse(input$a_exponential > input$b_exponential, "a must be less than or equal to b", round(pexp(input$b_exponential, rate = input$rate_exponential, lower.tail = TRUE) - pexp(input$a_exponential, rate = input$rate_exponential, lower.tail = TRUE), 4)))))
+      )
     } else if (input$distribution == "Fisher") {
       withMathJax(
         paste0("\\(X \\sim F(df_1 = \\)", " ", input$df1_fisher, ", ", "\\(df_2\\)", " = ", input$df2_fisher, "\\()\\)", " and ", case_when(input$lower_tail_fisher == "lower.tail" ~ paste0("\\(P(X \\leq \\)", " ", input$x1_fisher, "\\()\\)", " ", "\\( = \\)", " ", round(pf(input$x1_fisher, df1 = input$df1_fisher, df2 = input$df2_fisher, lower.tail = TRUE), 4)),
                                                                                                     input$lower_tail_fisher == "upper.tail" ~ paste0("\\(P(X > \\)", " ", input$x2_fisher, "\\()\\)", " ", "\\( = \\)", " ", round(pf(input$x2_fisher, df1 = input$df1_fisher, df2 = input$df2_fisher, lower.tail = FALSE), 4)),
                                                                                                     input$lower_tail_fisher == "interval" ~ paste0("\\(P(\\)", input$a_fisher, " ", "\\(\\leq X\\leq \\)", " ", input$b_fisher, "\\()\\)", " ", "\\( = \\)", " ", ifelse(input$a_fisher > input$b_fisher, "a must be less than or equal to b", round(pf(input$b_fisher, df1 = input$df1_fisher, df = input$df2_fisher, lower.tail = TRUE) - pf(input$a_fisher, df1 = input$df1_fisher, df = input$df2_fisher, lower.tail = TRUE), 4)))))
+      )
+    } else if (input$distribution == "Gamma") {
+      withMathJax(
+        paste0("\\(X \\sim Gamma(\\alpha = \\)", " ", input$alpha_gamma, ", ", "\\(\\beta = \\)", " ", input$beta_gamma, "\\()\\)", " and ", case_when(input$lower_tail_gamma == "lower.tail" ~ paste0("\\(P(X \\leq \\)", " ", input$x1_gamma, "\\()\\)", " ", "\\( = \\)", " ", round(pgamma(input$x1_gamma, shape = input$alpha_gamma, rate = input$beta_gamma, lower.tail = TRUE), 4)),
+                                                                                                                                                    input$lower_tail_gamma == "upper.tail" ~ paste0("\\(P(X > \\)", " ", input$x2_gamma, "\\()\\)", " ", "\\( = \\)", " ", round(pgamma(input$x2_gamma, shape = input$alpha_gamma, rate = input$beta_gamma, lower.tail = FALSE), 4)),
+                                                                                                                                                    input$lower_tail_gamma == "interval" ~ paste0("\\(P(\\)", input$a_gamma, " ", "\\(\\leq X\\leq \\)", " ", input$b_gamma, "\\()\\)", " ", "\\( = \\)", " ", ifelse(input$a_gamma > input$b_gamma, "a must be less than or equal to b", round(pgamma(input$b_gamma, shape = input$alpha_gamma, rate = input$beta_gamma, lower.tail = TRUE) - pgamma(input$a_gamma, shape = input$alpha_gamma, rate = input$beta_gamma, lower.tail = TRUE), 4)))))
       )
     } else if (input$distribution == "Normal") {
       withMathJax(
@@ -755,6 +928,55 @@ server <- function(input, output) {
     p
   })
   
+  output$exponentialPlot_lower <- renderPlot({
+    funcShaded <- function(x) {
+      y <- dexp(x, rate = input$rate_exponential)
+      y[x > input$x1_exponential] <- NA
+      return(y)
+    }
+    p <- ggplot(data.frame(x = c(0, 1/input$rate_exponential + (5*1/input$rate_exponential))), aes(x = x)) +
+      stat_function(fun = dexp, args = list(rate = input$rate_exponential)) +
+      stat_function(fun=funcShaded, geom="area", alpha=1) +
+      theme_minimal() +
+      ggtitle(paste0(input$distribution, " distribution")) +
+      theme(plot.title = element_text(face="bold", hjust = 0.5)) +
+      ylab("Density") +
+      xlab("X")
+    p
+  })
+  output$exponentialPlot_upper <- renderPlot({
+    funcShaded <- function(x) {
+      y <- dexp(x, rate = input$rate_exponential)
+      y[x < input$x2_exponential] <- NA
+      return(y)
+    }
+    p <- ggplot(data.frame(x = c(0, 1/input$rate_exponential + (5*1/input$rate_exponential))), aes(x = x)) +
+      stat_function(fun = dexp, args = list(rate = input$rate_exponential)) +
+      stat_function(fun=funcShaded, geom="area", alpha=1) +
+      theme_minimal() +
+      ggtitle(paste0(input$distribution, " distribution")) +
+      theme(plot.title = element_text(face="bold", hjust = 0.5)) +
+      ylab("Density") +
+      xlab("X")
+    p
+  })
+  output$exponentialPlot_interval <- renderPlot({
+    funcShaded <- function(x) {
+      y <- dexp(x, rate = input$rate_exponential)
+      y[x < input$a_exponential | x > input$b_exponential] <- NA
+      return(y)
+    }
+    p <- ggplot(data.frame(x = c(0, 1/input$rate_exponential + (5*1/input$rate_exponential))), aes(x = x)) +
+      stat_function(fun = dexp, args = list(rate = input$rate_exponential)) +
+      stat_function(fun=funcShaded, geom="area", alpha=1) +
+      theme_minimal() +
+      ggtitle(paste0(input$distribution, " distribution")) +
+      theme(plot.title = element_text(face="bold", hjust = 0.5)) +
+      ylab("Density") +
+      xlab("X")
+    p
+  })
+  
   output$fisherPlot_lower <- renderPlot({
     funcShaded <- function(x) {
       y <- df(x, df1 = input$df1_fisher, df2 = input$df2_fisher)
@@ -795,6 +1017,55 @@ server <- function(input, output) {
     }
     p <- ggplot(data.frame(x = c(0, 5)), aes(x = x)) +
       stat_function(fun = df, args = list(df1 = input$df1_fisher, df2 = input$df2_fisher)) +
+      stat_function(fun=funcShaded, geom="area", alpha=1) +
+      theme_minimal() +
+      ggtitle(paste0(input$distribution, " distribution")) +
+      theme(plot.title = element_text(face="bold", hjust = 0.5)) +
+      ylab("Density") +
+      xlab("X")
+    p
+  })
+  
+  output$gammaPlot_lower <- renderPlot({
+    funcShaded <- function(x) {
+      y <- dgamma(x, shape = input$alpha_gamma, rate = input$beta_gamma)
+      y[x > input$x1_gamma] <- NA
+      return(y)
+    }
+    p <- ggplot(data.frame(x = c(0, (input$alpha_gamma / input$beta_gamma) + (4*sqrt(input$alpha_gamma/(input$beta_gamma^2))))), aes(x = x)) +
+      stat_function(fun = dgamma, args = list(shape = input$alpha_gamma, rate = input$beta_gamma)) +
+      stat_function(fun=funcShaded, geom="area", alpha=1) +
+      theme_minimal() +
+      ggtitle(paste0(input$distribution, " distribution")) +
+      theme(plot.title = element_text(face="bold", hjust = 0.5)) +
+      ylab("Density") +
+      xlab("X")
+    p
+  })
+  output$gammaPlot_upper <- renderPlot({
+    funcShaded <- function(x) {
+      y <- dgamma(x, shape = input$alpha_gamma, rate = input$beta_gamma)
+      y[x < input$x2_gamma] <- NA
+      return(y)
+    }
+    p <- ggplot(data.frame(x = c(0, (input$alpha_gamma / input$beta_gamma) + (4*sqrt(input$alpha_gamma/(input$beta_gamma^2))))), aes(x = x)) +
+      stat_function(fun = dgamma, args = list(shape = input$alpha_gamma, rate = input$beta_gamma)) +
+      stat_function(fun=funcShaded, geom="area", alpha=1) +
+      theme_minimal() +
+      ggtitle(paste0(input$distribution, " distribution")) +
+      theme(plot.title = element_text(face="bold", hjust = 0.5)) +
+      ylab("Density") +
+      xlab("X")
+    p
+  })
+  output$gammaPlot_interval <- renderPlot({
+    funcShaded <- function(x) {
+      y <- dgamma(x, shape = input$alpha_gamma, rate = input$beta_gamma)
+      y[x < input$a_gamma | x > input$b_gamma] <- NA
+      return(y)
+    }
+    p <- ggplot(data.frame(x = c(0, (input$alpha_gamma / input$beta_gamma) + (4*sqrt(input$alpha_gamma/(input$beta_gamma^2))))), aes(x = x)) +
+      stat_function(fun = dgamma, args = list(shape = input$alpha_gamma, rate = input$beta_gamma)) +
       stat_function(fun=funcShaded, geom="area", alpha=1) +
       theme_minimal() +
       ggtitle(paste0(input$distribution, " distribution")) +
@@ -989,11 +1260,21 @@ server <- function(input, output) {
         helpText("\\(\\mu = E(X) = df = \\)", round(input$df_chisquare, 3)),
         helpText("\\(\\sigma = SD(X) = \\sqrt{2df} = \\)", round(sqrt(2*input$df_chisquare), 3)),
         helpText("\\(\\sigma^2 = Var(X) = 2df = \\)", round(2*input$df_chisquare, 3)))
+    } else if (input$distribution == "Exponential") {
+      withMathJax(
+        helpText("\\(\\mu = E(X) = \\frac{1}{\\lambda} = \\)", round(1/input$rate_exponential, 3)),
+        helpText("\\(\\sigma = SD(X) = \\frac{1}{\\lambda} = \\)", round(1/input$rate_exponential, 3)),
+        helpText("\\(\\sigma^2 = Var(X) = \\frac{1}{\\lambda^2} = \\)", round(1/(input$rate_exponential^2), 3)))
     } else if (input$distribution == "Fisher") {
       withMathJax(
         helpText("\\(\\mu = E(X) = \\frac{df_2}{df_2 - 2} = \\)", ifelse(input$df2_fisher > 2, round(input$df2_fisher / (input$df2_fisher - 2), 3), "Undefined")),
         helpText("\\(\\sigma = SD(X) = \\sqrt{\\frac{2df^2_2(df_1 + df_2 - 2)}{df_1(df_2 - 2)^2(df_2 - 4)}} = \\)", ifelse(input$df2_fisher > 4, round(sqrt((2*input$df2_fisher^2 * (input$df1_fisher + input$df2_fisher - 2)) / (input$df1_fisher * (input$df2_fisher - 2)^2*(input$df2_fisher - 4))), 3), "Undefined")),
         helpText("\\(\\sigma^2 = Var(X) = \\frac{2df^2_2(df_1 + df_2 - 2)}{df_1(df_2 - 2)^2(df_2 - 4)} = \\)", ifelse(input$df2_fisher > 4, round((2*input$df2_fisher^2 * (input$df1_fisher + input$df2_fisher - 2)) / (input$df1_fisher * (input$df2_fisher - 2)^2*(input$df2_fisher - 4)), 3), "Undefined")))
+    } else if (input$distribution == "Gamma") {
+      withMathJax(
+        helpText("\\(\\mu = E(X) = \\frac{\\alpha}{\\beta} = \\)", round(input$alpha_gamma  / input$beta_gamma, 3)),
+        helpText("\\(\\sigma = SD(X) = \\sqrt{\\frac{\\alpha}{\\beta^2}} = \\)", round(sqrt(input$alpha_gamma / (input$beta_gamma^2)), 3)),
+        helpText("\\(\\sigma^2 = Var(X) = \\frac{\\alpha}{\\beta^2} = \\)", round(input$alpha_gamma / (input$beta_gamma^2), 3)))
     } else if (input$distribution == "Normal") {
       withMathJax(
         helpText("\\(\\mu = E(X) = \\)", round(input$mean_normal, 3)),
