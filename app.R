@@ -1,0 +1,1019 @@
+#
+# This is a Shiny web application. You can run the application by clicking
+# the 'Run App' button above.
+#
+# Find out more about building applications with Shiny here:
+#
+#    http://shiny.rstudio.com/
+#
+
+library(shiny)
+library(dplyr)
+library(ggplot2)
+library(dplyr)
+
+# Define UI for application that draws a histogram
+ui <- fluidPage(
+   
+   # Application title
+   titlePanel("Statistics 101"),
+   h4(tags$a(href="https://www.antoinesoetewey.com/", "Antoine Soetewey")),
+   withMathJax(),
+   
+   # tabsetPanel(
+     # Create tab1
+     # tabPanel(
+     #   title = "Distributions",
+   
+   # Sidebar with a slider input for number of bins 
+   sidebarLayout(
+      sidebarPanel(
+        selectInput(
+          inputId = "distribution",
+          label = "Distribution:",
+          choices = c("Beta", "Binomial", "Cauchy", "Chi-square", "Exponential", "Fisher", "Gamma", "Geometric", "Hypergeometric", "Logistic", "Log-Normal", "Negative Binomial (Pascal)", "Normal", "Poisson", "Student", "Weibull"),
+          multiple = FALSE,
+          selected = "Cauchy"
+        ),
+        hr(),
+        tags$b("Parameter(s)"),
+        conditionalPanel(
+          condition = "input.distribution == 'Beta'",
+          numericInput("alpha_beta", "Alpha \\(\\alpha\\):",
+                       value = 1, min = 0, step = 1),
+          numericInput("beta_beta", "Beta \\(\\beta\\):",
+                       value = 3, min = 0, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Binomial'",
+          numericInput("n_binomial", "n:",
+                       value = 20, min = 0, step = 1),
+          numericInput("p_binomial", "p:",
+                       value = 0.5, min = 0, max = 1, step = 0.01)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Cauchy'",
+          numericInput("location_cauchy", "Location \\(x_0\\):",
+                       value = 0, step = 1),
+          numericInput("scale_cauchy", "Scale \\(\\gamma\\):",
+                       value = 1, min = 0, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Chi-square'",
+          numericInput("df_chisquare", "Degrees of freedom:",
+                       value = 6, min = 1, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Fisher'",
+          numericInput("df1_fisher", "Degrees of freedom 1:",
+                       value = 10, min = 1, step = 1),
+          numericInput("df2_fisher", "Degrees of freedom 2:",
+                       value = 5, min = 1, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Normal'",
+          numericInput("mean_normal", "Mean \\(\\mu\\):",
+                       value = 0, step = 1),
+          radioButtons(
+            inputId = "variance_sd",
+            label = NULL,
+            choices = c(
+              "Variance \\(\\sigma^2\\)" = "variance_true",
+              "Standard deviation \\(\\sigma\\)" = "variance_false"
+            )
+          )
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Normal' && input.variance_sd == 'variance_true'",
+          numericInput("variance_normal", "Variance \\(\\sigma^2\\):",
+                       value = 1, min = 0, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Normal' && input.variance_sd == 'variance_false'",
+          numericInput("sd_normal", "Standard deviation \\(\\sigma\\):",
+                       value = 1, min = 0, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Poisson'",
+          numericInput("lambda_poisson", "Lambda \\(\\lambda\\):",
+                       value = 4, min = 1, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Student'",
+          numericInput("df_student", "Degrees of freedom:",
+                       value = 10, min = 1, step = 1)
+        ),
+        hr(),
+        conditionalPanel(
+          condition = "input.distribution == 'Beta'",
+          radioButtons(
+            inputId = "lower_tail_beta",
+            label = NULL,
+            choices = c(
+              "Lower tail : P(X ≤ x)" = "lower.tail",
+              "Upper tail : P(X > x)" = "upper.tail",
+              "Interval : P(a ≤ X ≤ b)" = "interval"
+            )
+          )
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Binomial'",
+          radioButtons(
+            inputId = "lower_tail_binomial",
+            label = NULL,
+            choices = c(
+              "Lower tail : P(X ≤ x)" = "lower.tail",
+              "Upper tail : P(X > x)" = "upper.tail",
+              "Interval : P(a ≤ X ≤ b)" = "interval"
+            )
+          )
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Cauchy'",
+          radioButtons(
+            inputId = "lower_tail_cauchy",
+            label = NULL,
+            choices = c(
+              "Lower tail : P(X ≤ x)" = "lower.tail",
+              "Upper tail : P(X > x)" = "upper.tail",
+              "Interval : P(a ≤ X ≤ b)" = "interval"
+            )
+          )
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Chi-square'",
+          radioButtons(
+            inputId = "lower_tail_chisquare",
+            label = NULL,
+            choices = c(
+              "Lower tail : P(X ≤ x)" = "lower.tail",
+              "Upper tail : P(X > x)" = "upper.tail",
+              "Interval : P(a ≤ X ≤ b)" = "interval"
+            )
+          )
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Fisher'",
+          radioButtons(
+            inputId = "lower_tail_fisher",
+            label = NULL,
+            choices = c(
+              "Lower tail : P(X ≤ x)" = "lower.tail",
+              "Upper tail : P(X > x)" = "upper.tail",
+              "Interval : P(a ≤ X ≤ b)" = "interval"
+            )
+          )
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Normal'",
+          radioButtons(
+            inputId = "lower_tail_normal",
+            label = NULL,
+            choices = c(
+              "Lower tail : P(X ≤ x)" = "lower.tail",
+              "Upper tail : P(X > x)" = "upper.tail",
+              "Interval : P(a ≤ X ≤ b)" = "interval"
+            )
+          )
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Poisson'",
+          radioButtons(
+            inputId = "lower_tail_poisson",
+            label = NULL,
+            choices = c(
+              "Lower tail : P(X ≤ x)" = "lower.tail",
+              "Upper tail : P(X > x)" = "upper.tail",
+              "Interval : P(a ≤ X ≤ b)" = "interval"
+            )
+          )
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Student'",
+          radioButtons(
+            inputId = "lower_tail_student",
+            label = NULL,
+            choices = c(
+              "Lower tail : P(X ≤ x)" = "lower.tail",
+              "Upper tail : P(X > x)" = "upper.tail",
+              "Interval : P(a ≤ X ≤ b)" = "interval"
+            )
+          )
+        ),
+        hr(),
+        conditionalPanel(
+          condition = "input.distribution == 'Beta' && input.lower_tail_beta == 'lower.tail'",
+          numericInput("x1_beta", "x:",
+                       value = 0.45, min = 0, max = 1, step = 0.01)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Beta' && input.lower_tail_beta == 'upper.tail'",
+          numericInput("x2_beta", "x:",
+                       value = 0.45, min = 0, max = 1, step = 0.01)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Beta' && input.lower_tail_beta == 'interval'",
+          numericInput("a_beta", "a:",
+                       value = 0.25, min = 0, max = 1, step = 0.01),
+          numericInput("b_beta", "b: (where a ≤ b)",
+                       value = 0.45, min = 0, max = 1, step = 0.01)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Binomial' && input.lower_tail_binomial == 'lower.tail'",
+          numericInput("x1_binomial", "x:",
+                       value = 8, min = 0, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Binomial' && input.lower_tail_binomial == 'upper.tail'",
+          numericInput("x2_binomial", "x:",
+                       value = 8, min = 0, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Binomial' && input.lower_tail_binomial == 'interval'",
+          numericInput("a_binomial", "a:",
+                       value = 8, min = 0, step = 1),
+          numericInput("b_binomial", "b: (where a ≤ b)",
+                       value = 12, min = 0, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Cauchy' && input.lower_tail_cauchy == 'lower.tail'",
+          numericInput("x1_cauchy", "x:",
+                       value = 1.2, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Cauchy' && input.lower_tail_cauchy == 'upper.tail'",
+          numericInput("x2_cauchy", "x:",
+                       value = 1.2, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Cauchy' && input.lower_tail_cauchy == 'interval'",
+          numericInput("a_cauchy", "a:",
+                       value = -1.2, step = 1),
+          numericInput("b_cauchy", "b: (where a ≤ b)",
+                       value = 1.2, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Chi-square' && input.lower_tail_chisquare == 'lower.tail'",
+          numericInput("x1_chisquare", "x:",
+                       value = 9.6, min = 0, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Chi-square' && input.lower_tail_chisquare == 'upper.tail'",
+          numericInput("x2_chisquare", "x:",
+                       value = 9.6, min = 0, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Chi-square' && input.lower_tail_chisquare == 'interval'",
+          numericInput("a_chisquare", "a:",
+                       value = 9.6, min = 0, step = 1),
+          numericInput("b_chisquare", "b: (where a ≤ b)",
+                       value = 14.4, min = 0, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Fisher' && input.lower_tail_fisher == 'lower.tail'",
+          numericInput("x1_fisher", "x:",
+                       value = 4.14, min = 0, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Fisher' && input.lower_tail_fisher == 'upper.tail'",
+          numericInput("x2_fisher", "x:",
+                       value = 4.14, min = 0, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Fisher' && input.lower_tail_fisher == 'interval'",
+          numericInput("a_fisher", "a:",
+                       value = 2.76, min = 0, step = 1),
+          numericInput("b_fisher", "b: (where a ≤ b)",
+                       value = 4.14, min = 0, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Normal' && input.lower_tail_normal == 'lower.tail'",
+          numericInput("x1_normal", "x:",
+                       value = 1, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Normal' && input.lower_tail_normal == 'upper.tail'",
+          numericInput("x2_normal", "x:",
+                       value = 1, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Normal' && input.lower_tail_normal == 'interval'",
+          numericInput("a_normal", "a:",
+                       value = -1, step = 1),
+          numericInput("b_normal", "b: (where a ≤ b)",
+                       value = 1, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Poisson' && input.lower_tail_poisson == 'lower.tail'",
+          numericInput("x1_poisson", "x:",
+                       value = 6, min = 0, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Poisson' && input.lower_tail_poisson == 'upper.tail'",
+          numericInput("x2_poisson", "x:",
+                       value = 6, min = 0, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Poisson' && input.lower_tail_poisson == 'interval'",
+          numericInput("a_poisson", "a:",
+                       value = 6, min = 0, step = 1),
+          numericInput("b_poisson", "b: (where a ≤ b)",
+                       value = 10, min = 0, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Student' && input.lower_tail_student == 'lower.tail'",
+          numericInput("x1_student", "x:",
+                       value = 1, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Student' && input.lower_tail_student == 'upper.tail'",
+          numericInput("x2_student", "x:",
+                       value = 1, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Student' && input.lower_tail_student == 'interval'",
+          numericInput("a_student", "a:",
+                       value = -1, step = 1),
+          numericInput("b_student", "b: (where a ≤ b)",
+                       value = 1, step = 1)
+        ),
+        hr(),
+        HTML('<p>Report a bug or request the code <a href="https://www.antoinesoetewey.com/contact/">here</a>.</p>')
+        ),
+      
+      # Show a plot of the generated distribution
+      mainPanel(
+        br(),
+        tags$b("Solution:"),
+        uiOutput("results_distribution"),
+        br(),
+        conditionalPanel(
+          condition = "input.distribution == 'Beta' && input.lower_tail_beta == 'lower.tail'",
+          plotOutput("betaPlot_lower")
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Beta' && input.lower_tail_beta == 'upper.tail'",
+          plotOutput("betaPlot_upper")
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Beta' && input.lower_tail_beta == 'interval'",
+          plotOutput("betaPlot_interval")
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Binomial' && input.lower_tail_binomial == 'lower.tail'",
+          plotOutput("binomialPlot_lower")
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Binomial' && input.lower_tail_binomial == 'upper.tail'",
+          plotOutput("binomialPlot_upper")
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Binomial' && input.lower_tail_binomial == 'interval'",
+          plotOutput("binomialPlot_interval")
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Cauchy' && input.lower_tail_cauchy == 'lower.tail'",
+          plotOutput("cauchyPlot_lower")
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Cauchy' && input.lower_tail_cauchy == 'upper.tail'",
+          plotOutput("cauchyPlot_upper")
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Cauchy' && input.lower_tail_cauchy == 'interval'",
+          plotOutput("cauchyPlot_interval")
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Chi-square' && input.lower_tail_chisquare == 'lower.tail'",
+          plotOutput("chisquarePlot_lower")
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Chi-square' && input.lower_tail_chisquare == 'upper.tail'",
+          plotOutput("chisquarePlot_upper")
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Chi-square' && input.lower_tail_chisquare == 'interval'",
+          plotOutput("chisquarePlot_interval")
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Fisher' && input.lower_tail_fisher == 'lower.tail'",
+          plotOutput("fisherPlot_lower")
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Fisher' && input.lower_tail_fisher == 'upper.tail'",
+          plotOutput("fisherPlot_upper")
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Fisher' && input.lower_tail_fisher == 'interval'",
+          plotOutput("fisherPlot_interval")
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Normal' && input.lower_tail_normal == 'lower.tail'",
+          plotOutput("normalPlot_lower")
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Normal' && input.lower_tail_normal == 'upper.tail'",
+          plotOutput("normalPlot_upper")
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Normal' && input.lower_tail_normal == 'interval'",
+          plotOutput("normalPlot_interval")
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Poisson' && input.lower_tail_poisson == 'lower.tail'",
+          plotOutput("poissonPlot_lower")
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Poisson' && input.lower_tail_poisson == 'upper.tail'",
+          plotOutput("poissonPlot_upper")
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Poisson' && input.lower_tail_poisson == 'interval'",
+          plotOutput("poissonPlot_interval")
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Student' && input.lower_tail_student == 'lower.tail'",
+          plotOutput("studentPlot_lower")
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Student' && input.lower_tail_student == 'upper.tail'",
+          plotOutput("studentPlot_upper")
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Student' && input.lower_tail_student == 'interval'",
+          plotOutput("studentPlot_interval")
+        ),
+        br(),
+        uiOutput("parameters_distribution"),
+        br(),
+        br(),
+        tags$a(href="https://www.antoinesoetewey.com/", "Back to www.antoinesoetewey.com"),
+        br(),
+        br()
+      )
+   # )
+# )
+# ,
+# tabPanel(
+#   title = "Statistical tests",
+#   # Sidebar layout with input and output definitions ----
+#   sidebarLayout(
+#     
+#     # Sidebar to demonstrate various slider options ----
+#     sidebarPanel(
+#       
+#       # Input: Simple integer interval ----
+#       selectInput(
+#         inputId = "test",
+#         label = "Test:",
+#         choices = c("Binomial", "Chi-square", "Fisher", "Normal", "Poisson", "Student"),
+#         multiple = FALSE,
+#         selected = "Normal"
+#       ),
+#       hr(),
+#       HTML('<p>Report a bug or request the code <a href="https://www.antoinesoetewey.com/contact/">here</a>.</p>')
+#     ),
+#     
+#     # Main panel for displaying outputs ----
+#     mainPanel(
+#       br(),
+#       textOutput("results_tests"),
+#       br(),
+#       tags$a(href="https://www.antoinesoetewey.com/", "Back to www.antoinesoetewey.com"),
+#       br(),
+#       br()
+#     )
+#   )
+# )
+)
+)
+
+# Define server logic required to draw a histogram
+server <- function(input, output) {
+   
+  output$results_distribution <- renderUI({
+    if (input$distribution == "Beta") {
+      withMathJax(
+        paste0("\\(X \\sim Beta(\\alpha = \\)", " ", input$alpha_beta, ", ", "\\(\\beta = \\)", " ", input$beta_beta, "\\()\\)", " and ", case_when(input$lower_tail_beta == "lower.tail" ~ paste0("\\(P(X \\leq \\)", " ", input$x1_beta, "\\()\\)", " ", "\\( = \\)", " ", round(pbeta(input$x1_beta, shape1 = input$alpha_beta, shape2 = input$beta_beta, lower.tail = TRUE), 4)),
+                                                                                                                                         input$lower_tail_beta == "upper.tail" ~ paste0("\\(P(X > \\)", " ", input$x2_beta, "\\()\\)", " ", "\\( = \\)", " ", round(pbeta(input$x2_beta, shape1 = input$alpha_beta, shape2 = input$beta_beta, lower.tail = FALSE), 4)),
+                                                                                                                                         input$lower_tail_beta == "interval" ~ paste0("\\(P(\\)", input$a_beta, " ", "\\(\\leq X\\leq \\)", " ", input$b_beta, "\\()\\)", " ", "\\( = \\)", " ", ifelse(input$a_beta > input$b_beta, "a must be less than or equal to b", round(pbeta(input$b_beta, shape1 = input$alpha_beta, shape2 = input$beta_beta, lower.tail = TRUE) - pbeta(input$a_beta, shape1 = input$alpha_beta, shape2 = input$beta_beta, lower.tail = TRUE), 4)))))
+      )
+    } else if (input$distribution == "Binomial") {
+      withMathJax(
+        paste0("\\(X \\sim Bin(n = \\)", " ", input$n_binomial, ", ", "\\(p = \\)", " ", input$p_binomial, "\\()\\)", " and ", case_when(input$lower_tail_binomial == "lower.tail" ~ paste0("\\(P(X \\leq \\)", " ", input$x1_binomial, "\\()\\)", " ", "\\( = \\)", " ", round(pbinom(input$x1_binomial, size = input$n_binomial, prob = input$p_binomial, lower.tail = TRUE), 4)),
+                                                                                                input$lower_tail_binomial == "upper.tail" ~ paste0("\\(P(X > \\)", " ", input$x2_binomial, "\\()\\)", " ", "\\( = \\)", " ", round(pbinom(input$x2_binomial, size = input$n_binomial, prob = input$p_binomial, lower.tail = FALSE), 4)),
+                                                                                                input$lower_tail_binomial == "interval" ~ paste0("\\(P(\\)", input$a_binomial, " ", "\\(\\leq X\\leq \\)", " ", input$b_binomial, "\\()\\)", " ", "\\( = \\)", " ", ifelse(input$a_binomial > input$b_binomial, "a must be less than or equal to b", round(pbinom(input$b_binomial, size = input$n_binomial, prob = input$p_binomial, lower.tail = TRUE) - pbinom(input$a_binomial - 1, size = input$n_binomial, prob = input$p_binomial, lower.tail = TRUE), 4)))))
+      )
+    } else if (input$distribution == "Cauchy") {
+      withMathJax(
+        paste0("\\(X \\sim Cauchy(x_0 = \\)", " ", input$location_cauchy, ", ", "\\(\\gamma = \\)", " ", input$scale_cauchy, "\\()\\)", " and ", case_when(input$lower_tail_cauchy == "lower.tail" ~ paste0("\\(P(X \\leq \\)", " ", input$x1_cauchy, "\\()\\)", " ", "\\( = \\)", " ", round(pcauchy(input$x1_cauchy, location = input$location_cauchy, scale = input$scale_cauchy, lower.tail = TRUE), 4)),
+                                                                                                                                         input$lower_tail_cauchy == "upper.tail" ~ paste0("\\(P(X > \\)", " ", input$x2_cauchy, "\\()\\)", " ", "\\( = \\)", " ", round(pcauchy(input$x2_cauchy, location = input$location_cauchy, scale = input$scale_cauchy, lower.tail = FALSE), 4)),
+                                                                                                                                         input$lower_tail_cauchy == "interval" ~ paste0("\\(P(\\)", input$a_cauchy, " ", "\\(\\leq X\\leq \\)", " ", input$b_cauchy, "\\()\\)", " ", "\\( = \\)", " ", ifelse(input$a_cauchy > input$b_cauchy, "a must be less than or equal to b", round(pcauchy(input$b_cauchy, location = input$location_cauchy, scale = input$scale_cauchy, lower.tail = TRUE) - pcauchy(input$a_cauchy, location = input$location_cauchy, scale = input$scale_cauchy, lower.tail = TRUE), 4)))))
+      )
+    } else if (input$distribution == "Chi-square") {
+      withMathJax(
+        paste0("\\(X \\sim \\chi^2(df = \\)", " ", input$df_chisquare, "\\()\\)", " and ", case_when(input$lower_tail_chisquare == "lower.tail" ~ paste0("\\(P(X \\leq \\)", " ", input$x1_chisquare, "\\()\\)", " ", "\\( = \\)", " ", round(pchisq(input$x1_chisquare, df = input$df_chisquare, lower.tail = TRUE), 4)),
+                                                                       input$lower_tail_chisquare == "upper.tail" ~ paste0("\\(P(X > \\)", " ", input$x2_chisquare, "\\()\\)", " ", "\\( = \\)", " ", round(pchisq(input$x2_chisquare, df = input$df_chisquare, lower.tail = FALSE), 4)),
+                                                                       input$lower_tail_chisquare == "interval" ~ paste0("\\(P(\\)", input$a_chisquare, " ", "\\(\\leq X\\leq \\)", " ", input$b_chisquare, "\\()\\)", " ", "\\( = \\)", " ", ifelse(input$a_chisquare > input$b_chisquare, "a must be less than or equal to b", round(pchisq(input$b_chisquare, df = input$df_chisquare, lower.tail = TRUE) - pchisq(input$a_chisquare, df = input$df_chisquare, lower.tail = TRUE), 4)))))
+      )
+    } else if (input$distribution == "Fisher") {
+      withMathJax(
+        paste0("\\(X \\sim F(df_1 = \\)", " ", input$df1_fisher, ", ", "\\(df_2\\)", " = ", input$df2_fisher, "\\()\\)", " and ", case_when(input$lower_tail_fisher == "lower.tail" ~ paste0("\\(P(X \\leq \\)", " ", input$x1_fisher, "\\()\\)", " ", "\\( = \\)", " ", round(pf(input$x1_fisher, df1 = input$df1_fisher, df2 = input$df2_fisher, lower.tail = TRUE), 4)),
+                                                                                                    input$lower_tail_fisher == "upper.tail" ~ paste0("\\(P(X > \\)", " ", input$x2_fisher, "\\()\\)", " ", "\\( = \\)", " ", round(pf(input$x2_fisher, df1 = input$df1_fisher, df2 = input$df2_fisher, lower.tail = FALSE), 4)),
+                                                                                                    input$lower_tail_fisher == "interval" ~ paste0("\\(P(\\)", input$a_fisher, " ", "\\(\\leq X\\leq \\)", " ", input$b_fisher, "\\()\\)", " ", "\\( = \\)", " ", ifelse(input$a_fisher > input$b_fisher, "a must be less than or equal to b", round(pf(input$b_fisher, df1 = input$df1_fisher, df = input$df2_fisher, lower.tail = TRUE) - pf(input$a_fisher, df1 = input$df1_fisher, df = input$df2_fisher, lower.tail = TRUE), 4)))))
+      )
+    } else if (input$distribution == "Normal") {
+      withMathJax(
+        paste0("\\(X \\sim \\mathcal{N}(\\mu = \\)", " ", input$mean_normal, ", ", ifelse(input$variance_sd == "variance_true", paste0("\\(\\sigma^2 = \\)", " ", input$variance_normal), paste0("\\(\\sigma^2 = \\)", " ", input$sd_normal^2)), "\\()\\)", " and ", case_when(input$lower_tail_normal == "lower.tail" ~ paste0("\\(P(X \\leq \\)", " ", input$x1_normal, "\\()\\)", " ", "\\( = \\)", " ", round(pnorm(input$x1_normal, mean = input$mean_normal, sd = ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal), lower.tail = TRUE), 4)),
+                                                                                                                                                                                                    input$lower_tail_normal == "upper.tail" ~ paste0("\\(P(X > \\)", " ", input$x2_normal, "\\()\\)", " ", "\\( = \\)", " ", round(pnorm(input$x2_normal, mean = input$mean_normal, sd = ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal), lower.tail = FALSE), 4)),
+                                                                                                                                                                                                    input$lower_tail_normal == "interval" ~ paste0("\\(P(\\)", input$a_normal, " ", "\\(\\leq X\\leq \\)", " ", input$b_normal, "\\()\\)", " ", "\\( = \\)", " ", ifelse(input$a_normal > input$b_normal, "a must be less than or equal to b", round(pnorm(input$b_normal, mean = input$mean_normal, sd = ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal), lower.tail = TRUE) - pnorm(input$a_normal, mean = input$mean_normal, sd = ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal), lower.tail = TRUE), 4)))))
+      )
+    } else if (input$distribution == "Poisson") {
+      withMathJax(
+        paste0("\\(X \\sim Pois(\\lambda = \\)", " ", input$lambda_poisson, "\\()\\)", " and ", case_when(input$lower_tail_poisson == "lower.tail" ~ paste0("\\(P(X \\leq \\)", " ", input$x1_poisson, "\\()\\)", " ", "\\( = \\)", " ", round(ppois(input$x1_poisson, lambda = input$lambda_poisson, lower.tail = TRUE), 4)),
+                                                                           input$lower_tail_poisson == "upper.tail" ~ paste0("\\(P(X > \\)", " ", input$x2_poisson, "\\()\\)", " ", "\\( = \\)", " ", round(ppois(input$x2_poisson, lambda = input$lambda_poisson, lower.tail = FALSE), 4)),
+                                                                           input$lower_tail_poisson == "interval" ~ paste0("\\(P(\\)", input$a_poisson, " ", "\\(\\leq X\\leq \\)", " ", input$b_poisson, "\\()\\)", " ", "\\( = \\)", " ", ifelse(input$a_poisson > input$b_poisson, "a must be less than or equal to b", round(ppois(input$b_poisson, lambda = input$lambda_poisson, lower.tail = TRUE) - ppois(input$a_poisson - 1, lambda = input$lambda_poisson, lower.tail = TRUE), 4)))))
+      )
+    } else if (input$distribution == "Student") {
+      withMathJax(
+        paste0("\\(X \\sim St(df = \\)", " ", input$df_student, "\\()\\)", " and ", case_when(input$lower_tail_student == "lower.tail" ~ paste0("\\(P(X \\leq \\)", " ", input$x1_student, "\\()\\)", " ", "\\( = \\)", " ", round(pt(input$x1_student, df = input$df_student, lower.tail = TRUE), 4)),
+                                                                      input$lower_tail_student == "upper.tail" ~ paste0("\\(P(X > \\)", " ", input$x2_student, "\\()\\)", " ", "\\( = \\)", " ", round(pt(input$x2_student, df = input$df_student, lower.tail = FALSE), 4)),
+                                                                      input$lower_tail_student == "interval" ~ paste0("\\(P(\\)", input$a_student, " ", "\\(\\leq X\\leq \\)", " ", input$b_student, "\\()\\)", " ", "\\( = \\)", " ", ifelse(input$a_student > input$b_student, "a must be less than or equal to b", round(pt(input$b_student, df = input$df_student, lower.tail = TRUE) - pt(input$a_student, df = input$df_student, lower.tail = TRUE), 4)))))
+      )
+    } else {
+      print("in progress")
+    }
+  })
+  
+  output$betaPlot_lower <- renderPlot({
+    funcShaded <- function(x) {
+      y <- dbeta(x, shape1 = input$alpha_beta, shape2 = input$beta_beta)
+      y[x > input$x1_beta] <- NA
+      return(y)
+    }
+    p <- ggplot(data.frame(x = c(0, 1)), aes(x = x)) +
+      stat_function(fun = dbeta, args = list(shape1 = input$alpha_beta, shape2 = input$beta_beta)) +
+      stat_function(fun=funcShaded, geom="area", alpha=1) +
+      theme_minimal() +
+      ggtitle(paste0(input$distribution, " distribution")) +
+      theme(plot.title = element_text(face="bold", hjust = 0.5)) +
+      ylab("Density") +
+      xlab("X")
+    p
+  })
+  output$betaPlot_upper <- renderPlot({
+    funcShaded <- function(x) {
+      y <- dbeta(x, shape1 = input$alpha_beta, shape2 = input$beta_beta)
+      y[x < input$x2_beta] <- NA
+      return(y)
+    }
+    p <- ggplot(data.frame(x = c(0, 1)), aes(x = x)) +
+      stat_function(fun = dbeta, args = list(shape1 = input$alpha_beta, shape2 = input$beta_beta)) +
+      stat_function(fun=funcShaded, geom="area", alpha=1) +
+      theme_minimal() +
+      ggtitle(paste0(input$distribution, " distribution")) +
+      theme(plot.title = element_text(face="bold", hjust = 0.5)) +
+      ylab("Density") +
+      xlab("X")
+    p
+  })
+  output$betaPlot_interval <- renderPlot({
+    funcShaded <- function(x) {
+      y <- dbeta(x, shape1 = input$alpha_beta, shape2 = input$beta_beta)
+      y[x < input$a_beta | x > input$b_beta] <- NA
+      return(y)
+    }
+    p <- ggplot(data.frame(x = c(0, 1)), aes(x = x)) +
+      stat_function(fun = dbeta, args = list(shape1 = input$alpha_beta, shape2 = input$beta_beta)) +
+      stat_function(fun=funcShaded, geom="area", alpha=1) +
+      theme_minimal() +
+      ggtitle(paste0(input$distribution, " distribution")) +
+      theme(plot.title = element_text(face="bold", hjust = 0.5)) +
+      ylab("Density") +
+      xlab("X")
+    p
+  })
+  
+  output$binomialPlot_lower <- renderPlot({
+    p <- data.frame(heads = 0:input$n_binomial, prob = dbinom(x = 0:input$n_binomial, size = input$n_binomial, prob = input$p_binomial)) %>%
+      mutate(Heads = ifelse(heads <= input$x1_binomial, "2", "Other")) %>%
+      ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
+      geom_col() +
+      geom_text(
+        aes(label = round(prob,4), y = prob + 0.005),
+        position = position_dodge(0.9),
+        size = 3,
+        vjust = 0
+      ) +
+      theme_minimal() +
+      theme(legend.position = "none") +
+      ggtitle(paste0(input$distribution, " distribution")) +
+      theme(plot.title = element_text(face="bold", hjust = 0.5)) +
+      ylab("Density") +
+      xlab("X")
+    p
+  })
+  output$binomialPlot_upper <- renderPlot({
+    p <- data.frame(heads = 0:input$n_binomial, prob = dbinom(x = 0:input$n_binomial, size = input$n_binomial, prob = input$p_binomial)) %>%
+      mutate(Heads = ifelse(heads > input$x2_binomial, "2", "other")) %>%
+      ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
+      geom_col() +
+      geom_text(
+        aes(label = round(prob,4), y = prob + 0.005),
+        position = position_dodge(0.9),
+        size = 3,
+        vjust = 0
+      ) +
+      theme_minimal() +
+      theme(legend.position = "none") +
+      ggtitle(paste0(input$distribution, " distribution")) +
+      theme(plot.title = element_text(face="bold", hjust = 0.5)) +
+      ylab("Density") +
+      xlab("X")
+    p
+  })
+  output$binomialPlot_interval <- renderPlot({
+    p <- data.frame(heads = 0:input$n_binomial, prob = dbinom(x = 0:input$n_binomial, size = input$n_binomial, prob = input$p_binomial)) %>%
+      mutate(Heads = ifelse(heads >= input$a_binomial & heads <= input$b_binomial, "2", "other")) %>%
+      ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
+      geom_col() +
+      geom_text(
+        aes(label = round(prob,4), y = prob + 0.005),
+        position = position_dodge(0.9),
+        size = 3,
+        vjust = 0
+      ) +
+      theme_minimal() +
+      theme(legend.position = "none") +
+      ggtitle(paste0(input$distribution, " distribution")) +
+      theme(plot.title = element_text(face="bold", hjust = 0.5)) +
+      ylab("Density") +
+      xlab("X")
+    p
+  })
+  
+  output$cauchyPlot_lower <- renderPlot({
+    funcShaded <- function(x) {
+      y <- dcauchy(x, location = input$location_cauchy, scale = input$scale_cauchy)
+      y[x > input$x1_cauchy] <- NA
+      return(y)
+    }
+    p <- ggplot(data.frame(x = c(input$location_cauchy - (6*input$scale_cauchy), input$location_cauchy + (6*input$scale_cauchy))), aes(x = x)) +
+      stat_function(fun = dcauchy, args = list(location = input$location_cauchy, scale = input$scale_cauchy)) +
+      stat_function(fun=funcShaded, geom="area", alpha=1) +
+      theme_minimal() +
+      ggtitle(paste0(input$distribution, " distribution")) +
+      theme(plot.title = element_text(face="bold", hjust = 0.5)) +
+      ylab("Density") +
+      xlab("X")
+    p
+  })
+  output$cauchyPlot_upper <- renderPlot({
+    funcShaded <- function(x) {
+      y <- dcauchy(x, location = input$location_cauchy, scale = input$scale_cauchy)
+      y[x < input$x2_cauchy] <- NA
+      return(y)
+    }
+    p <- ggplot(data.frame(x = c(input$location_cauchy - (6*input$scale_cauchy), input$location_cauchy + (6*input$scale_cauchy))), aes(x = x)) +
+      stat_function(fun = dcauchy, args = list(location = input$location_cauchy, scale = input$scale_cauchy)) +
+      stat_function(fun=funcShaded, geom="area", alpha=1) +
+      theme_minimal() +
+      ggtitle(paste0(input$distribution, " distribution")) +
+      theme(plot.title = element_text(face="bold", hjust = 0.5)) +
+      ylab("Density") +
+      xlab("X")
+    p
+  })
+  output$cauchyPlot_interval <- renderPlot({
+    funcShaded <- function(x) {
+      y <- dcauchy(x, location = input$location_cauchy, scale = input$scale_cauchy)
+      y[x < input$a_cauchy | x > input$b_cauchy] <- NA
+      return(y)
+    }
+    p <- ggplot(data.frame(x = c(input$location_cauchy - (6*input$scale_cauchy), input$location_cauchy + (6*input$scale_cauchy))), aes(x = x)) +
+      stat_function(fun = dcauchy, args = list(location = input$location_cauchy, scale = input$scale_cauchy)) +
+      stat_function(fun=funcShaded, geom="area", alpha=1) +
+      theme_minimal() +
+      ggtitle(paste0(input$distribution, " distribution")) +
+      theme(plot.title = element_text(face="bold", hjust = 0.5)) +
+      ylab("Density") +
+      xlab("X")
+    p
+  })
+  
+  output$chisquarePlot_lower <- renderPlot({
+    funcShaded <- function(x) {
+      y <- dchisq(x, df = input$df_chisquare)
+      y[x > input$x1_chisquare] <- NA
+      return(y)
+    }
+    p <- ggplot(data.frame(x = c(0, input$df_chisquare + (4*sqrt(2*input$df_chisquare)))), aes(x = x)) +
+      stat_function(fun = dchisq, args = list(df = input$df_chisquare)) +
+      stat_function(fun=funcShaded, geom="area", alpha=1) +
+      theme_minimal() +
+      ggtitle(paste0(input$distribution, " distribution")) +
+      theme(plot.title = element_text(face="bold", hjust = 0.5)) +
+      ylab("Density") +
+      xlab("X")
+    p
+  })
+  output$chisquarePlot_upper <- renderPlot({
+    funcShaded <- function(x) {
+      y <- dchisq(x, df = input$df_chisquare)
+      y[x < input$x2_chisquare] <- NA
+      return(y)
+    }
+    p <- ggplot(data.frame(x = c(0, input$df_chisquare + (4*sqrt(2*input$df_chisquare)))), aes(x = x)) +
+      stat_function(fun = dchisq, args = list(df = input$df_chisquare)) +
+      stat_function(fun=funcShaded, geom="area", alpha=1) +
+      theme_minimal() +
+      ggtitle(paste0(input$distribution, " distribution")) +
+      theme(plot.title = element_text(face="bold", hjust = 0.5)) +
+      ylab("Density") +
+      xlab("X")
+    p
+  })
+  output$chisquarePlot_interval <- renderPlot({
+    funcShaded <- function(x) {
+      y <- dchisq(x, df = input$df_chisquare)
+      y[x < input$a_chisquare | x > input$b_chisquare] <- NA
+      return(y)
+    }
+    p <- ggplot(data.frame(x = c(0, input$df_chisquare + (4*sqrt(2*input$df_chisquare)))), aes(x = x)) +
+      stat_function(fun = dchisq, args = list(df = input$df_chisquare)) +
+      stat_function(fun=funcShaded, geom="area", alpha=1) +
+      theme_minimal() +
+      ggtitle(paste0(input$distribution, " distribution")) +
+      theme(plot.title = element_text(face="bold", hjust = 0.5)) +
+      ylab("Density") +
+      xlab("X")
+    p
+  })
+  
+  output$fisherPlot_lower <- renderPlot({
+    funcShaded <- function(x) {
+      y <- df(x, df1 = input$df1_fisher, df2 = input$df2_fisher)
+      y[x > input$x1_fisher] <- NA
+      return(y)
+    }
+    p <- ggplot(data.frame(x = c(0, 5)), aes(x = x)) +
+      stat_function(fun = df, args = list(df1 = input$df1_fisher, df2 = input$df2_fisher)) +
+      stat_function(fun=funcShaded, geom="area", alpha=1) +
+      theme_minimal() +
+      ggtitle(paste0(input$distribution, " distribution")) +
+      theme(plot.title = element_text(face="bold", hjust = 0.5)) +
+      ylab("Density") +
+      xlab("X")
+    p
+  })
+  output$fisherPlot_upper <- renderPlot({
+    funcShaded <- function(x) {
+      y <- df(x, df1 = input$df1_fisher, df2 = input$df2_fisher)
+      y[x < input$x2_fisher] <- NA
+      return(y)
+    }
+    p <- ggplot(data.frame(x = c(0, 5)), aes(x = x)) +
+      stat_function(fun = df, args = list(df1 = input$df1_fisher, df2 = input$df2_fisher)) +
+      stat_function(fun=funcShaded, geom="area", alpha=1) +
+      theme_minimal() +
+      ggtitle(paste0(input$distribution, " distribution")) +
+      theme(plot.title = element_text(face="bold", hjust = 0.5)) +
+      ylab("Density") +
+      xlab("X")
+    p
+  })
+  output$fisherPlot_interval <- renderPlot({
+    funcShaded <- function(x) {
+      y <- df(x, df1 = input$df1_fisher, df2 = input$df2_fisher)
+      y[x < input$a_fisher | x > input$b_fisher] <- NA
+      return(y)
+    }
+    p <- ggplot(data.frame(x = c(0, 5)), aes(x = x)) +
+      stat_function(fun = df, args = list(df1 = input$df1_fisher, df2 = input$df2_fisher)) +
+      stat_function(fun=funcShaded, geom="area", alpha=1) +
+      theme_minimal() +
+      ggtitle(paste0(input$distribution, " distribution")) +
+      theme(plot.title = element_text(face="bold", hjust = 0.5)) +
+      ylab("Density") +
+      xlab("X")
+    p
+  })
+  
+  output$normalPlot_lower <- renderPlot({
+    funcShaded <- function(x) {
+      y <- dnorm(x, mean=input$mean_normal,
+                 sd=ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal))
+      y[x > input$x1_normal] <- NA
+      return(y)
+    }
+    p <- ggplot(data.frame(x = c(input$mean_normal - 4 * ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal), input$mean_normal + 4 * ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal))), aes(x = x)) +
+      stat_function(fun = dnorm, args = list(mean=input$mean_normal,
+                                             sd=ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal))) +
+      stat_function(fun=funcShaded, geom="area", alpha=1) +
+      theme_minimal() +
+      ggtitle(paste0(input$distribution, " distribution")) +
+      theme(plot.title = element_text(face="bold", hjust = 0.5)) +
+      ylab("Density") +
+      xlab("X")
+    p
+  })
+  output$normalPlot_upper <- renderPlot({
+    funcShaded <- function(x) {
+      y <- dnorm(x, mean=input$mean_normal,
+              sd=ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal))
+      y[x < input$x2_normal] <- NA
+      return(y)
+    }
+    p <- ggplot(data.frame(x = c(input$mean_normal - 4 * ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal), input$mean_normal + 4 * ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal))), aes(x = x)) +
+      stat_function(fun = dnorm, args = list(mean=input$mean_normal,
+                                          sd=ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal))) +
+      stat_function(fun=funcShaded, geom="area", alpha=1) +
+      theme_minimal() +
+      ggtitle(paste0(input$distribution, " distribution")) +
+      theme(plot.title = element_text(face="bold", hjust = 0.5)) +
+      ylab("Density") +
+      xlab("X")
+    p
+  })
+  output$normalPlot_interval <- renderPlot({
+    funcShaded <- function(x) {
+      y <- dnorm(x, mean=input$mean_normal,
+              sd=ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal))
+      y[x < input$a_normal | x > input$b_normal] <- NA
+      return(y)
+    }
+    p <- ggplot(data.frame(x = c(input$mean_normal - 4 * ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal), input$mean_normal + 4 * ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal))), aes(x = x)) +
+      stat_function(fun = dnorm, args = list(mean=input$mean_normal,
+                                             sd=ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal))) +
+      stat_function(fun=funcShaded, geom="area", alpha=1) +
+      theme_minimal() +
+      ggtitle(paste0(input$distribution, " distribution")) +
+      theme(plot.title = element_text(face="bold", hjust = 0.5)) +
+      ylab("Density") +
+      xlab("X")
+    p
+  })
+  
+  output$poissonPlot_lower <- renderPlot({
+    p <- data.frame(heads = 0:(input$lambda_poisson + (4*sqrt(input$lambda_poisson))), prob = dpois(x = 0:(input$lambda_poisson + (4*sqrt(input$lambda_poisson))), lambda = input$lambda_poisson)) %>%
+      mutate(Heads = ifelse(heads <= input$x1_poisson, "2", "Other")) %>%
+      ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
+      geom_col() +
+      geom_text(
+        aes(label = round(prob,4), y = prob + 0.005),
+        position = position_dodge(0.9),
+        size = 3,
+        vjust = 0
+      ) +
+      theme_minimal() +
+      theme(legend.position = "none") +
+      ggtitle(paste0(input$distribution, " distribution")) +
+      theme(plot.title = element_text(face="bold", hjust = 0.5)) +
+      ylab("Density") +
+      xlab("X")
+    p
+  })
+  output$poissonPlot_upper <- renderPlot({
+    p <- data.frame(heads = 0:(input$lambda_poisson + (4*sqrt(input$lambda_poisson))), prob = dpois(x = 0:(input$lambda_poisson + (4*sqrt(input$lambda_poisson))), lambda = input$lambda_poisson)) %>%
+      mutate(Heads = ifelse(heads > input$x2_poisson, "2", "other")) %>%
+      ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
+      geom_col() +
+      geom_text(
+        aes(label = round(prob,4), y = prob + 0.005),
+        position = position_dodge(0.9),
+        size = 3,
+        vjust = 0
+      ) +
+      theme_minimal() +
+      theme(legend.position = "none") +
+      ggtitle(paste0(input$distribution, " distribution")) +
+      theme(plot.title = element_text(face="bold", hjust = 0.5)) +
+      ylab("Density") +
+      xlab("X")
+    p
+  })
+  output$poissonPlot_interval <- renderPlot({
+    p <- data.frame(heads = 0:(input$lambda_poisson + (4*sqrt(input$lambda_poisson))), prob = dpois(x = 0:(input$lambda_poisson + (4*sqrt(input$lambda_poisson))), lambda = input$lambda_poisson)) %>%
+      mutate(Heads = ifelse(heads >= input$a_poisson & heads <= input$b_poisson, "2", "other")) %>%
+      ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
+      geom_col() +
+      geom_text(
+        aes(label = round(prob,4), y = prob + 0.005),
+        position = position_dodge(0.9),
+        size = 3,
+        vjust = 0
+      ) +
+      theme_minimal() +
+      theme(legend.position = "none") +
+      ggtitle(paste0(input$distribution, " distribution")) +
+      theme(plot.title = element_text(face="bold", hjust = 0.5)) +
+      ylab("Density") +
+      xlab("X")
+    p
+  })
+  
+  output$studentPlot_lower <- renderPlot({
+    funcShaded <- function(x) {
+      y <- dt(x, df = input$df_student)
+      y[x > input$x1_student] <- NA
+      return(y)
+    }
+    p <- ggplot(data.frame(x = c(-4, 4)), aes(x = x)) +
+      stat_function(fun = dt, args = list(df = input$df_student)) +
+      stat_function(fun=funcShaded, geom="area", alpha=1) +
+      theme_minimal() +
+      ggtitle(paste0(input$distribution, " distribution")) +
+      theme(plot.title = element_text(face="bold", hjust = 0.5)) +
+      ylab("Density") +
+      xlab("X")
+    p
+  })
+  output$studentPlot_upper <- renderPlot({
+    funcShaded <- function(x) {
+      y <- dt(x, df = input$df_student)
+      y[x < input$x2_student] <- NA
+      return(y)
+    }
+    p <- ggplot(data.frame(x = c(-4, 4)), aes(x = x)) +
+      stat_function(fun = dt, args = list(df = input$df_student)) +
+      stat_function(fun=funcShaded, geom="area", alpha=1) +
+      theme_minimal() +
+      ggtitle(paste0(input$distribution, " distribution")) +
+      theme(plot.title = element_text(face="bold", hjust = 0.5)) +
+      ylab("Density") +
+      xlab("X")
+    p
+  })
+  output$studentPlot_interval <- renderPlot({
+    funcShaded <- function(x) {
+      y <- dt(x, df = input$df_student)
+      y[x < input$a_student | x > input$b_student] <- NA
+      return(y)
+    }
+    p <- ggplot(data.frame(x = c(-4, 4)), aes(x = x)) +
+      stat_function(fun = dt, args = list(df = input$df_student)) +
+      stat_function(fun=funcShaded, geom="area", alpha=1) +
+      theme_minimal() +
+      ggtitle(paste0(input$distribution, " distribution")) +
+      theme(plot.title = element_text(face="bold", hjust = 0.5)) +
+      ylab("Density") +
+      xlab("X")
+    p
+  })
+  
+  output$parameters_distribution <- renderUI({
+    if (input$distribution == "Beta") {
+      withMathJax(
+        helpText("\\(\\mu = E(X) = \\frac{\\alpha}{\\alpha + \\beta} = \\)", round(input$alpha_beta  / (input$alpha_beta + input$beta_beta), 3)),
+        helpText("\\(\\sigma = SD(X) = \\sqrt{\\frac{\\alpha\\beta}{(\\alpha + \\beta)^2(\\alpha + \\beta+1)}} = \\)", round(sqrt((input$alpha_beta * input$beta_beta) / (((input$alpha_beta + input$beta_beta)^2)*(input$alpha_beta + input$beta_beta + 1))), 3)),
+        helpText("\\(\\sigma^2 = Var(X) = \\frac{\\alpha\\beta}{(\\alpha + \\beta)^2(\\alpha + \\beta+1)} = \\)", round((input$alpha_beta * input$beta_beta) / (((input$alpha_beta + input$beta_beta)^2)*(input$alpha_beta + input$beta_beta + 1)), 3)))
+    } else if (input$distribution == "Binomial") {
+      withMathJax(
+        helpText("\\(\\mu = E(X) = np = \\)", round(input$n_binomial * input$p_binomial, 3)),
+        helpText("\\(\\sigma = SD(X) = \\sqrt{np(1-p)} = \\)", round(sqrt(input$n_binomial * input$p_binomial * (1 - input$p_binomial)), 3)),
+        helpText("\\(\\sigma^2 = Var(X) = np(1-p) = \\)", round(input$n_binomial * input$p_binomial * (1 - input$p_binomial), 3)))
+    } else if (input$distribution == "Cauchy") {
+      withMathJax(
+        helpText("\\(\\mu = E(X) = Undefined\\)"),
+        helpText("\\(\\sigma = SD(X) = Undefined\\)"),
+        helpText("\\(\\sigma^2 = Var(X) = Undefined \\)"),
+        helpText("\\(median = x_0 = \\)", round(input$location_cauchy, 3)),
+        helpText("\\(mode = x_0 = \\)", round(input$location_cauchy, 3)))
+    } else if (input$distribution == "Chi-square") {
+      withMathJax(
+        helpText("\\(\\mu = E(X) = df = \\)", round(input$df_chisquare, 3)),
+        helpText("\\(\\sigma = SD(X) = \\sqrt{2df} = \\)", round(sqrt(2*input$df_chisquare), 3)),
+        helpText("\\(\\sigma^2 = Var(X) = 2df = \\)", round(2*input$df_chisquare, 3)))
+    } else if (input$distribution == "Fisher") {
+      withMathJax(
+        helpText("\\(\\mu = E(X) = \\frac{df_2}{df_2 - 2} = \\)", ifelse(input$df2_fisher > 2, round(input$df2_fisher / (input$df2_fisher - 2), 3), "Undefined")),
+        helpText("\\(\\sigma = SD(X) = \\sqrt{\\frac{2df^2_2(df_1 + df_2 - 2)}{df_1(df_2 - 2)^2(df_2 - 4)}} = \\)", ifelse(input$df2_fisher > 4, round(sqrt((2*input$df2_fisher^2 * (input$df1_fisher + input$df2_fisher - 2)) / (input$df1_fisher * (input$df2_fisher - 2)^2*(input$df2_fisher - 4))), 3), "Undefined")),
+        helpText("\\(\\sigma^2 = Var(X) = \\frac{2df^2_2(df_1 + df_2 - 2)}{df_1(df_2 - 2)^2(df_2 - 4)} = \\)", ifelse(input$df2_fisher > 4, round((2*input$df2_fisher^2 * (input$df1_fisher + input$df2_fisher - 2)) / (input$df1_fisher * (input$df2_fisher - 2)^2*(input$df2_fisher - 4)), 3), "Undefined")))
+    } else if (input$distribution == "Normal") {
+      withMathJax(
+        helpText("\\(\\mu = E(X) = \\)", round(input$mean_normal, 3)),
+        helpText("\\(\\sigma = SD(X) = \\)", ifelse(input$variance_sd == "variance_true", round(sqrt(input$variance_normal), 3), round(input$sd_normal, 3))),
+        helpText("\\(\\sigma^2 = Var(X) = \\)", ifelse(input$variance_sd == "variance_true", round(input$variance_normal, 3), round(input$sd_normal^2, 3))))
+    } else if (input$distribution == "Poisson") {
+      withMathJax(
+        helpText("\\(\\mu = E(X) = \\lambda = \\)", round(input$lambda_poisson, 3)),
+        helpText("\\(\\sigma = SD(X) = \\sqrt{\\lambda} = \\)", round(sqrt(input$lambda_poisson), 3)),
+        helpText("\\(\\sigma^2 = Var(X) = \\lambda = \\)", round(input$lambda_poisson, 3)))
+    } else if (input$distribution == "Student") {
+      withMathJax(
+        helpText("\\(\\mu = E(X) = \\)", ifelse(input$df_student > 1, 0, "Undefined")),
+        helpText("\\(\\sigma = SD(X) = \\sqrt{\\frac{df}{df - 2}} = \\)", ifelse(input$df_student > 2, round(sqrt(input$df_student / (input$df_student - 2)), 3), "Undefined")),
+        helpText("\\(\\sigma^2 = Var(X) = \\frac{df}{df-2} = \\)", ifelse(input$df_student > 2, round(input$df_student / (input$df_student - 2), 3), "Undefined")))
+    } else {
+      print("in progress")
+    }
+  })
+  
+  # output$results_tests <- renderText({
+  #   "in progress"
+  # })
+}
+
+# Run the application 
+shinyApp(ui = ui, server = server)
+
