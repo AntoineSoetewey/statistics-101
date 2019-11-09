@@ -33,7 +33,7 @@ ui <- fluidPage(
           label = "Distribution:",
           choices = c("Beta", "Binomial", "Cauchy", "Chi-square", "Exponential", "Fisher", "Gamma", "Geometric", "Hypergeometric", "Logistic", "Log-Normal", "Negative Binomial", "Normal", "Poisson", "Student", "Uniform", "Weibull"),
           multiple = FALSE,
-          selected = "Log-Normal"
+          selected = "Negative Binomial"
         ),
         hr(),
         # tags$b("Parameter(s)"),
@@ -125,6 +125,13 @@ ui <- fluidPage(
           condition = "input.distribution == 'Log-Normal' && input.variance_sd_lognormal == 'variance_false'",
           numericInput("sd_lognormal", "Standard deviation \\(\\sigma\\):",
                        value = 1, min = 0, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Negative Binomial'",
+          numericInput("r_negativebinomial", "Number of successes \\(r\\):",
+                       value = 5, min = 0, step = 1),
+          numericInput("p_negativebinomial", "Probability of success \\(p\\):",
+                       value = 0.5, min = 0, max = 1, step = 0.01)
         ),
         conditionalPanel(
           condition = "input.distribution == 'Normal'",
@@ -544,6 +551,26 @@ ui <- fluidPage(
                        value = 2, min = 0, step = 1)
         ),
         conditionalPanel(
+          condition = "input.distribution == 'Negative Binomial' && input.lower_tail_negativebinomial == 'lower.tail'",
+          helpText("Number of failures before the \\(r^{th}\\) success"),
+          numericInput("x1_negativebinomial", "x:",
+                       value = 2, min = 0, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Negative Binomial' && input.lower_tail_negativebinomial == 'upper.tail'",
+          helpText("Number of failures before the \\(r^{th}\\) success"),
+          numericInput("x2_negativebinomial", "x:",
+                       value = 2, min = 0, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Negative Binomial' && input.lower_tail_negativebinomial == 'interval'",
+          helpText("Number of failures before the \\(r^{th}\\) success"),
+          numericInput("a_negativebinomial", "a:",
+                       value = 2, min = 0, step = 1),
+          numericInput("b_negativebinomial", "b: (where a ≤ b)",
+                       value = 4, min = 0, step = 1)
+        ),
+        conditionalPanel(
           condition = "input.distribution == 'Normal' && input.lower_tail_normal == 'lower.tail'",
           numericInput("x1_normal", "x:",
                        value = 1, step = 1)
@@ -923,6 +950,12 @@ server <- function(input, output) {
                                                                                                                                                                                                                                                                                input$lower_tail_lognormal == "upper.tail" ~ paste0("\\(P(X > \\)", " ", input$x2_lognormal, "\\()\\)", " ", "\\( = \\)", " ", "\\( = \\)", " ", round(plnorm(input$x2_lognormal, meanlog = input$mean_lognormal, sdlog = ifelse(input$variance_sd_lognormal == "variance_true", sqrt(input$variance_lognormal), input$sd_lognormal), lower.tail = FALSE), 4)),
                                                                                                                                                                                                                                                                                input$lower_tail_lognormal == "interval" ~ paste0("\\(P(\\)", input$a_lognormal, " ", "\\(\\leq X\\leq \\)", " ", input$b_lognormal, "\\()\\)", " ", "\\( = \\)", " ", ifelse(input$a_lognormal > input$b_lognormal, "a must be less than or equal to b", round(plnorm(input$b_lognormal, meanlog = input$mean_lognormal, sdlog = ifelse(input$variance_sd_lognormal == "variance_true", sqrt(input$variance_lognormal), input$sd_lognormal), lower.tail = TRUE) - plnorm(input$a_lognormal, meanlog = input$mean_lognormal, sdlog = ifelse(input$variance_sd_lognormal == "variance_true", sqrt(input$variance_lognormal), input$sd_lognormal), lower.tail = TRUE), 4)))))
       )
+    } else if (input$distribution == "Negative Binomial") {
+      withMathJax(
+        paste0("\\(X \\sim NG(r = \\)", " ", input$r_negativebinomial, ", ", "\\(p = \\)", " ", input$p_negativebinomial, "\\()\\)", " and ", case_when(input$lower_tail_negativebinomial == "lower.tail" ~ paste0("\\(P(X \\leq \\)", " ", input$x1_negativebinomial, "\\()\\)", " ", "\\( = \\)", " ", round(pnbinom(input$x1_negativebinomial, size = input$r_negativebinomial, prob = input$p_negativebinomial, lower.tail = TRUE), 4)),
+                                                                                                                                         input$lower_tail_negativebinomial == "upper.tail" ~ paste0("\\(P(X > \\)", " ", input$x2_negativebinomial, "\\()\\)", " ", "\\( = \\)", " ", round(pnbinom(input$x2_negativebinomial, size = input$r_negativebinomial, prob = input$p_negativebinomial, lower.tail = FALSE), 4)),
+                                                                                                                                         input$lower_tail_negativebinomial == "interval" ~ paste0("\\(P(\\)", input$a_negativebinomial, " ", "\\(\\leq X\\leq \\)", " ", input$b_negativebinomial, "\\()\\)", " ", "\\( = \\)", " ", ifelse(input$a_negativebinomial > input$b_negativebinomial, "a must be less than or equal to b", round(pnbinom(input$b_negativebinomial, size = input$r_negativebinomial, prob = input$p_negativebinomial, lower.tail = TRUE) - pnbinom(input$a_negativebinomial - 1, size = input$r_negativebinomial, prob = input$p_negativebinomial, lower.tail = TRUE), 4)))))
+      )
     } else if (input$distribution == "Normal") {
       withMathJax(
         paste0("\\(X \\sim \\mathcal{N}(\\mu = \\)", " ", input$mean_normal, ", ", ifelse(input$variance_sd == "variance_true", paste0("\\(\\sigma^2 = \\)", " ", input$variance_normal), paste0("\\(\\sigma^2 = \\)", " ", input$sd_normal^2)), "\\()\\)", " and ", case_when(input$lower_tail_normal == "lower.tail" ~ paste0("\\(P(X \\leq \\)", " ", input$x1_normal, "\\()\\)", " ", "\\( = \\)", " ", "\\(P(Z \\leq \\)", " ", round((input$x1_normal - input$mean_normal) / ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal), 2), "\\()\\)", " ", "\\( = \\)", " " , round(pnorm(input$x1_normal, mean = input$mean_normal, sd = ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal), lower.tail = TRUE), 4)),
@@ -959,7 +992,7 @@ server <- function(input, output) {
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
       ylab("Density") +
-      xlab("X")
+      xlab("x")
     p
   })
   output$betaPlot_upper <- renderPlot({
@@ -975,7 +1008,7 @@ server <- function(input, output) {
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
       ylab("Density") +
-      xlab("X")
+      xlab("x")
     p
   })
   output$betaPlot_interval <- renderPlot({
@@ -991,7 +1024,7 @@ server <- function(input, output) {
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
       ylab("Density") +
-      xlab("X")
+      xlab("x")
     p
   })
   
@@ -1011,7 +1044,7 @@ server <- function(input, output) {
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
       ylab("Density") +
-      xlab("X")
+      xlab("x")
     p
   })
   output$binomialPlot_upper <- renderPlot({
@@ -1030,7 +1063,7 @@ server <- function(input, output) {
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
       ylab("Density") +
-      xlab("X")
+      xlab("x")
     p
   })
   output$binomialPlot_interval <- renderPlot({
@@ -1049,7 +1082,7 @@ server <- function(input, output) {
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
       ylab("Density") +
-      xlab("X")
+      xlab("x")
     p
   })
   
@@ -1066,7 +1099,7 @@ server <- function(input, output) {
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
       ylab("Density") +
-      xlab("X")
+      xlab("x")
     p
   })
   output$cauchyPlot_upper <- renderPlot({
@@ -1082,7 +1115,7 @@ server <- function(input, output) {
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
       ylab("Density") +
-      xlab("X")
+      xlab("x")
     p
   })
   output$cauchyPlot_interval <- renderPlot({
@@ -1098,7 +1131,7 @@ server <- function(input, output) {
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
       ylab("Density") +
-      xlab("X")
+      xlab("x")
     p
   })
   
@@ -1115,7 +1148,7 @@ server <- function(input, output) {
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
       ylab("Density") +
-      xlab("X")
+      xlab("x")
     p
   })
   output$chisquarePlot_upper <- renderPlot({
@@ -1131,7 +1164,7 @@ server <- function(input, output) {
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
       ylab("Density") +
-      xlab("X")
+      xlab("x")
     p
   })
   output$chisquarePlot_interval <- renderPlot({
@@ -1147,7 +1180,7 @@ server <- function(input, output) {
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
       ylab("Density") +
-      xlab("X")
+      xlab("x")
     p
   })
   
@@ -1164,7 +1197,7 @@ server <- function(input, output) {
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
       ylab("Density") +
-      xlab("X")
+      xlab("x")
     p
   })
   output$exponentialPlot_upper <- renderPlot({
@@ -1180,7 +1213,7 @@ server <- function(input, output) {
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
       ylab("Density") +
-      xlab("X")
+      xlab("x")
     p
   })
   output$exponentialPlot_interval <- renderPlot({
@@ -1196,7 +1229,7 @@ server <- function(input, output) {
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
       ylab("Density") +
-      xlab("X")
+      xlab("x")
     p
   })
   
@@ -1213,7 +1246,7 @@ server <- function(input, output) {
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
       ylab("Density") +
-      xlab("X")
+      xlab("x")
     p
   })
   output$fisherPlot_upper <- renderPlot({
@@ -1229,7 +1262,7 @@ server <- function(input, output) {
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
       ylab("Density") +
-      xlab("X")
+      xlab("x")
     p
   })
   output$fisherPlot_interval <- renderPlot({
@@ -1245,7 +1278,7 @@ server <- function(input, output) {
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
       ylab("Density") +
-      xlab("X")
+      xlab("x")
     p
   })
   
@@ -1262,7 +1295,7 @@ server <- function(input, output) {
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
       ylab("Density") +
-      xlab("X")
+      xlab("x")
     p
   })
   output$gammaPlot_upper <- renderPlot({
@@ -1278,7 +1311,7 @@ server <- function(input, output) {
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
       ylab("Density") +
-      xlab("X")
+      xlab("x")
     p
   })
   output$gammaPlot_interval <- renderPlot({
@@ -1294,7 +1327,7 @@ server <- function(input, output) {
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
       ylab("Density") +
-      xlab("X")
+      xlab("x")
     p
   })
   
@@ -1314,7 +1347,7 @@ server <- function(input, output) {
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
       ylab("Density") +
-      xlab("X")
+      xlab("x")
     p
   })
   output$geometricPlot_upper <- renderPlot({
@@ -1333,7 +1366,7 @@ server <- function(input, output) {
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
       ylab("Density") +
-      xlab("X")
+      xlab("x")
     p
   })
   output$geometricPlot_interval <- renderPlot({
@@ -1352,7 +1385,7 @@ server <- function(input, output) {
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
       ylab("Density") +
-      xlab("X")
+      xlab("x")
     p
   })
   
@@ -1372,7 +1405,7 @@ server <- function(input, output) {
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
       ylab("Density") +
-      xlab("X")
+      xlab("x")
     p
   })
   output$hypergeometricPlot_upper <- renderPlot({
@@ -1391,7 +1424,7 @@ server <- function(input, output) {
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
       ylab("Density") +
-      xlab("X")
+      xlab("x")
     p
   })
   output$hypergeometricPlot_interval <- renderPlot({
@@ -1410,7 +1443,7 @@ server <- function(input, output) {
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
       ylab("Density") +
-      xlab("X")
+      xlab("x")
     p
   })
   
@@ -1427,7 +1460,7 @@ server <- function(input, output) {
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
       ylab("Density") +
-      xlab("X")
+      xlab("x")
     p
   })
   output$logisticPlot_upper <- renderPlot({
@@ -1443,7 +1476,7 @@ server <- function(input, output) {
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
       ylab("Density") +
-      xlab("X")
+      xlab("x")
     p
   })
   output$logisticPlot_interval <- renderPlot({
@@ -1459,7 +1492,7 @@ server <- function(input, output) {
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
       ylab("Density") +
-      xlab("X")
+      xlab("x")
     p
   })
   
@@ -1478,7 +1511,7 @@ server <- function(input, output) {
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
       ylab("Density") +
-      xlab("X")
+      xlab("x")
     p
   })
   output$lognormalPlot_upper <- renderPlot({
@@ -1496,7 +1529,7 @@ server <- function(input, output) {
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
       ylab("Density") +
-      xlab("X")
+      xlab("x")
     p
   })
   output$lognormalPlot_interval <- renderPlot({
@@ -1514,7 +1547,65 @@ server <- function(input, output) {
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
       ylab("Density") +
-      xlab("X")
+      xlab("x")
+    p
+  })
+  
+  output$negativebinomialPlot_lower <- renderPlot({
+    p <- data.frame(heads = 0:ceiling(qnbinom(0.999, size = input$r_negativebinomial, prob = input$p_negativebinomial)), prob = dnbinom(x = 0:ceiling(qnbinom(0.999, size = input$r_negativebinomial, prob = input$p_negativebinomial)), size = input$r_negativebinomial, prob = input$p_negativebinomial)) %>%
+      mutate(Heads = ifelse(heads <= input$x1_negativebinomial, "2", "Other")) %>%
+      ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
+      geom_col() +
+      geom_text(
+        aes(label = round(prob,3), y = prob + 0.005),
+        position = position_dodge(0.9),
+        size = 3,
+        vjust = 0
+      ) +
+      theme_minimal() +
+      theme(legend.position = "none") +
+      ggtitle(paste0(input$distribution, " distribution")) +
+      theme(plot.title = element_text(face="bold", hjust = 0.5)) +
+      ylab("Density") +
+      xlab("x")
+    p
+  })
+  output$negativebinomialPlot_upper <- renderPlot({
+    p <- data.frame(heads = 0:ceiling(qnbinom(0.999, size = input$r_negativebinomial, prob = input$p_negativebinomial)), prob = dnbinom(x = 0:ceiling(qnbinom(0.999, size = input$r_negativebinomial, prob = input$p_negativebinomial)), size = input$r_negativebinomial, prob = input$p_negativebinomial)) %>%
+      mutate(Heads = ifelse(heads > input$x2_negativebinomial, "2", "other")) %>%
+      ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
+      geom_col() +
+      geom_text(
+        aes(label = round(prob,3), y = prob + 0.005),
+        position = position_dodge(0.9),
+        size = 3,
+        vjust = 0
+      ) +
+      theme_minimal() +
+      theme(legend.position = "none") +
+      ggtitle(paste0(input$distribution, " distribution")) +
+      theme(plot.title = element_text(face="bold", hjust = 0.5)) +
+      ylab("Density") +
+      xlab("x")
+    p
+  })
+  output$negativebinomialPlot_interval <- renderPlot({
+    p <- data.frame(heads = 0:ceiling(qnbinom(0.999, size = input$r_negativebinomial, prob = input$p_negativebinomial)), prob = dnbinom(x = 0:ceiling(qnbinom(0.999, size = input$r_negativebinomial, prob = input$p_negativebinomial)), size = input$r_negativebinomial, prob = input$p_negativebinomial)) %>%
+      mutate(Heads = ifelse(heads >= input$a_negativebinomial & heads <= input$b_negativebinomial, "2", "other")) %>%
+      ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
+      geom_col() +
+      geom_text(
+        aes(label = round(prob,3), y = prob + 0.005),
+        position = position_dodge(0.9),
+        size = 3,
+        vjust = 0
+      ) +
+      theme_minimal() +
+      theme(legend.position = "none") +
+      ggtitle(paste0(input$distribution, " distribution")) +
+      theme(plot.title = element_text(face="bold", hjust = 0.5)) +
+      ylab("Density") +
+      xlab("x")
     p
   })
   
@@ -1533,7 +1624,7 @@ server <- function(input, output) {
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
       ylab("Density") +
-      xlab("X")
+      xlab("x")
     p
   })
   output$normalPlot_upper <- renderPlot({
@@ -1551,7 +1642,7 @@ server <- function(input, output) {
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
       ylab("Density") +
-      xlab("X")
+      xlab("x")
     p
   })
   output$normalPlot_interval <- renderPlot({
@@ -1569,7 +1660,7 @@ server <- function(input, output) {
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
       ylab("Density") +
-      xlab("X")
+      xlab("x")
     p
   })
   
@@ -1589,7 +1680,7 @@ server <- function(input, output) {
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
       ylab("Density") +
-      xlab("X")
+      xlab("x")
     p
   })
   output$poissonPlot_upper <- renderPlot({
@@ -1608,7 +1699,7 @@ server <- function(input, output) {
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
       ylab("Density") +
-      xlab("X")
+      xlab("x")
     p
   })
   output$poissonPlot_interval <- renderPlot({
@@ -1627,7 +1718,7 @@ server <- function(input, output) {
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
       ylab("Density") +
-      xlab("X")
+      xlab("x")
     p
   })
   
@@ -1644,7 +1735,7 @@ server <- function(input, output) {
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
       ylab("Density") +
-      xlab("X")
+      xlab("x")
     p
   })
   output$studentPlot_upper <- renderPlot({
@@ -1660,7 +1751,7 @@ server <- function(input, output) {
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
       ylab("Density") +
-      xlab("X")
+      xlab("x")
     p
   })
   output$studentPlot_interval <- renderPlot({
@@ -1676,7 +1767,7 @@ server <- function(input, output) {
       ggtitle(paste0(input$distribution, " distribution")) +
       theme(plot.title = element_text(face="bold", hjust = 0.5)) +
       ylab("Density") +
-      xlab("X")
+      xlab("x")
     p
   })
   
@@ -1738,6 +1829,11 @@ server <- function(input, output) {
         helpText("\\(E(X) = e^{\\mu + \\frac{\\sigma^2}{2}} = \\)", round(exp(input$mean_lognormal + ifelse(input$variance_sd_lognormal == "variance_true", input$variance_lognormal/2, (input$sd_lognormal^2)/2)), 3)),
         helpText("\\(SD(X) = \\sqrt{(e^{\\sigma^2} - 1)e^{2\\mu + \\sigma^2}} = \\)", round(sqrt((exp(ifelse(input$variance_sd_lognormal == "variance_true", input$variance_lognormal, (input$sd_lognormal^2))) - 1)*exp((2*input$mean_lognormal) + ifelse(input$variance_sd_lognormal == "variance_true", input$variance_lognormal, (input$sd_lognormal^2)))), 3)),
         helpText("\\(Var(X) = (e^{\\sigma^2} - 1)e^{2\\mu + \\sigma^2} = \\)", round((exp(ifelse(input$variance_sd_lognormal == "variance_true", input$variance_lognormal, (input$sd_lognormal^2))) - 1)*exp((2*input$mean_lognormal) + ifelse(input$variance_sd_lognormal == "variance_true", input$variance_lognormal, (input$sd_lognormal^2))), 3)))
+    } else if (input$distribution == "Negative Binomial") {
+      withMathJax(
+        helpText("\\(\\mu = E(X) = \\frac{r(1-p)}{p} = \\)", round((input$r_negativebinomial*(1 - input$p_negativebinomial)/input$p_negativebinomial), 3)),
+        helpText("\\(\\sigma = SD(X) = \\sqrt{\\frac{r(1-p)}{p^2}} = \\)", round(sqrt((input$r_negativebinomial*(1 - input$p_negativebinomial)/(input$p_negativebinomial^2))), 3)),
+        helpText("\\(\\sigma^2 = Var(X) = \\frac{r(1-p)}{p^2} = \\)", round((input$r_negativebinomial*(1 - input$p_negativebinomial)/(input$p_negativebinomial^2)), 3)))
     } else if (input$distribution == "Normal") {
       withMathJax(
         helpText("\\(\\mu = E(X) = \\)", round(input$mean_normal, 3)),
