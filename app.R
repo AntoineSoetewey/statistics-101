@@ -647,7 +647,7 @@ ui <- fluidPage(
                        value = 1.2, min = 0, step = 1)
         ),
         hr(),
-        HTML('<p>Report a <a href="https://github.com/AntoineSoetewey/statistics-101/issues">bug</a> or view the <a href="https://github.com/AntoineSoetewey/statistics-101/blob/master/app.R">code</a>.</p>')
+        HTML('<p>Report a <a href="https://github.com/AntoineSoetewey/statistics-101/issues">bug</a> or view the <a href="https://github.com/AntoineSoetewey/statistics-101/blob/master/app.R">code</a>. Back to <a href="https://www.antoinesoetewey.com/">www.antoinesoetewey.com</a>.</p>')
         ),
       
       # Show a plot of the generated distribution
@@ -850,9 +850,9 @@ ui <- fluidPage(
         ),
         br(),
         uiOutput("parameters_distribution"),
-        br(),
-        br(),
-        tags$a(href="https://www.antoinesoetewey.com/", "Back to www.antoinesoetewey.com"),
+        # br(),
+        # br(),
+        # tags$a(href="https://www.antoinesoetewey.com/", "Back to www.antoinesoetewey.com"),
         br(),
         br()
       )
@@ -1004,7 +1004,7 @@ server <- function(input, output) {
       y[x > input$x1_beta] <- NA
       return(y)
     }
-    p <- ggplot(data.frame(x = c(0, 1)), aes(x = x)) +
+    p <- ggplot(data.frame(x = c(qbeta(0.99999, shape1 = input$alpha_beta, shape2 = input$beta_beta, lower.tail = FALSE), qbeta(0.99999, shape1 = input$alpha_beta, shape2 = input$beta_beta, lower.tail = TRUE))), aes(x = x)) +
       stat_function(fun = dbeta, args = list(shape1 = input$alpha_beta, shape2 = input$beta_beta)) +
       stat_function(fun=funcShaded, geom="area", alpha=0.8) +
       theme_minimal() +
@@ -1020,7 +1020,7 @@ server <- function(input, output) {
       y[x < input$x2_beta] <- NA
       return(y)
     }
-    p <- ggplot(data.frame(x = c(0, 1)), aes(x = x)) +
+    p <- ggplot(data.frame(x = c(qbeta(0.99999, shape1 = input$alpha_beta, shape2 = input$beta_beta, lower.tail = FALSE), qbeta(0.99999, shape1 = input$alpha_beta, shape2 = input$beta_beta, lower.tail = TRUE))), aes(x = x)) +
       stat_function(fun = dbeta, args = list(shape1 = input$alpha_beta, shape2 = input$beta_beta)) +
       stat_function(fun=funcShaded, geom="area", alpha=0.8) +
       theme_minimal() +
@@ -1036,7 +1036,7 @@ server <- function(input, output) {
       y[x < input$a_beta | x > input$b_beta] <- NA
       return(y)
     }
-    p <- ggplot(data.frame(x = c(0, 1)), aes(x = x)) +
+    p <- ggplot(data.frame(x = c(qbeta(0.99999, shape1 = input$alpha_beta, shape2 = input$beta_beta, lower.tail = FALSE), qbeta(0.99999, shape1 = input$alpha_beta, shape2 = input$beta_beta, lower.tail = TRUE))), aes(x = x)) +
       stat_function(fun = dbeta, args = list(shape1 = input$alpha_beta, shape2 = input$beta_beta)) +
       stat_function(fun=funcShaded, geom="area", alpha=0.8) +
       theme_minimal() +
@@ -1048,7 +1048,7 @@ server <- function(input, output) {
   })
   
   output$binomialPlot_lower <- renderPlot({
-    p <- data.frame(heads = 0:input$n_binomial, prob = dbinom(x = 0:input$n_binomial, size = input$n_binomial, prob = input$p_binomial)) %>%
+    p <- data.frame(heads = qbinom(0.99999, size = input$n_binomial, prob = input$p_binomial, lower.tail = FALSE):qbinom(0.99999, size = input$n_binomial, prob = input$p_binomial, lower.tail = TRUE), prob = dbinom(x = qbinom(0.99999, size = input$n_binomial, prob = input$p_binomial, lower.tail = FALSE):qbinom(0.99999, size = input$n_binomial, prob = input$p_binomial, lower.tail = TRUE), size = input$n_binomial, prob = input$p_binomial)) %>%
       mutate(Heads = ifelse(heads <= input$x1_binomial, "2", "Other")) %>%
       ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
       geom_col() +
@@ -1067,7 +1067,7 @@ server <- function(input, output) {
     p
   })
   output$binomialPlot_upper <- renderPlot({
-    p <- data.frame(heads = 0:input$n_binomial, prob = dbinom(x = 0:input$n_binomial, size = input$n_binomial, prob = input$p_binomial)) %>%
+    p <- data.frame(heads = qbinom(0.99999, size = input$n_binomial, prob = input$p_binomial, lower.tail = FALSE):qbinom(0.99999, size = input$n_binomial, prob = input$p_binomial, lower.tail = TRUE), prob = dbinom(x = qbinom(0.99999, size = input$n_binomial, prob = input$p_binomial, lower.tail = FALSE):qbinom(0.99999, size = input$n_binomial, prob = input$p_binomial, lower.tail = TRUE), size = input$n_binomial, prob = input$p_binomial)) %>%
       mutate(Heads = ifelse(heads > input$x2_binomial, "2", "other")) %>%
       ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
       geom_col() +
@@ -1086,7 +1086,7 @@ server <- function(input, output) {
     p
   })
   output$binomialPlot_interval <- renderPlot({
-    p <- data.frame(heads = 0:input$n_binomial, prob = dbinom(x = 0:input$n_binomial, size = input$n_binomial, prob = input$p_binomial)) %>%
+    p <- data.frame(heads = qbinom(0.99999, size = input$n_binomial, prob = input$p_binomial, lower.tail = FALSE):qbinom(0.99999, size = input$n_binomial, prob = input$p_binomial, lower.tail = TRUE), prob = dbinom(x = qbinom(0.99999, size = input$n_binomial, prob = input$p_binomial, lower.tail = FALSE):qbinom(0.99999, size = input$n_binomial, prob = input$p_binomial, lower.tail = TRUE), size = input$n_binomial, prob = input$p_binomial)) %>%
       mutate(Heads = ifelse(heads >= input$a_binomial & heads <= input$b_binomial, "2", "other")) %>%
       ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
       geom_col() +
@@ -1160,7 +1160,7 @@ server <- function(input, output) {
       y[x > input$x1_chisquare] <- NA
       return(y)
     }
-    p <- ggplot(data.frame(x = c(0, input$df_chisquare + (4*sqrt(2*input$df_chisquare)))), aes(x = x)) +
+    p <- ggplot(data.frame(x = c(qchisq(0.99999, df = input$df_chisquare, lower.tail = FALSE), qchisq(0.99999, df = input$df_chisquare, lower.tail = TRUE))), aes(x = x)) +
       stat_function(fun = dchisq, args = list(df = input$df_chisquare)) +
       stat_function(fun=funcShaded, geom="area", alpha=0.8) +
       theme_minimal() +
@@ -1176,7 +1176,7 @@ server <- function(input, output) {
       y[x < input$x2_chisquare] <- NA
       return(y)
     }
-    p <- ggplot(data.frame(x = c(0, input$df_chisquare + (4*sqrt(2*input$df_chisquare)))), aes(x = x)) +
+    p <- ggplot(data.frame(x = c(qchisq(0.99999, df = input$df_chisquare, lower.tail = FALSE), qchisq(0.99999, df = input$df_chisquare, lower.tail = TRUE))), aes(x = x)) +
       stat_function(fun = dchisq, args = list(df = input$df_chisquare)) +
       stat_function(fun=funcShaded, geom="area", alpha=0.8) +
       theme_minimal() +
@@ -1192,7 +1192,7 @@ server <- function(input, output) {
       y[x < input$a_chisquare | x > input$b_chisquare] <- NA
       return(y)
     }
-    p <- ggplot(data.frame(x = c(0, input$df_chisquare + (4*sqrt(2*input$df_chisquare)))), aes(x = x)) +
+    p <- ggplot(data.frame(x = c(qchisq(0.99999, df = input$df_chisquare, lower.tail = FALSE), qchisq(0.99999, df = input$df_chisquare, lower.tail = TRUE))), aes(x = x)) +
       stat_function(fun = dchisq, args = list(df = input$df_chisquare)) +
       stat_function(fun=funcShaded, geom="area", alpha=0.8) +
       theme_minimal() +
@@ -1209,7 +1209,7 @@ server <- function(input, output) {
       y[x > input$x1_exponential] <- NA
       return(y)
     }
-    p <- ggplot(data.frame(x = c(0, 1/input$rate_exponential + (5*1/input$rate_exponential))), aes(x = x)) +
+    p <- ggplot(data.frame(x = c(qexp(0.99999, rate = input$rate_exponential, lower.tail = FALSE), qexp(0.99999, rate = input$rate_exponential, lower.tail = TRUE))), aes(x = x)) +
       stat_function(fun = dexp, args = list(rate = input$rate_exponential)) +
       stat_function(fun=funcShaded, geom="area", alpha=0.8) +
       theme_minimal() +
@@ -1225,7 +1225,7 @@ server <- function(input, output) {
       y[x < input$x2_exponential] <- NA
       return(y)
     }
-    p <- ggplot(data.frame(x = c(0, 1/input$rate_exponential + (5*1/input$rate_exponential))), aes(x = x)) +
+    p <- ggplot(data.frame(x = c(qexp(0.99999, rate = input$rate_exponential, lower.tail = FALSE), qexp(0.99999, rate = input$rate_exponential, lower.tail = TRUE))), aes(x = x)) +
       stat_function(fun = dexp, args = list(rate = input$rate_exponential)) +
       stat_function(fun=funcShaded, geom="area", alpha=0.8) +
       theme_minimal() +
@@ -1241,7 +1241,7 @@ server <- function(input, output) {
       y[x < input$a_exponential | x > input$b_exponential] <- NA
       return(y)
     }
-    p <- ggplot(data.frame(x = c(0, 1/input$rate_exponential + (5*1/input$rate_exponential))), aes(x = x)) +
+    p <- ggplot(data.frame(x = c(qexp(0.99999, rate = input$rate_exponential, lower.tail = FALSE), qexp(0.99999, rate = input$rate_exponential, lower.tail = TRUE))), aes(x = x)) +
       stat_function(fun = dexp, args = list(rate = input$rate_exponential)) +
       stat_function(fun=funcShaded, geom="area", alpha=0.8) +
       theme_minimal() +
@@ -1307,7 +1307,7 @@ server <- function(input, output) {
       y[x > input$x1_gamma] <- NA
       return(y)
     }
-    p <- ggplot(data.frame(x = c(0, (input$alpha_gamma / input$beta_gamma) + (4*sqrt(input$alpha_gamma/(input$beta_gamma^2))))), aes(x = x)) +
+    p <- ggplot(data.frame(x = c(qgamma(0.99999, shape = input$alpha_gamma, rate = input$beta_gamma, lower.tail = FALSE), qgamma(0.99999, shape = input$alpha_gamma, rate = input$beta_gamma, lower.tail = TRUE))), aes(x = x)) +
       stat_function(fun = dgamma, args = list(shape = input$alpha_gamma, rate = input$beta_gamma)) +
       stat_function(fun=funcShaded, geom="area", alpha=0.8) +
       theme_minimal() +
@@ -1323,7 +1323,7 @@ server <- function(input, output) {
       y[x < input$x2_gamma] <- NA
       return(y)
     }
-    p <- ggplot(data.frame(x = c(0, (input$alpha_gamma / input$beta_gamma) + (4*sqrt(input$alpha_gamma/(input$beta_gamma^2))))), aes(x = x)) +
+    p <- ggplot(data.frame(x = c(qgamma(0.99999, shape = input$alpha_gamma, rate = input$beta_gamma, lower.tail = FALSE), qgamma(0.99999, shape = input$alpha_gamma, rate = input$beta_gamma, lower.tail = TRUE))), aes(x = x)) +
       stat_function(fun = dgamma, args = list(shape = input$alpha_gamma, rate = input$beta_gamma)) +
       stat_function(fun=funcShaded, geom="area", alpha=0.8) +
       theme_minimal() +
@@ -1339,7 +1339,7 @@ server <- function(input, output) {
       y[x < input$a_gamma | x > input$b_gamma] <- NA
       return(y)
     }
-    p <- ggplot(data.frame(x = c(0, (input$alpha_gamma / input$beta_gamma) + (4*sqrt(input$alpha_gamma/(input$beta_gamma^2))))), aes(x = x)) +
+    p <- ggplot(data.frame(x = c(qgamma(0.99999, shape = input$alpha_gamma, rate = input$beta_gamma, lower.tail = FALSE), qgamma(0.99999, shape = input$alpha_gamma, rate = input$beta_gamma, lower.tail = TRUE))), aes(x = x)) +
       stat_function(fun = dgamma, args = list(shape = input$alpha_gamma, rate = input$beta_gamma)) +
       stat_function(fun=funcShaded, geom="area", alpha=0.8) +
       theme_minimal() +
@@ -1409,7 +1409,7 @@ server <- function(input, output) {
   })
   
   output$hypergeometricPlot_lower <- renderPlot({
-    p <- data.frame(heads = 0:(input$n_hypergeometric*(input$M_hypergeometric/input$N_hypergeometric) + (5*sqrt(input$n_hypergeometric*input$M_hypergeometric/input$N_hypergeometric*(1-(input$M_hypergeometric/input$N_hypergeometric))*((input$N_hypergeometric-input$n_hypergeometric)/(input$N_hypergeometric-1))))), prob = dhyper(x = 0:(input$n_hypergeometric*(input$M_hypergeometric/input$N_hypergeometric) + (5*sqrt(input$n_hypergeometric*input$M_hypergeometric/input$N_hypergeometric*(1-(input$M_hypergeometric/input$N_hypergeometric))*((input$N_hypergeometric-input$n_hypergeometric)/(input$N_hypergeometric-1))))), m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric)) %>%
+    p <- data.frame(heads = qhyper(0.99999, m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric, lower.tail = FALSE):qhyper(0.99999, m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric, lower.tail = TRUE), prob = dhyper(x = qhyper(0.99999, m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric, lower.tail = FALSE):qhyper(0.99999, m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric, lower.tail = TRUE), m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric)) %>%
       mutate(Heads = ifelse(heads <= input$x1_hypergeometric, "2", "Other")) %>%
       ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
       geom_col() +
@@ -1428,7 +1428,7 @@ server <- function(input, output) {
     p
   })
   output$hypergeometricPlot_upper <- renderPlot({
-    p <- data.frame(heads = 0:(input$n_hypergeometric*(input$M_hypergeometric/input$N_hypergeometric) + (5*sqrt(input$n_hypergeometric*input$M_hypergeometric/input$N_hypergeometric*(1-(input$M_hypergeometric/input$N_hypergeometric))*((input$N_hypergeometric-input$n_hypergeometric)/(input$N_hypergeometric-1))))), prob = dhyper(x = 0:(input$n_hypergeometric*(input$M_hypergeometric/input$N_hypergeometric) + (5*sqrt(input$n_hypergeometric*input$M_hypergeometric/input$N_hypergeometric*(1-(input$M_hypergeometric/input$N_hypergeometric))*((input$N_hypergeometric-input$n_hypergeometric)/(input$N_hypergeometric-1))))), m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric)) %>%
+    p <- data.frame(heads = qhyper(0.99999, m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric, lower.tail = FALSE):qhyper(0.99999, m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric, lower.tail = TRUE), prob = dhyper(x = qhyper(0.99999, m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric, lower.tail = FALSE):qhyper(0.99999, m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric, lower.tail = TRUE), m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric)) %>%
       mutate(Heads = ifelse(heads > input$x2_hypergeometric, "2", "other")) %>%
       ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
       geom_col() +
@@ -1447,7 +1447,7 @@ server <- function(input, output) {
     p
   })
   output$hypergeometricPlot_interval <- renderPlot({
-    p <- data.frame(heads = 0:(input$n_hypergeometric*(input$M_hypergeometric/input$N_hypergeometric) + (5*sqrt(input$n_hypergeometric*input$M_hypergeometric/input$N_hypergeometric*(1-(input$M_hypergeometric/input$N_hypergeometric))*((input$N_hypergeometric-input$n_hypergeometric)/(input$N_hypergeometric-1))))), prob = dhyper(x = 0:(input$n_hypergeometric*(input$M_hypergeometric/input$N_hypergeometric) + (5*sqrt(input$n_hypergeometric*input$M_hypergeometric/input$N_hypergeometric*(1-(input$M_hypergeometric/input$N_hypergeometric))*((input$N_hypergeometric-input$n_hypergeometric)/(input$N_hypergeometric-1))))), m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric)) %>%
+    p <- data.frame(heads = qhyper(0.99999, m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric, lower.tail = FALSE):qhyper(0.99999, m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric, lower.tail = TRUE), prob = dhyper(x = qhyper(0.99999, m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric, lower.tail = FALSE):qhyper(0.99999, m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric, lower.tail = TRUE), m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric)) %>%
       mutate(Heads = ifelse(heads >= input$a_hypergeometric & heads <= input$b_hypergeometric, "2", "other")) %>%
       ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
       geom_col() +
@@ -1472,7 +1472,7 @@ server <- function(input, output) {
       y[x > input$x1_logistic] <- NA
       return(y)
     }
-    p <- ggplot(data.frame(x = c(input$location_logistic - (6*input$scale_logistic), input$location_logistic + (6*input$scale_logistic))), aes(x = x)) +
+    p <- ggplot(data.frame(x = c(qlogis(0.99999, location = input$location_logistic, scale = input$scale_logistic, lower.tail = FALSE), qlogis(0.99999, location = input$location_logistic, scale = input$scale_logistic, lower.tail = TRUE))), aes(x = x)) +
       stat_function(fun = dlogis, args = list(location = input$location_logistic, scale = input$scale_logistic)) +
       stat_function(fun=funcShaded, geom="area", alpha=0.8) +
       theme_minimal() +
@@ -1488,7 +1488,7 @@ server <- function(input, output) {
       y[x < input$x2_logistic] <- NA
       return(y)
     }
-    p <- ggplot(data.frame(x = c(input$location_logistic - (6*input$scale_logistic), input$location_logistic + (6*input$scale_logistic))), aes(x = x)) +
+    p <- ggplot(data.frame(x = c(qlogis(0.99999, location = input$location_logistic, scale = input$scale_logistic, lower.tail = FALSE), qlogis(0.99999, location = input$location_logistic, scale = input$scale_logistic, lower.tail = TRUE))), aes(x = x)) +
       stat_function(fun = dlogis, args = list(location = input$location_logistic, scale = input$scale_logistic)) +
       stat_function(fun=funcShaded, geom="area", alpha=0.8) +
       theme_minimal() +
@@ -1504,7 +1504,7 @@ server <- function(input, output) {
       y[x < input$a_logistic | x > input$b_logistic] <- NA
       return(y)
     }
-    p <- ggplot(data.frame(x = c(input$location_logistic - (6*input$scale_logistic), input$location_logistic + (6*input$scale_logistic))), aes(x = x)) +
+    p <- ggplot(data.frame(x = c(qlogis(0.99999, location = input$location_logistic, scale = input$scale_logistic, lower.tail = FALSE), qlogis(0.99999, location = input$location_logistic, scale = input$scale_logistic, lower.tail = TRUE))), aes(x = x)) +
       stat_function(fun = dlogis, args = list(location = input$location_logistic, scale = input$scale_logistic)) +
       stat_function(fun=funcShaded, geom="area", alpha=0.8) +
       theme_minimal() +
@@ -1571,7 +1571,7 @@ server <- function(input, output) {
   })
   
   output$negativebinomialPlot_lower <- renderPlot({
-    p <- data.frame(heads = 0:ceiling(qnbinom(0.999, size = input$r_negativebinomial, prob = input$p_negativebinomial)), prob = dnbinom(x = 0:ceiling(qnbinom(0.999, size = input$r_negativebinomial, prob = input$p_negativebinomial)), size = input$r_negativebinomial, prob = input$p_negativebinomial)) %>%
+    p <- data.frame(heads = qnbinom(0.99999, size = input$r_negativebinomial, prob = input$p_negativebinomial, lower.tail = FALSE):qnbinom(0.99999, size = input$r_negativebinomial, prob = input$p_negativebinomial, lower.tail = TRUE), prob = dnbinom(x = qnbinom(0.99999, size = input$r_negativebinomial, prob = input$p_negativebinomial, lower.tail = FALSE):qnbinom(0.99999, size = input$r_negativebinomial, prob = input$p_negativebinomial, lower.tail = TRUE), size = input$r_negativebinomial, prob = input$p_negativebinomial)) %>%
       mutate(Heads = ifelse(heads <= input$x1_negativebinomial, "2", "Other")) %>%
       ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
       geom_col() +
@@ -1590,7 +1590,7 @@ server <- function(input, output) {
     p
   })
   output$negativebinomialPlot_upper <- renderPlot({
-    p <- data.frame(heads = 0:ceiling(qnbinom(0.999, size = input$r_negativebinomial, prob = input$p_negativebinomial)), prob = dnbinom(x = 0:ceiling(qnbinom(0.999, size = input$r_negativebinomial, prob = input$p_negativebinomial)), size = input$r_negativebinomial, prob = input$p_negativebinomial)) %>%
+    p <- data.frame(heads = qnbinom(0.99999, size = input$r_negativebinomial, prob = input$p_negativebinomial, lower.tail = FALSE):qnbinom(0.99999, size = input$r_negativebinomial, prob = input$p_negativebinomial, lower.tail = TRUE), prob = dnbinom(x = qnbinom(0.99999, size = input$r_negativebinomial, prob = input$p_negativebinomial, lower.tail = FALSE):qnbinom(0.99999, size = input$r_negativebinomial, prob = input$p_negativebinomial, lower.tail = TRUE), size = input$r_negativebinomial, prob = input$p_negativebinomial)) %>%
       mutate(Heads = ifelse(heads > input$x2_negativebinomial, "2", "other")) %>%
       ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
       geom_col() +
@@ -1609,7 +1609,7 @@ server <- function(input, output) {
     p
   })
   output$negativebinomialPlot_interval <- renderPlot({
-    p <- data.frame(heads = 0:ceiling(qnbinom(0.999, size = input$r_negativebinomial, prob = input$p_negativebinomial)), prob = dnbinom(x = 0:ceiling(qnbinom(0.999, size = input$r_negativebinomial, prob = input$p_negativebinomial)), size = input$r_negativebinomial, prob = input$p_negativebinomial)) %>%
+    p <- data.frame(heads = qnbinom(0.99999, size = input$r_negativebinomial, prob = input$p_negativebinomial, lower.tail = FALSE):qnbinom(0.99999, size = input$r_negativebinomial, prob = input$p_negativebinomial, lower.tail = TRUE), prob = dnbinom(x = qnbinom(0.99999, size = input$r_negativebinomial, prob = input$p_negativebinomial, lower.tail = FALSE):qnbinom(0.99999, size = input$r_negativebinomial, prob = input$p_negativebinomial, lower.tail = TRUE), size = input$r_negativebinomial, prob = input$p_negativebinomial)) %>%
       mutate(Heads = ifelse(heads >= input$a_negativebinomial & heads <= input$b_negativebinomial, "2", "other")) %>%
       ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
       geom_col() +
@@ -1635,7 +1635,7 @@ server <- function(input, output) {
       y[x > input$x1_normal] <- NA
       return(y)
     }
-    p <- ggplot(data.frame(x = c(input$mean_normal - 4 * ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal), input$mean_normal + 4 * ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal))), aes(x = x)) +
+    p <- ggplot(data.frame(x = c(qnorm(0.99999, mean=input$mean_normal, sd=ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal), lower.tail = FALSE), qnorm(0.99999, mean=input$mean_normal, sd=ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal), lower.tail = TRUE))), aes(x = x)) +
       stat_function(fun = dnorm, args = list(mean=input$mean_normal,
                                              sd=ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal))) +
       stat_function(fun=funcShaded, geom="area", alpha=0.8) +
@@ -1653,7 +1653,7 @@ server <- function(input, output) {
       y[x < input$x2_normal] <- NA
       return(y)
     }
-    p <- ggplot(data.frame(x = c(input$mean_normal - 4 * ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal), input$mean_normal + 4 * ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal))), aes(x = x)) +
+    p <- ggplot(data.frame(x = c(qnorm(0.99999, mean=input$mean_normal, sd=ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal), lower.tail = FALSE), qnorm(0.99999, mean=input$mean_normal, sd=ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal), lower.tail = TRUE))), aes(x = x)) +
       stat_function(fun = dnorm, args = list(mean=input$mean_normal,
                                           sd=ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal))) +
       stat_function(fun=funcShaded, geom="area", alpha=0.8) +
@@ -1671,7 +1671,7 @@ server <- function(input, output) {
       y[x < input$a_normal | x > input$b_normal] <- NA
       return(y)
     }
-    p <- ggplot(data.frame(x = c(input$mean_normal - 4 * ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal), input$mean_normal + 4 * ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal))), aes(x = x)) +
+    p <- ggplot(data.frame(x = c(qnorm(0.99999, mean=input$mean_normal, sd=ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal), lower.tail = FALSE), qnorm(0.99999, mean=input$mean_normal, sd=ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal), lower.tail = TRUE))), aes(x = x)) +
       stat_function(fun = dnorm, args = list(mean=input$mean_normal,
                                              sd=ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal))) +
       stat_function(fun=funcShaded, geom="area", alpha=0.8) +
@@ -1684,7 +1684,7 @@ server <- function(input, output) {
   })
   
   output$poissonPlot_lower <- renderPlot({
-    p <- data.frame(heads = 0:(input$lambda_poisson + (4*sqrt(input$lambda_poisson))), prob = dpois(x = 0:(input$lambda_poisson + (4*sqrt(input$lambda_poisson))), lambda = input$lambda_poisson)) %>%
+    p <- data.frame(heads = qpois(0.99999, lambda = input$lambda_poisson, lower.tail = FALSE):qpois(0.99999, lambda = input$lambda_poisson, lower.tail = TRUE), prob = dpois(x = qpois(0.99999, lambda = input$lambda_poisson, lower.tail = FALSE):qpois(0.99999, lambda = input$lambda_poisson, lower.tail = TRUE), lambda = input$lambda_poisson)) %>%
       mutate(Heads = ifelse(heads <= input$x1_poisson, "2", "Other")) %>%
       ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
       geom_col() +
@@ -1703,7 +1703,7 @@ server <- function(input, output) {
     p
   })
   output$poissonPlot_upper <- renderPlot({
-    p <- data.frame(heads = 0:(input$lambda_poisson + (4*sqrt(input$lambda_poisson))), prob = dpois(x = 0:(input$lambda_poisson + (4*sqrt(input$lambda_poisson))), lambda = input$lambda_poisson)) %>%
+    p <- data.frame(heads = qpois(0.99999, lambda = input$lambda_poisson, lower.tail = FALSE):qpois(0.99999, lambda = input$lambda_poisson, lower.tail = TRUE), prob = dpois(x = qpois(0.99999, lambda = input$lambda_poisson, lower.tail = FALSE):qpois(0.99999, lambda = input$lambda_poisson, lower.tail = TRUE), lambda = input$lambda_poisson)) %>%
       mutate(Heads = ifelse(heads > input$x2_poisson, "2", "other")) %>%
       ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
       geom_col() +
@@ -1722,7 +1722,7 @@ server <- function(input, output) {
     p
   })
   output$poissonPlot_interval <- renderPlot({
-    p <- data.frame(heads = 0:(input$lambda_poisson + (4*sqrt(input$lambda_poisson))), prob = dpois(x = 0:(input$lambda_poisson + (4*sqrt(input$lambda_poisson))), lambda = input$lambda_poisson)) %>%
+    p <- data.frame(heads = qpois(0.99999, lambda = input$lambda_poisson, lower.tail = FALSE):qpois(0.99999, lambda = input$lambda_poisson, lower.tail = TRUE), prob = dpois(x = qpois(0.99999, lambda = input$lambda_poisson, lower.tail = FALSE):qpois(0.99999, lambda = input$lambda_poisson, lower.tail = TRUE), lambda = input$lambda_poisson)) %>%
       mutate(Heads = ifelse(heads >= input$a_poisson & heads <= input$b_poisson, "2", "other")) %>%
       ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
       geom_col() +
@@ -1747,7 +1747,7 @@ server <- function(input, output) {
       y[x > input$x1_student] <- NA
       return(y)
     }
-    p <- ggplot(data.frame(x = c(-4, 4)), aes(x = x)) +
+    p <- ggplot(data.frame(x = c(qt(0.99999, df = input$df_student, lower.tail = FALSE), qt(0.99999, df = input$df_student, lower.tail = TRUE))), aes(x = x)) +
       stat_function(fun = dt, args = list(df = input$df_student)) +
       stat_function(fun=funcShaded, geom="area", alpha=0.8) +
       theme_minimal() +
@@ -1763,7 +1763,7 @@ server <- function(input, output) {
       y[x < input$x2_student] <- NA
       return(y)
     }
-    p <- ggplot(data.frame(x = c(-4, 4)), aes(x = x)) +
+    p <- ggplot(data.frame(x = c(qt(0.99999, df = input$df_student, lower.tail = FALSE), qt(0.99999, df = input$df_student, lower.tail = TRUE))), aes(x = x)) +
       stat_function(fun = dt, args = list(df = input$df_student)) +
       stat_function(fun=funcShaded, geom="area", alpha=0.8) +
       theme_minimal() +
@@ -1779,7 +1779,7 @@ server <- function(input, output) {
       y[x < input$a_student | x > input$b_student] <- NA
       return(y)
     }
-    p <- ggplot(data.frame(x = c(-4, 4)), aes(x = x)) +
+    p <- ggplot(data.frame(x = c(qt(0.99999, df = input$df_student, lower.tail = FALSE), qt(0.99999, df = input$df_student, lower.tail = TRUE))), aes(x = x)) +
       stat_function(fun = dt, args = list(df = input$df_student)) +
       stat_function(fun=funcShaded, geom="area", alpha=0.8) +
       theme_minimal() +
