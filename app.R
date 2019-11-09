@@ -33,7 +33,7 @@ ui <- fluidPage(
           label = "Distribution:",
           choices = c("Beta", "Binomial", "Cauchy", "Chi-square", "Exponential", "Fisher", "Gamma", "Geometric", "Hypergeometric", "Logistic", "Log-Normal", "Negative Binomial", "Normal", "Poisson", "Student", "Uniform", "Weibull"),
           multiple = FALSE,
-          selected = "Normal"
+          selected = "Log-Normal"
         ),
         hr(),
         # tags$b("Parameter(s)"),
@@ -101,6 +101,29 @@ ui <- fluidPage(
           numericInput("location_logistic", "Location \\(\\mu\\):",
                        value = 0, step = 1),
           numericInput("scale_logistic", "Scale \\(s\\):",
+                       value = 1, min = 0, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Log-Normal'",
+          numericInput("mean_lognormal", "Mean \\(\\mu\\):",
+                       value = 0, step = 1),
+          radioButtons(
+            inputId = "variance_sd_lognormal",
+            label = NULL,
+            choices = c(
+              "Variance \\(\\sigma^2\\)" = "variance_true",
+              "Standard deviation \\(\\sigma\\)" = "variance_false"
+            )
+          )
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Log-Normal' && input.variance_sd_lognormal == 'variance_true'",
+          numericInput("variance_lognormal", "Variance \\(\\sigma^2\\):",
+                       value = 1, min = 0, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Log-Normal' && input.variance_sd_lognormal == 'variance_false'",
+          numericInput("sd_lognormal", "Standard deviation \\(\\sigma\\):",
                        value = 1, min = 0, step = 1)
         ),
         conditionalPanel(
@@ -504,6 +527,23 @@ ui <- fluidPage(
                        value = 1.2, step = 1)
         ),
         conditionalPanel(
+          condition = "input.distribution == 'Log-Normal' && input.lower_tail_lognormal == 'lower.tail'",
+          numericInput("x1_lognormal", "x:",
+                       value = 1, min = 0, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Log-Normal' && input.lower_tail_lognormal == 'upper.tail'",
+          numericInput("x2_lognormal", "x:",
+                       value = 1, min = 0, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Log-Normal' && input.lower_tail_lognormal == 'interval'",
+          numericInput("a_lognormal", "a:",
+                       value = 1, min = 0, step = 1),
+          numericInput("b_lognormal", "b: (where a ≤ b)",
+                       value = 2, min = 0, step = 1)
+        ),
+        conditionalPanel(
           condition = "input.distribution == 'Normal' && input.lower_tail_normal == 'lower.tail'",
           numericInput("x1_normal", "x:",
                        value = 1, step = 1)
@@ -876,6 +916,12 @@ server <- function(input, output) {
         paste0("\\(X \\sim Logi(\\mu = \\)", " ", input$location_logistic, ", ", "\\(s = \\)", " ", input$scale_logistic, "\\()\\)", " and ", case_when(input$lower_tail_logistic == "lower.tail" ~ paste0("\\(P(X \\leq \\)", " ", input$x1_logistic, "\\()\\)", " ", "\\( = \\)", " ", round(plogis(input$x1_logistic, location = input$location_logistic, scale = input$scale_logistic, lower.tail = TRUE), 4)),
                                                                                                                                                            input$lower_tail_logistic == "upper.tail" ~ paste0("\\(P(X > \\)", " ", input$x2_logistic, "\\()\\)", " ", "\\( = \\)", " ", round(plogis(input$x2_logistic, location = input$location_logistic, scale = input$scale_logistic, lower.tail = FALSE), 4)),
                                                                                                                                                            input$lower_tail_logistic == "interval" ~ paste0("\\(P(\\)", input$a_logistic, " ", "\\(\\leq X\\leq \\)", " ", input$b_logistic, "\\()\\)", " ", "\\( = \\)", " ", ifelse(input$a_logistic > input$b_logistic, "a must be less than or equal to b", round(plogis(input$b_logistic, location = input$location_logistic, scale = input$scale_logistic, lower.tail = TRUE) - plogis(input$a_logistic, location = input$location_logistic, scale = input$scale_logistic, lower.tail = TRUE), 4)))))
+      )
+    } else if (input$distribution == "Log-Normal") {
+      withMathJax(
+        paste0("\\(X \\sim Lognormal(\\mu = \\)", " ", input$mean_lognormal, ", ", ifelse(input$variance_sd_lognormal == "variance_true", paste0("\\(\\sigma^2 = \\)", " ", input$variance_lognormal), paste0("\\(\\sigma^2 = \\)", " ", input$sd_lognormal^2)), "\\()\\)", " and ", case_when(input$lower_tail_lognormal == "lower.tail" ~ paste0("\\(P(X \\leq \\)", " ", input$x1_lognormal, "\\()\\)", " ", "\\( = \\)", " " , round(plnorm(input$x1_lognormal, meanlog = input$mean_lognormal, sdlog = ifelse(input$variance_sd_lognormal == "variance_true", sqrt(input$variance_lognormal), input$sd_lognormal), lower.tail = TRUE), 4)),
+                                                                                                                                                                                                                                                                               input$lower_tail_lognormal == "upper.tail" ~ paste0("\\(P(X > \\)", " ", input$x2_lognormal, "\\()\\)", " ", "\\( = \\)", " ", "\\( = \\)", " ", round(plnorm(input$x2_lognormal, meanlog = input$mean_lognormal, sdlog = ifelse(input$variance_sd_lognormal == "variance_true", sqrt(input$variance_lognormal), input$sd_lognormal), lower.tail = FALSE), 4)),
+                                                                                                                                                                                                                                                                               input$lower_tail_lognormal == "interval" ~ paste0("\\(P(\\)", input$a_lognormal, " ", "\\(\\leq X\\leq \\)", " ", input$b_lognormal, "\\()\\)", " ", "\\( = \\)", " ", ifelse(input$a_lognormal > input$b_lognormal, "a must be less than or equal to b", round(plnorm(input$b_lognormal, meanlog = input$mean_lognormal, sdlog = ifelse(input$variance_sd_lognormal == "variance_true", sqrt(input$variance_lognormal), input$sd_lognormal), lower.tail = TRUE) - plnorm(input$a_lognormal, meanlog = input$mean_lognormal, sdlog = ifelse(input$variance_sd_lognormal == "variance_true", sqrt(input$variance_lognormal), input$sd_lognormal), lower.tail = TRUE), 4)))))
       )
     } else if (input$distribution == "Normal") {
       withMathJax(
@@ -1417,6 +1463,61 @@ server <- function(input, output) {
     p
   })
   
+  output$lognormalPlot_lower <- renderPlot({
+    funcShaded <- function(x) {
+      y <- dlnorm(x, meanlog=input$mean_lognormal,
+                 sdlog=ifelse(input$variance_sd_lognormal == "variance_true", sqrt(input$variance_lognormal), input$sd_lognormal))
+      y[x > input$x1_lognormal] <- NA
+      return(y)
+    }
+    p <- ggplot(data.frame(x = c(0,qlnorm(0.9, meanlog = input$mean_lognormal, sdlog = input$sd_lognormal))), aes(x = x)) +
+      stat_function(fun = dlnorm, args = list(meanlog=input$mean_lognormal,
+                                             sdlog=ifelse(input$variance_sd_lognormal == "variance_true", sqrt(input$variance_lognormal), input$sd_lognormal))) +
+      stat_function(fun=funcShaded, geom="area", alpha=0.8) +
+      theme_minimal() +
+      ggtitle(paste0(input$distribution, " distribution")) +
+      theme(plot.title = element_text(face="bold", hjust = 0.5)) +
+      ylab("Density") +
+      xlab("X")
+    p
+  })
+  output$lognormalPlot_upper <- renderPlot({
+    funcShaded <- function(x) {
+      y <- dlnorm(x, meanlog=input$mean_lognormal,
+                 sdlog=ifelse(input$variance_sd_lognormal == "variance_true", sqrt(input$variance_lognormal), input$sd_lognormal))
+      y[x < input$x2_lognormal] <- NA
+      return(y)
+    }
+    p <- ggplot(data.frame(x = c(0,qlnorm(0.9, meanlog = input$mean_lognormal, sdlog = input$sd_lognormal))), aes(x = x)) +
+      stat_function(fun = dlnorm, args = list(meanlog=input$mean_lognormal,
+                                             sdlog=ifelse(input$variance_sd_lognormal == "variance_true", sqrt(input$variance_lognormal), input$sd_lognormal))) +
+      stat_function(fun=funcShaded, geom="area", alpha=0.8) +
+      theme_minimal() +
+      ggtitle(paste0(input$distribution, " distribution")) +
+      theme(plot.title = element_text(face="bold", hjust = 0.5)) +
+      ylab("Density") +
+      xlab("X")
+    p
+  })
+  output$lognormalPlot_interval <- renderPlot({
+    funcShaded <- function(x) {
+      y <- dlnorm(x, meanlog=input$mean_lognormal,
+                 sdlog=ifelse(input$variance_sd_lognormal == "variance_true", sqrt(input$variance_lognormal), input$sd_lognormal))
+      y[x < input$a_lognormal | x > input$b_lognormal] <- NA
+      return(y)
+    }
+    p <- ggplot(data.frame(x = c(0,qlnorm(0.9, meanlog = input$mean_lognormal, sdlog = input$sd_lognormal))), aes(x = x)) +
+      stat_function(fun = dlnorm, args = list(meanlog=input$mean_lognormal,
+                                             sdlog=ifelse(input$variance_sd_lognormal == "variance_true", sqrt(input$variance_lognormal), input$sd_lognormal))) +
+      stat_function(fun=funcShaded, geom="area", alpha=0.8) +
+      theme_minimal() +
+      ggtitle(paste0(input$distribution, " distribution")) +
+      theme(plot.title = element_text(face="bold", hjust = 0.5)) +
+      ylab("Density") +
+      xlab("X")
+    p
+  })
+  
   output$normalPlot_lower <- renderPlot({
     funcShaded <- function(x) {
       y <- dnorm(x, mean=input$mean_normal,
@@ -1632,6 +1733,11 @@ server <- function(input, output) {
         helpText("\\(\\mu = E(X) = \\mu = \\)", round(input$location_logistic, 3)),
         helpText("\\(\\sigma = SD(X) = \\sqrt{\\frac{s^2\\pi^2}{3}} = \\)", round(sqrt(((input$scale_logistic^2)*(pi^2))/3), 3)),
         helpText("\\(\\sigma^2 = Var(X) = \\frac{s^2\\pi^2}{3} = \\)", round(((input$scale_logistic^2)*(pi^2))/3, 3)))
+    } else if (input$distribution == "Log-Normal") {
+      withMathJax(
+        helpText("\\(E(X) = e^{\\mu + \\frac{\\sigma^2}{2}} = \\)", round(exp(input$mean_lognormal + ifelse(input$variance_sd_lognormal == "variance_true", input$variance_lognormal/2, (input$sd_lognormal^2)/2)), 3)),
+        helpText("\\(SD(X) = \\sqrt{(e^{\\sigma^2} - 1)e^{2\\mu + \\sigma^2}} = \\)", round(sqrt((exp(ifelse(input$variance_sd_lognormal == "variance_true", input$variance_lognormal, (input$sd_lognormal^2))) - 1)*exp((2*input$mean_lognormal) + ifelse(input$variance_sd_lognormal == "variance_true", input$variance_lognormal, (input$sd_lognormal^2)))), 3)),
+        helpText("\\(Var(X) = (e^{\\sigma^2} - 1)e^{2\\mu + \\sigma^2} = \\)", round((exp(ifelse(input$variance_sd_lognormal == "variance_true", input$variance_lognormal, (input$sd_lognormal^2))) - 1)*exp((2*input$mean_lognormal) + ifelse(input$variance_sd_lognormal == "variance_true", input$variance_lognormal, (input$sd_lognormal^2))), 3)))
     } else if (input$distribution == "Normal") {
       withMathJax(
         helpText("\\(\\mu = E(X) = \\)", round(input$mean_normal, 3)),
