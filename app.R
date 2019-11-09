@@ -11,6 +11,7 @@ library(shiny)
 library(dplyr)
 library(ggplot2)
 library(dplyr)
+library(mixdist)
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
@@ -31,9 +32,9 @@ ui <- fluidPage(
         selectInput(
           inputId = "distribution",
           label = "Distribution:",
-          choices = c("Beta", "Binomial", "Cauchy", "Chi-square", "Exponential", "Fisher", "Gamma", "Geometric", "Hypergeometric", "Logistic", "Log-Normal", "Negative Binomial", "Normal", "Poisson", "Student", "Uniform", "Weibull"),
+          choices = c("Beta", "Binomial", "Cauchy", "Chi-square", "Exponential", "Fisher", "Gamma", "Geometric", "Hypergeometric", "Logistic", "Log-Normal", "Negative Binomial", "Normal", "Poisson", "Student", "Weibull"),
           multiple = FALSE,
-          selected = "Negative Binomial"
+          selected = "Normal"
         ),
         hr(),
         # tags$b("Parameter(s)"),
@@ -165,6 +166,13 @@ ui <- fluidPage(
           condition = "input.distribution == 'Student'",
           numericInput("df_student", "Degrees of freedom \\(df\\):",
                        value = 10, min = 1, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Weibull'",
+          numericInput("alpha_weibull", "Shape \\(\\alpha\\):",
+                       value = 5, min = 0, step = 1),
+          numericInput("beta_weibull", "Scale \\(\\beta\\):",
+                       value = 1, min = 0, step = 1)
         ),
         hr(),
         conditionalPanel(
@@ -621,6 +629,23 @@ ui <- fluidPage(
           numericInput("b_student", "b: (where a ≤ b)",
                        value = 1, step = 1)
         ),
+        conditionalPanel(
+          condition = "input.distribution == 'Weibull' && input.lower_tail_weibull == 'lower.tail'",
+          numericInput("x1_weibull", "x:",
+                       value = 0.8, min = 0, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Weibull' && input.lower_tail_weibull == 'upper.tail'",
+          numericInput("x2_weibull", "x:",
+                       value = 0.8, min = 0, step = 1)
+        ),
+        conditionalPanel(
+          condition = "input.distribution == 'Weibull' && input.lower_tail_weibull == 'interval'",
+          numericInput("a_weibull", "a:",
+                       value = 0.8, min = 0, step = 1),
+          numericInput("b_weibull", "b: (where a ≤ b)",
+                       value = 1.2, min = 0, step = 1)
+        ),
         hr(),
         HTML('<p>Report a <a href="https://github.com/AntoineSoetewey/statistics-101/issues">bug</a> or view the <a href="https://github.com/AntoineSoetewey/statistics-101/blob/master/app.R">code</a>.</p>')
         ),
@@ -812,18 +837,6 @@ ui <- fluidPage(
           plotOutput("studentPlot_interval")
         ),
         conditionalPanel(
-          condition = "input.distribution == 'Uniform' && input.lower_tail_uniform == 'lower.tail'",
-          plotOutput("uniformPlot_lower")
-        ),
-        conditionalPanel(
-          condition = "input.distribution == 'Uniform' && input.lower_tail_uniform == 'upper.tail'",
-          plotOutput("uniformPlot_upper")
-        ),
-        conditionalPanel(
-          condition = "input.distribution == 'Uniform' && input.lower_tail_uniform == 'interval'",
-          plotOutput("uniformPlot_interval")
-        ),
-        conditionalPanel(
           condition = "input.distribution == 'Weibull' && input.lower_tail_weibull == 'lower.tail'",
           plotOutput("weibullPlot_lower")
         ),
@@ -973,6 +986,12 @@ server <- function(input, output) {
         paste0("\\(X \\sim St(df = \\)", " ", input$df_student, "\\()\\)", " and ", case_when(input$lower_tail_student == "lower.tail" ~ paste0("\\(P(X \\leq \\)", " ", input$x1_student, "\\()\\)", " ", "\\( = \\)", " ", round(pt(input$x1_student, df = input$df_student, lower.tail = TRUE), 4)),
                                                                       input$lower_tail_student == "upper.tail" ~ paste0("\\(P(X > \\)", " ", input$x2_student, "\\()\\)", " ", "\\( = \\)", " ", round(pt(input$x2_student, df = input$df_student, lower.tail = FALSE), 4)),
                                                                       input$lower_tail_student == "interval" ~ paste0("\\(P(\\)", input$a_student, " ", "\\(\\leq X\\leq \\)", " ", input$b_student, "\\()\\)", " ", "\\( = \\)", " ", ifelse(input$a_student > input$b_student, "a must be less than or equal to b", round(pt(input$b_student, df = input$df_student, lower.tail = TRUE) - pt(input$a_student, df = input$df_student, lower.tail = TRUE), 4)))))
+      )
+    } else if (input$distribution == "Weibull") {
+      withMathJax(
+        paste0("\\(X \\sim Weibull(\\alpha = \\)", " ", input$alpha_weibull, ", ", "\\(\\beta = \\)", " ", input$beta_weibull, "\\()\\)", " and ", case_when(input$lower_tail_weibull == "lower.tail" ~ paste0("\\(P(X \\leq \\)", " ", input$x1_weibull, "\\()\\)", " ", "\\( = \\)", " ", round(pweibull(input$x1_weibull, shape = input$alpha_weibull, scale = input$beta_weibull, lower.tail = TRUE), 4)),
+                                                                                                                                                       input$lower_tail_weibull == "upper.tail" ~ paste0("\\(P(X > \\)", " ", input$x2_weibull, "\\()\\)", " ", "\\( = \\)", " ", round(pweibull(input$x2_weibull, shape = input$alpha_weibull, scale = input$beta_weibull, lower.tail = FALSE), 4)),
+                                                                                                                                                       input$lower_tail_weibull == "interval" ~ paste0("\\(P(\\)", input$a_weibull, " ", "\\(\\leq X\\leq \\)", " ", input$b_weibull, "\\()\\)", " ", "\\( = \\)", " ", ifelse(input$a_weibull > input$b_weibull, "a must be less than or equal to b", round(pweibull(input$b_weibull, shape = input$alpha_weibull, scale = input$beta_weibull, lower.tail = TRUE) - pweibull(input$a_weibull, shape = input$alpha_weibull, scale = input$beta_weibull, lower.tail = TRUE), 4)))))
       )
     } else {
       print("in progress")
@@ -1771,6 +1790,55 @@ server <- function(input, output) {
     p
   })
   
+  output$weibullPlot_lower <- renderPlot({
+    funcShaded <- function(x) {
+      y <- dweibull(x, shape = input$alpha_weibull, scale = input$beta_weibull)
+      y[x > input$x1_weibull] <- NA
+      return(y)
+    }
+    p <- ggplot(data.frame(x = c(qweibull(0.99999, shape = input$alpha_weibull, scale = input$beta_weibull, lower.tail = FALSE), qweibull(0.99999, shape = input$alpha_weibull, scale = input$beta_weibull, lower.tail = TRUE))), aes(x = x)) +
+      stat_function(fun = dweibull, args = list(shape = input$alpha_weibull, scale = input$beta_weibull)) +
+      stat_function(fun=funcShaded, geom="area", alpha=0.8) +
+      theme_minimal() +
+      ggtitle(paste0(input$distribution, " distribution")) +
+      theme(plot.title = element_text(face="bold", hjust = 0.5)) +
+      ylab("Density") +
+      xlab("x")
+    p
+  })
+  output$weibullPlot_upper <- renderPlot({
+    funcShaded <- function(x) {
+      y <- dweibull(x, shape = input$alpha_weibull, scale = input$beta_weibull)
+      y[x < input$x2_weibull] <- NA
+      return(y)
+    }
+    p <- ggplot(data.frame(x = c(qweibull(0.99999, shape = input$alpha_weibull, scale = input$beta_weibull, lower.tail = FALSE), qweibull(0.99999, shape = input$alpha_weibull, scale = input$beta_weibull, lower.tail = TRUE))), aes(x = x)) +
+      stat_function(fun = dweibull, args = list(shape = input$alpha_weibull, scale = input$beta_weibull)) +
+      stat_function(fun=funcShaded, geom="area", alpha=0.8) +
+      theme_minimal() +
+      ggtitle(paste0(input$distribution, " distribution")) +
+      theme(plot.title = element_text(face="bold", hjust = 0.5)) +
+      ylab("Density") +
+      xlab("x")
+    p
+  })
+  output$weibullPlot_interval <- renderPlot({
+    funcShaded <- function(x) {
+      y <- dweibull(x, shape = input$alpha_weibull, scale = input$beta_weibull)
+      y[x < input$a_weibull | x > input$b_weibull] <- NA
+      return(y)
+    }
+    p <- ggplot(data.frame(x = c(qweibull(0.99999, shape = input$alpha_weibull, scale = input$beta_weibull, lower.tail = FALSE), qweibull(0.99999, shape = input$alpha_weibull, scale = input$beta_weibull, lower.tail = TRUE))), aes(x = x)) +
+      stat_function(fun = dweibull, args = list(shape = input$alpha_weibull, scale = input$beta_weibull)) +
+      stat_function(fun=funcShaded, geom="area", alpha=0.8) +
+      theme_minimal() +
+      ggtitle(paste0(input$distribution, " distribution")) +
+      theme(plot.title = element_text(face="bold", hjust = 0.5)) +
+      ylab("Density") +
+      xlab("x")
+    p
+  })
+  
   output$parameters_distribution <- renderUI({
     if (input$distribution == "Beta") {
       withMathJax(
@@ -1849,6 +1917,11 @@ server <- function(input, output) {
         helpText("\\(\\mu = E(X) = \\)", ifelse(input$df_student > 1, 0, "Undefined")),
         helpText("\\(\\sigma = SD(X) = \\sqrt{\\frac{df}{df - 2}} = \\)", ifelse(input$df_student > 2, round(sqrt(input$df_student / (input$df_student - 2)), 3), "Undefined")),
         helpText("\\(\\sigma^2 = Var(X) = \\frac{df}{df-2} = \\)", ifelse(input$df_student > 2, round(input$df_student / (input$df_student - 2), 3), "Undefined")))
+    } else if (input$distribution == "Weibull") {
+      withMathJax(
+        helpText("\\(\\mu = E(X) = \\beta\\Gamma\\big(1 + \\frac{1}{\\alpha}\\big) = \\)", round(weibullparinv(shape = input$alpha_weibull, scale = input$beta_weibull, loc = 0)$mu, 3)),
+        helpText("\\(\\sigma = SD(X) = \\sqrt{\\beta^2\\Big(\\Gamma\\big(1 + \\frac{2}{\\alpha}\\big) - \\Gamma\\big(1 + \\frac{1}{\\alpha}\\big)^2\\Big)} = \\)", round(weibullparinv(shape = input$alpha_weibull, scale = input$beta_weibull, loc = 0)$sigma, 3)),
+        helpText("\\(\\sigma^2 = Var(X) = \\beta^2\\Big(\\Gamma\\big(1 + \\frac{2}{\\alpha}\\big) - \\Gamma\\big(1 + \\frac{1}{\\alpha}\\big)^2\\Big) = \\)", round(weibullparinv(shape = input$alpha_weibull, scale = input$beta_weibull, loc = 0)$sigma^2, 3)))
     } else {
       print("in progress")
     }
