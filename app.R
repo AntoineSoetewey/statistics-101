@@ -17,7 +17,7 @@ library(mixdist)
 ui <- fluidPage(
    
    # Application title
-   titlePanel("Statistics 101"),
+   titlePanel("Statistics 101 - Probability distributions"),
    h4(tags$a(href="https://www.antoinesoetewey.com/", "Antoine Soetewey")),
    withMathJax(),
    
