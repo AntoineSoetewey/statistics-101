@@ -849,6 +849,8 @@ ui <- fluidPage(
           plotOutput("weibullPlot_interval")
         ),
         br(),
+        tags$b("Details:"),
+        br(),
         uiOutput("parameters_distribution"),
         # br(),
         # br(),
@@ -1842,16 +1844,25 @@ server <- function(input, output) {
   output$parameters_distribution <- renderUI({
     if (input$distribution == "Beta") {
       withMathJax(
+        helpText("Probability density function: $$ f(x) = \\frac{\\Gamma(\\alpha + \\beta)}{\\Gamma(\\alpha)\\Gamma(\\beta)} x^{\\alpha-1} (1 - x)^{\\beta - 1} $$"),
+        helpText("where \\( 0 \\leq x \\leq 1, \\alpha > 0, \\beta > 0\\)"),
+        br(),
         helpText("\\(\\mu = E(X) = \\frac{\\alpha}{\\alpha + \\beta} = \\)", round(input$alpha_beta  / (input$alpha_beta + input$beta_beta), 3)),
         helpText("\\(\\sigma = SD(X) = \\sqrt{\\frac{\\alpha\\beta}{(\\alpha + \\beta)^2(\\alpha + \\beta+1)}} = \\)", round(sqrt((input$alpha_beta * input$beta_beta) / (((input$alpha_beta + input$beta_beta)^2)*(input$alpha_beta + input$beta_beta + 1))), 3)),
         helpText("\\(\\sigma^2 = Var(X) = \\frac{\\alpha\\beta}{(\\alpha + \\beta)^2(\\alpha + \\beta+1)} = \\)", round((input$alpha_beta * input$beta_beta) / (((input$alpha_beta + input$beta_beta)^2)*(input$alpha_beta + input$beta_beta + 1)), 3)))
     } else if (input$distribution == "Binomial") {
       withMathJax(
+        helpText("Probability density function: $$ f(x) = P(X = x) = \\binom{n}{x}p^x(1-p)^{n-x}$$ "),
+        helpText("where \\( x = 0, 1, \\dots, n\\) and \\( 0 \\leq p \\leq 1 \\)"),
+        br(),
         helpText("\\(\\mu = E(X) = np = \\)", round(input$n_binomial * input$p_binomial, 3)),
         helpText("\\(\\sigma = SD(X) = \\sqrt{np(1-p)} = \\)", round(sqrt(input$n_binomial * input$p_binomial * (1 - input$p_binomial)), 3)),
         helpText("\\(\\sigma^2 = Var(X) = np(1-p) = \\)", round(input$n_binomial * input$p_binomial * (1 - input$p_binomial), 3)))
     } else if (input$distribution == "Cauchy") {
       withMathJax(
+        helpText("Probability density function: $$ f(x) = \\frac{1}{\\pi\\gamma \\Big[ 1 + \\big(\\frac{x - x_0}{\\gamma}\\big)^2\\Big]} $$"),
+        helpText("where \\( -\\infty < x_0 < \\infty, -\\infty < x < \\infty, y > 0\\)"),
+        br(),
         helpText("\\(\\mu = E(X) = Undefined\\)"),
         helpText("\\(\\sigma = SD(X) = Undefined\\)"),
         helpText("\\(\\sigma^2 = Var(X) = Undefined \\)"),
@@ -1859,66 +1870,105 @@ server <- function(input, output) {
         helpText("\\(mode = x_0 = \\)", round(input$location_cauchy, 3)))
     } else if (input$distribution == "Chi-square") {
       withMathJax(
+        helpText("Probability density function: $$ f(x) = \\frac{1}{2^{df/2}\\Gamma\\big(\\frac{df}{2}\\big)} x^{df/2 - 1} e^{-x/2} $$"),
+        helpText("where \\( x > 0, df > 0\\)"),
+        br(),
         helpText("\\(\\mu = E(X) = df = \\)", round(input$df_chisquare, 3)),
         helpText("\\(\\sigma = SD(X) = \\sqrt{2df} = \\)", round(sqrt(2*input$df_chisquare), 3)),
         helpText("\\(\\sigma^2 = Var(X) = 2df = \\)", round(2*input$df_chisquare, 3)))
     } else if (input$distribution == "Exponential") {
       withMathJax(
+        helpText("Probability density function: $$ f(x) = \\lambda e^{-\\lambda x} $$"),
+        helpText("where \\( x > 0, \\lambda > 0\\)"),
+        br(),
         helpText("\\(\\mu = E(X) = \\frac{1}{\\lambda} = \\)", round(1/input$rate_exponential, 3)),
         helpText("\\(\\sigma = SD(X) = \\frac{1}{\\lambda} = \\)", round(1/input$rate_exponential, 3)),
         helpText("\\(\\sigma^2 = Var(X) = \\frac{1}{\\lambda^2} = \\)", round(1/(input$rate_exponential^2), 3)))
     } else if (input$distribution == "Fisher") {
       withMathJax(
+        helpText("Probability density function: $$ f(x) = \\frac{\\sqrt{\\frac{(df_1 x)^{df_1} df_2^{df_2}}{(df_1 x + df_2)^{df_1 + df_2}}}}{x} $$"),
+        helpText("where \\( 0 \\leq x \\leq 1, \\alpha > 0, \\beta > 0\\)"),
+        br(),
         helpText("\\(\\mu = E(X) = \\frac{df_2}{df_2 - 2} = \\)", ifelse(input$df2_fisher > 2, round(input$df2_fisher / (input$df2_fisher - 2), 3), "Undefined")),
         helpText("\\(\\sigma = SD(X) = \\sqrt{\\frac{2df^2_2(df_1 + df_2 - 2)}{df_1(df_2 - 2)^2(df_2 - 4)}} = \\)", ifelse(input$df2_fisher > 4, round(sqrt((2*input$df2_fisher^2 * (input$df1_fisher + input$df2_fisher - 2)) / (input$df1_fisher * (input$df2_fisher - 2)^2*(input$df2_fisher - 4))), 3), "Undefined")),
         helpText("\\(\\sigma^2 = Var(X) = \\frac{2df^2_2(df_1 + df_2 - 2)}{df_1(df_2 - 2)^2(df_2 - 4)} = \\)", ifelse(input$df2_fisher > 4, round((2*input$df2_fisher^2 * (input$df1_fisher + input$df2_fisher - 2)) / (input$df1_fisher * (input$df2_fisher - 2)^2*(input$df2_fisher - 4)), 3), "Undefined")))
     } else if (input$distribution == "Gamma") {
       withMathJax(
+        hhelpText("Probability density function: $$ f(x) = \\frac{\\Gamma(\\alpha + \\beta)}{\\Gamma(\\alpha)\\Gamma(\\beta)} x^{\\alpha-1} (1 - x)^{\\beta - 1} $$"),
+        helpText("where \\( 0 \\leq x \\leq 1, \\alpha > 0, \\beta > 0\\)"),
+        br(),
         helpText("\\(\\mu = E(X) = \\frac{\\alpha}{\\beta} = \\)", round(input$alpha_gamma  / input$beta_gamma, 3)),
         helpText("\\(\\sigma = SD(X) = \\sqrt{\\frac{\\alpha}{\\beta^2}} = \\)", round(sqrt(input$alpha_gamma / (input$beta_gamma^2)), 3)),
         helpText("\\(\\sigma^2 = Var(X) = \\frac{\\alpha}{\\beta^2} = \\)", round(input$alpha_gamma / (input$beta_gamma^2), 3)))
     } else if (input$distribution == "Geometric") {
       withMathJax(
+        helpText("Probability density function: $$ f(x) = \\frac{\\Gamma(\\alpha + \\beta)}{\\Gamma(\\alpha)\\Gamma(\\beta)} x^{\\alpha-1} (1 - x)^{\\beta - 1} $$"),
+        helpText("where \\( 0 \\leq x \\leq 1, \\alpha > 0, \\beta > 0\\)"),
+        br(),
         helpText("\\(\\mu = E(X) = \\frac{1-p}{p} = \\)", round((1 - input$p_geometric) / input$p_geometric, 3)),
         helpText("\\(\\sigma = SD(X) = \\sqrt{\\frac{1-p}{p^2}} = \\)", round(sqrt((1 - input$p_geometric) / (input$p_geometric^2)), 3)),
         helpText("\\(\\sigma^2 = Var(X) = \\frac{1-p}{p^2} = \\)", round((1 - input$p_geometric) / (input$p_geometric^2), 3)))
     } else if (input$distribution == "Hypergeometric") {
       withMathJax(
+        helpText("Probability density function: $$ f(x) = \\frac{\\Gamma(\\alpha + \\beta)}{\\Gamma(\\alpha)\\Gamma(\\beta)} x^{\\alpha-1} (1 - x)^{\\beta - 1} $$"),
+        helpText("where \\( 0 \\leq x \\leq 1, \\alpha > 0, \\beta > 0\\)"),
+        br(),
         helpText("\\(\\mu = E(X) = n\\frac{M}{N} = \\)", round(input$n_hypergeometric*(input$M_hypergeometric/input$N_hypergeometric), 3)),
         helpText("\\(\\sigma = SD(X) = \\sqrt{n\\frac{M}{N}\\big(1 - \\frac{M}{N}\\big)\\big(\\frac{N-n}{N-1}\\big)} = \\)", round(sqrt(input$n_hypergeometric*input$M_hypergeometric/input$N_hypergeometric*(1-(input$M_hypergeometric/input$N_hypergeometric))*((input$N_hypergeometric-input$n_hypergeometric)/(input$N_hypergeometric-1))), 3)),
         helpText("\\(\\sigma^2 = Var(X) = n\\frac{M}{N}\\big(1 - \\frac{M}{N}\\big)\\big(\\frac{N-n}{N-1}\\big) = \\)", round(input$n_hypergeometric*input$M_hypergeometric/input$N_hypergeometric*(1-(input$M_hypergeometric/input$N_hypergeometric))*((input$N_hypergeometric-input$n_hypergeometric)/(input$N_hypergeometric-1)), 3)))
     } else if (input$distribution == "Logistic") {
       withMathJax(
+        helpText("Probability density function: $$ f(x) = \\frac{\\Gamma(\\alpha + \\beta)}{\\Gamma(\\alpha)\\Gamma(\\beta)} x^{\\alpha-1} (1 - x)^{\\beta - 1} $$"),
+        helpText("where \\( 0 \\leq x \\leq 1, \\alpha > 0, \\beta > 0\\)"),
+        br(),
         helpText("\\(\\mu = E(X) = \\mu = \\)", round(input$location_logistic, 3)),
         helpText("\\(\\sigma = SD(X) = \\sqrt{\\frac{s^2\\pi^2}{3}} = \\)", round(sqrt(((input$scale_logistic^2)*(pi^2))/3), 3)),
         helpText("\\(\\sigma^2 = Var(X) = \\frac{s^2\\pi^2}{3} = \\)", round(((input$scale_logistic^2)*(pi^2))/3, 3)))
     } else if (input$distribution == "Log-Normal") {
       withMathJax(
+        helpText("Probability density function: $$ f(x) = \\frac{\\Gamma(\\alpha + \\beta)}{\\Gamma(\\alpha)\\Gamma(\\beta)} x^{\\alpha-1} (1 - x)^{\\beta - 1} $$"),
+        helpText("where \\( 0 \\leq x \\leq 1, \\alpha > 0, \\beta > 0\\)"),
+        br(),
         helpText("\\(E(X) = e^{\\mu + \\frac{\\sigma^2}{2}} = \\)", round(exp(input$mean_lognormal + ifelse(input$variance_sd_lognormal == "variance_true", input$variance_lognormal/2, (input$sd_lognormal^2)/2)), 3)),
         helpText("\\(SD(X) = \\sqrt{(e^{\\sigma^2} - 1)e^{2\\mu + \\sigma^2}} = \\)", round(sqrt((exp(ifelse(input$variance_sd_lognormal == "variance_true", input$variance_lognormal, (input$sd_lognormal^2))) - 1)*exp((2*input$mean_lognormal) + ifelse(input$variance_sd_lognormal == "variance_true", input$variance_lognormal, (input$sd_lognormal^2)))), 3)),
         helpText("\\(Var(X) = (e^{\\sigma^2} - 1)e^{2\\mu + \\sigma^2} = \\)", round((exp(ifelse(input$variance_sd_lognormal == "variance_true", input$variance_lognormal, (input$sd_lognormal^2))) - 1)*exp((2*input$mean_lognormal) + ifelse(input$variance_sd_lognormal == "variance_true", input$variance_lognormal, (input$sd_lognormal^2))), 3)))
     } else if (input$distribution == "Negative Binomial") {
       withMathJax(
+        helpText("Probability density function: $$ f(x) = \\frac{\\Gamma(\\alpha + \\beta)}{\\Gamma(\\alpha)\\Gamma(\\beta)} x^{\\alpha-1} (1 - x)^{\\beta - 1} $$"),
+        helpText("where \\( 0 \\leq x \\leq 1, \\alpha > 0, \\beta > 0\\)"),
+        br(),
         helpText("\\(\\mu = E(X) = \\frac{r(1-p)}{p} = \\)", round((input$r_negativebinomial*(1 - input$p_negativebinomial)/input$p_negativebinomial), 3)),
         helpText("\\(\\sigma = SD(X) = \\sqrt{\\frac{r(1-p)}{p^2}} = \\)", round(sqrt((input$r_negativebinomial*(1 - input$p_negativebinomial)/(input$p_negativebinomial^2))), 3)),
         helpText("\\(\\sigma^2 = Var(X) = \\frac{r(1-p)}{p^2} = \\)", round((input$r_negativebinomial*(1 - input$p_negativebinomial)/(input$p_negativebinomial^2)), 3)))
     } else if (input$distribution == "Normal") {
       withMathJax(
+        helpText("Probability density function: $$ f(x) = \\frac{\\Gamma(\\alpha + \\beta)}{\\Gamma(\\alpha)\\Gamma(\\beta)} x^{\\alpha-1} (1 - x)^{\\beta - 1} $$"),
+        helpText("where \\( 0 \\leq x \\leq 1, \\alpha > 0, \\beta > 0\\)"),
+        br(),
         helpText("\\(\\mu = E(X) = \\)", round(input$mean_normal, 3)),
         helpText("\\(\\sigma = SD(X) = \\)", ifelse(input$variance_sd == "variance_true", round(sqrt(input$variance_normal), 3), round(input$sd_normal, 3))),
         helpText("\\(\\sigma^2 = Var(X) = \\)", ifelse(input$variance_sd == "variance_true", round(input$variance_normal, 3), round(input$sd_normal^2, 3))))
     } else if (input$distribution == "Poisson") {
       withMathJax(
+        helpText("Probability density function: $$ f(x) = \\frac{\\Gamma(\\alpha + \\beta)}{\\Gamma(\\alpha)\\Gamma(\\beta)} x^{\\alpha-1} (1 - x)^{\\beta - 1} $$"),
+        helpText("where \\( 0 \\leq x \\leq 1, \\alpha > 0, \\beta > 0\\)"),
+        br(),
         helpText("\\(\\mu = E(X) = \\lambda = \\)", round(input$lambda_poisson, 3)),
         helpText("\\(\\sigma = SD(X) = \\sqrt{\\lambda} = \\)", round(sqrt(input$lambda_poisson), 3)),
         helpText("\\(\\sigma^2 = Var(X) = \\lambda = \\)", round(input$lambda_poisson, 3)))
     } else if (input$distribution == "Student") {
       withMathJax(
+        helpText("Probability density function: $$ f(x) = \\frac{\\Gamma(\\alpha + \\beta)}{\\Gamma(\\alpha)\\Gamma(\\beta)} x^{\\alpha-1} (1 - x)^{\\beta - 1} $$"),
+        helpText("where \\( 0 \\leq x \\leq 1, \\alpha > 0, \\beta > 0\\)"),
+        br(),
         helpText("\\(\\mu = E(X) = \\)", ifelse(input$df_student > 1, 0, "Undefined")),
         helpText("\\(\\sigma = SD(X) = \\sqrt{\\frac{df}{df - 2}} = \\)", ifelse(input$df_student > 2, round(sqrt(input$df_student / (input$df_student - 2)), 3), "Undefined")),
         helpText("\\(\\sigma^2 = Var(X) = \\frac{df}{df-2} = \\)", ifelse(input$df_student > 2, round(input$df_student / (input$df_student - 2), 3), "Undefined")))
     } else if (input$distribution == "Weibull") {
       withMathJax(
+        helpText("Probability density function: $$ f(x) = \\frac{\\Gamma(\\alpha + \\beta)}{\\Gamma(\\alpha)\\Gamma(\\beta)} x^{\\alpha-1} (1 - x)^{\\beta - 1} $$"),
+        helpText("where \\( 0 \\leq x \\leq 1, \\alpha > 0, \\beta > 0\\)"),
+        br(),
         helpText("\\(\\mu = E(X) = \\beta\\Gamma\\big(1 + \\frac{1}{\\alpha}\\big) = \\)", round(weibullparinv(shape = input$alpha_weibull, scale = input$beta_weibull, loc = 0)$mu, 3)),
         helpText("\\(\\sigma = SD(X) = \\sqrt{\\beta^2\\Big(\\Gamma\\big(1 + \\frac{2}{\\alpha}\\big) - \\Gamma\\big(1 + \\frac{1}{\\alpha}\\big)^2\\Big)} = \\)", round(weibullparinv(shape = input$alpha_weibull, scale = input$beta_weibull, loc = 0)$sigma, 3)),
         helpText("\\(\\sigma^2 = Var(X) = \\beta^2\\Big(\\Gamma\\big(1 + \\frac{2}{\\alpha}\\big) - \\Gamma\\big(1 + \\frac{1}{\\alpha}\\big)^2\\Big) = \\)", round(weibullparinv(shape = input$alpha_weibull, scale = input$beta_weibull, loc = 0)$sigma^2, 3)))
