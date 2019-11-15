@@ -1108,7 +1108,7 @@ server <- function(input, output) {
                                                                                                                                                        input$lower_tail_weibull == "interval" ~ paste0("\\(P(\\)", input$a_weibull, " ", "\\(\\leq X\\leq \\)", " ", input$b_weibull, "\\()\\)", " ", "\\( = \\)", " ", ifelse(input$a_weibull > input$b_weibull, "a must be less than or equal to b", round(pweibull(input$b_weibull, shape = input$alpha_weibull, scale = input$beta_weibull, lower.tail = TRUE) - pweibull(input$a_weibull, shape = input$alpha_weibull, scale = input$beta_weibull, lower.tail = TRUE), 4)))))
       )
     } else {
-      print("in progress")
+      print("loading...")
     }
   })
   
@@ -2219,13 +2219,9 @@ server <- function(input, output) {
         helpText("\\(\\sigma = SD(X) = \\sqrt{\\beta^2\\Big(\\Gamma\\big(1 + \\frac{2}{\\alpha}\\big) - \\Gamma\\big(1 + \\frac{1}{\\alpha}\\big)^2\\Big)} = \\)", round(weibullparinv(shape = input$alpha_weibull, scale = input$beta_weibull, loc = 0)$sigma, 3)),
         helpText("\\(\\sigma^2 = Var(X) = \\beta^2\\Big(\\Gamma\\big(1 + \\frac{2}{\\alpha}\\big) - \\Gamma\\big(1 + \\frac{1}{\\alpha}\\big)^2\\Big) = \\)", round(weibullparinv(shape = input$alpha_weibull, scale = input$beta_weibull, loc = 0)$sigma^2, 3)))
     } else {
-      print("in progress")
+      print("loading...")
     }
   })
-  
-  # output$results_tests <- renderText({
-  #   "in progress"
-  # })
 }
 
 # Run the application 
