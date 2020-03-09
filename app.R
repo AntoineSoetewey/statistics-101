@@ -828,7 +828,7 @@ ui <- fluidPage(
         )
       ),
       hr(),
-      HTML('<p>Report a <a href="https://github.com/AntoineSoetewey/statistics-101/issues">bug</a> or view the <a href="https://github.com/AntoineSoetewey/statistics-101/blob/master/app.R">code</a>. Back to <a href="https://www.antoinesoetewey.com/">www.antoinesoetewey.com</a>.</p>'),
+      HTML('<p>Report a <a href="https://github.com/AntoineSoetewey/statistics-101/issues">bug</a> or view the <a href="https://github.com/AntoineSoetewey/statistics-101/blob/master/app.R">code</a>. Back to <a href="https://www.antoinesoetewey.com/">www.antoinesoetewey.com</a> or <a href="https://www.statsandr.com/">www.statsandr.com</a>.</p>'),
       hr(),
       # HTML('<hr style="border:1px solid #ccc;"/>'),
       HTML('<a rel="license" href="http://creativecommons.org/licenses/by/2.0/be/" target="_blank"><img alt="Licence Creative Commons" style="border-width:0"
