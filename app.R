@@ -12,9 +12,12 @@ library(dplyr)
 library(ggplot2)
 library(dplyr)
 library(mixdist)
+library(waiter)
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
+  
+  waiter::use_waiter(),
 
   # Application title
   titlePanel("Statistics 101 - Probability distributions"),
@@ -1105,10 +1108,15 @@ ui <- fluidPage(
     #   )
     # )
   )
-)
+  )
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
+  
+  waiter <- waiter::Waiter$new()
+  waiter$show()
+  on.exit(waiter$hide())
+  
   output$results_distribution <- renderUI({
     if (input$distribution == "Beta") {
       withMathJax(
@@ -2411,6 +2419,7 @@ server <- function(input, output) {
       print("loading...")
     }
   })
+  
 }
 
 # Run the application
