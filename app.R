@@ -18,6 +18,7 @@ library(waiter)
 ui <- fluidPage(
   
   waiter::use_waiter(),
+  waiter_hide_on_render("betaPlot_lower"),
 
   # Application title
   titlePanel("Statistics 101 - Probability distributions"),
@@ -1115,7 +1116,6 @@ server <- function(input, output) {
   
   waiter <- waiter::Waiter$new()
   waiter$show()
-  on.exit(waiter$hide())
   
   output$results_distribution <- renderUI({
     if (input$distribution == "Beta") {
