@@ -18,7 +18,9 @@ library(waiter)
 ui <- fluidPage(
   
   waiter::use_waiter(),
+  # waiter_show_on_load("normalPlot_lower", html= spin_3()),
   waiter_hide_on_render("normalPlot_lower"),
+  
 
   # Application title
   titlePanel("Statistics 101 - Probability distributions"),
