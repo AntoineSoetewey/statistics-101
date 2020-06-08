@@ -836,10 +836,10 @@ ui <- fluidPage(
       hr(),
       # HTML('<hr style="border:1px solid #ccc;"/>'),
       HTML('<a rel="license" href="http://creativecommons.org/licenses/by/2.0/be/" target="_blank"><img alt="Licence Creative Commons" style="border-width:0"
-        src="http://i.creativecommons.org/l/by/2.0/be/80x15.png"/></a> Cette oeuvre de <span xmlns:cc="http://creativecommons.org/ns#"
-        property="cc:attributionName"><font face="Courier">RShiny@UCLouvain</font></span> est mise à disposition selon les termes de la <a rel="license"
-        href="http://creativecommons.org/licenses/by/2.0/be/" target="_blank">licence Creative Commons Attribution 2.0 Belgique</a>. Détails sur l\'utilisation de cette ressource sur <a href="http://sites.uclouvain.be/RShiny"
-        target="_blank"><font face="Courier">RShiny@UCLouvain</font></a>. Code source disponible sur <a href="https://github.com/AntoineSoetewey/statistics-101/blob/master/app.R" target="_blank">GitHub</a>.')
+        src="http://i.creativecommons.org/l/by/2.0/be/80x15.png"/></a> This work of <span xmlns:cc="http://creativecommons.org/ns#"
+        property="cc:attributionName"><font face="Courier">RShiny@UCLouvain</font></span> is made available under the terms of the <a rel="license"
+        href="http://creativecommons.org/licenses/by/2.0/be/" target="_blank">Creative Commons Attribution 2.0 Belgium license</a>. Details on the use of this resource on <a href="http://sites.uclouvain.be/RShiny"
+        target="_blank"><font face="Courier">RShiny@UCLouvain</font></a>. Source code available on <a href="https://github.com/AntoineSoetewey/statistics-101/blob/master/app.R" target="_blank">GitHub</a>.')
     ),
 
     # Show a plot of the generated distribution
