@@ -832,14 +832,14 @@ ui <- fluidPage(
         )
       ),
       hr(),
-      HTML('<p>Report a <a href="https://github.com/AntoineSoetewey/statistics-101/issues">bug</a> or view the <a href="https://github.com/AntoineSoetewey/statistics-101/blob/master/app.R">code</a>. Back to <a href="https://www.antoinesoetewey.com/">www.antoinesoetewey.com</a> or <a href="https://www.statsandr.com/">www.statsandr.com</a>.</p>'),
+      HTML('<p>Report a <a href="https://github.com/AntoineSoetewey/statistics-101/issues">bug</a> or view the <a href="https://github.com/AntoineSoetewey/statistics-101">code</a>. Back to <a href="https://www.antoinesoetewey.com/">www.antoinesoetewey.com</a> or <a href="https://www.statsandr.com/">www.statsandr.com</a>.</p>'),
       hr(),
       # HTML('<hr style="border:1px solid #ccc;"/>'),
       HTML('<a rel="license" href="http://creativecommons.org/licenses/by/2.0/be/" target="_blank"><img alt="Licence Creative Commons" style="border-width:0"
         src="http://i.creativecommons.org/l/by/2.0/be/80x15.png"/></a> This work of <span xmlns:cc="http://creativecommons.org/ns#"
         property="cc:attributionName"><font face="Courier">RShiny@UCLouvain</font></span> is made available under the terms of the <a rel="license"
         href="http://creativecommons.org/licenses/by/2.0/be/" target="_blank">Creative Commons Attribution 2.0 Belgium license</a>. Details on the use of this resource on <a href="http://sites.uclouvain.be/RShiny"
-        target="_blank"><font face="Courier">RShiny@UCLouvain</font></a>. Source code available on <a href="https://github.com/AntoineSoetewey/statistics-101/blob/master/app.R" target="_blank">GitHub</a>.')
+        target="_blank"><font face="Courier">RShiny@UCLouvain</font></a>. Source code available on <a href="https://github.com/AntoineSoetewey/statistics-101" target="_blank">GitHub</a>.')
     ),
 
     # Show a plot of the generated distribution
