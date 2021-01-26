@@ -1154,7 +1154,7 @@ server <- function(input, output) {
       )
     } else if (input$distribution == "Exponential") {
       withMathJax(
-        paste0("\\(X \\sim \\exp(\\lambda = \\)", " ", input$rate_exponential, "\\()\\)", " and ", case_when(
+        paste0("\\(X \\sim \\ Exp(\\lambda = \\)", " ", input$rate_exponential, "\\()\\)", " and ", case_when(
           input$lower_tail_exponential == "lower.tail" ~ paste0("\\(P(X \\leq \\)", " ", input$x1_exponential, "\\()\\)", " ", "\\( = \\)", " ", round(pexp(input$x1_exponential, rate = input$rate_exponential, lower.tail = TRUE), 4)),
           input$lower_tail_exponential == "upper.tail" ~ paste0("\\(P(X > \\)", " ", input$x2_exponential, "\\()\\)", " ", "\\( = \\)", " ", round(pexp(input$x2_exponential, rate = input$rate_exponential, lower.tail = FALSE), 4)),
           input$lower_tail_exponential == "interval" ~ paste0("\\(P(\\)", input$a_exponential, " ", "\\(\\leq X\\leq \\)", " ", input$b_exponential, "\\()\\)", " ", "\\( = \\)", " ", ifelse(input$a_exponential > input$b_exponential, "a must be less than or equal to b", round(pexp(input$b_exponential, rate = input$rate_exponential, lower.tail = TRUE) - pexp(input$a_exponential, rate = input$rate_exponential, lower.tail = TRUE), 4)))
@@ -1279,7 +1279,7 @@ server <- function(input, output) {
       stat_function(fun = dbeta, args = list(shape1 = input$alpha_beta, shape2 = input$beta_beta)) +
       stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
       theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: Beta(", input$alpha_beta, ", ", input$beta_beta, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -1295,7 +1295,7 @@ server <- function(input, output) {
       stat_function(fun = dbeta, args = list(shape1 = input$alpha_beta, shape2 = input$beta_beta)) +
       stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
       theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: Beta(", input$alpha_beta, ", ", input$beta_beta, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -1311,7 +1311,7 @@ server <- function(input, output) {
       stat_function(fun = dbeta, args = list(shape1 = input$alpha_beta, shape2 = input$beta_beta)) +
       stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
       theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: Beta(", input$alpha_beta, ", ", input$beta_beta, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -1331,7 +1331,7 @@ server <- function(input, output) {
       ) +
       theme_minimal() +
       theme(legend.position = "none") +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: Bin(", input$n_binomial, ", ", input$p_binomial, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -1350,7 +1350,7 @@ server <- function(input, output) {
       ) +
       theme_minimal() +
       theme(legend.position = "none") +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: Bin(", input$n_binomial, ", ", input$p_binomial, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -1369,7 +1369,7 @@ server <- function(input, output) {
       ) +
       theme_minimal() +
       theme(legend.position = "none") +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: Bin(", input$n_binomial, ", ", input$p_binomial, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -1386,7 +1386,7 @@ server <- function(input, output) {
       stat_function(fun = dcauchy, args = list(location = input$location_cauchy, scale = input$scale_cauchy)) +
       stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
       theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: Cauchy(", input$location_cauchy, ", ", input$scale_cauchy, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -1402,7 +1402,7 @@ server <- function(input, output) {
       stat_function(fun = dcauchy, args = list(location = input$location_cauchy, scale = input$scale_cauchy)) +
       stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
       theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: Cauchy(", input$location_cauchy, ", ", input$scale_cauchy, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -1418,7 +1418,7 @@ server <- function(input, output) {
       stat_function(fun = dcauchy, args = list(location = input$location_cauchy, scale = input$scale_cauchy)) +
       stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
       theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: Cauchy(", input$location_cauchy, ", ", input$scale_cauchy, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -1435,7 +1435,7 @@ server <- function(input, output) {
       stat_function(fun = dchisq, args = list(df = input$df_chisquare)) +
       stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
       theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: Chi(", input$df_chisquare, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -1451,7 +1451,7 @@ server <- function(input, output) {
       stat_function(fun = dchisq, args = list(df = input$df_chisquare)) +
       stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
       theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: Chi(", input$df_chisquare, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -1467,7 +1467,7 @@ server <- function(input, output) {
       stat_function(fun = dchisq, args = list(df = input$df_chisquare)) +
       stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
       theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: Chi(", input$df_chisquare, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -1484,7 +1484,7 @@ server <- function(input, output) {
       stat_function(fun = dexp, args = list(rate = input$rate_exponential)) +
       stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
       theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: Exp(", input$rate_exponential, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -1500,7 +1500,7 @@ server <- function(input, output) {
       stat_function(fun = dexp, args = list(rate = input$rate_exponential)) +
       stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
       theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: Exp(", input$rate_exponential, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -1516,7 +1516,7 @@ server <- function(input, output) {
       stat_function(fun = dexp, args = list(rate = input$rate_exponential)) +
       stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
       theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: Exp(", input$rate_exponential, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -1533,7 +1533,7 @@ server <- function(input, output) {
       stat_function(fun = df, args = list(df1 = input$df1_fisher, df2 = input$df2_fisher)) +
       stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
       theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: F(", input$df1_fisher, ", ", input$df2_fisher, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -1549,7 +1549,7 @@ server <- function(input, output) {
       stat_function(fun = df, args = list(df1 = input$df1_fisher, df2 = input$df2_fisher)) +
       stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
       theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: F(", input$df1_fisher, ", ", input$df2_fisher, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -1565,7 +1565,7 @@ server <- function(input, output) {
       stat_function(fun = df, args = list(df1 = input$df1_fisher, df2 = input$df2_fisher)) +
       stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
       theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: F(", input$df1_fisher, ", ", input$df2_fisher, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -1582,7 +1582,7 @@ server <- function(input, output) {
       stat_function(fun = dgamma, args = list(shape = input$alpha_gamma, rate = input$beta_gamma)) +
       stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
       theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: Gamma(", input$alpha_gamma, ", ", input$beta_gamma, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -1598,7 +1598,7 @@ server <- function(input, output) {
       stat_function(fun = dgamma, args = list(shape = input$alpha_gamma, rate = input$beta_gamma)) +
       stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
       theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: Gamma(", input$alpha_gamma, ", ", input$beta_gamma, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -1614,7 +1614,7 @@ server <- function(input, output) {
       stat_function(fun = dgamma, args = list(shape = input$alpha_gamma, rate = input$beta_gamma)) +
       stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
       theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: Gamma(", input$alpha_gamma, ", ", input$beta_gamma, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -1634,7 +1634,7 @@ server <- function(input, output) {
       ) +
       theme_minimal() +
       theme(legend.position = "none") +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: Geom(", input$p_geometric, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -1653,7 +1653,7 @@ server <- function(input, output) {
       ) +
       theme_minimal() +
       theme(legend.position = "none") +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: Geom(", input$p_geometric, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -1672,7 +1672,7 @@ server <- function(input, output) {
       ) +
       theme_minimal() +
       theme(legend.position = "none") +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: Geom(", input$p_geometric, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -1692,7 +1692,7 @@ server <- function(input, output) {
       ) +
       theme_minimal() +
       theme(legend.position = "none") +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: Geom(", input$p_geometric2, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -1711,7 +1711,7 @@ server <- function(input, output) {
       ) +
       theme_minimal() +
       theme(legend.position = "none") +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: Geom(", input$p_geometric2, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -1730,7 +1730,7 @@ server <- function(input, output) {
       ) +
       theme_minimal() +
       theme(legend.position = "none") +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: Geom(", input$p_geometric2, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -1750,7 +1750,7 @@ server <- function(input, output) {
       ) +
       theme_minimal() +
       theme(legend.position = "none") +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: HG(", input$n_hypergeometric, ", ", input$N_hypergeometric, ", ", input$M_hypergeometric, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -1769,7 +1769,7 @@ server <- function(input, output) {
       ) +
       theme_minimal() +
       theme(legend.position = "none") +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: HG(", input$n_hypergeometric, ", ", input$N_hypergeometric, ", ", input$M_hypergeometric, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -1788,7 +1788,7 @@ server <- function(input, output) {
       ) +
       theme_minimal() +
       theme(legend.position = "none") +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: HG(", input$n_hypergeometric, ", ", input$N_hypergeometric, ", ", input$M_hypergeometric, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -1805,7 +1805,7 @@ server <- function(input, output) {
       stat_function(fun = dlogis, args = list(location = input$location_logistic, scale = input$scale_logistic)) +
       stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
       theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: Logi(", input$location_logistic, ", ", input$scale_logistic, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -1821,7 +1821,7 @@ server <- function(input, output) {
       stat_function(fun = dlogis, args = list(location = input$location_logistic, scale = input$scale_logistic)) +
       stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
       theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: Logi(", input$location_logistic, ", ", input$scale_logistic, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -1837,7 +1837,7 @@ server <- function(input, output) {
       stat_function(fun = dlogis, args = list(location = input$location_logistic, scale = input$scale_logistic)) +
       stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
       theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: Logi(", input$location_logistic, ", ", input$scale_logistic, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -1860,7 +1860,7 @@ server <- function(input, output) {
       )) +
       stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
       theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: Lognormal(", input$mean_lognormal, ", ", ifelse(input$variance_sd_lognormal == "variance_true", input$variance_lognormal, (input$sd_lognormal^2)), ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -1882,7 +1882,7 @@ server <- function(input, output) {
       )) +
       stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
       theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: Lognormal(", input$mean_lognormal, ", ", ifelse(input$variance_sd_lognormal == "variance_true", input$variance_lognormal, (input$sd_lognormal^2)), ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -1904,7 +1904,7 @@ server <- function(input, output) {
       )) +
       stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
       theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: Lognormal(", input$mean_lognormal, ", ", ifelse(input$variance_sd_lognormal == "variance_true", input$variance_lognormal, (input$sd_lognormal^2)), ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -1924,7 +1924,7 @@ server <- function(input, output) {
       ) +
       theme_minimal() +
       theme(legend.position = "none") +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: NG(", input$r_negativebinomial, ", ", input$p_negativebinomial, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -1943,7 +1943,7 @@ server <- function(input, output) {
       ) +
       theme_minimal() +
       theme(legend.position = "none") +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: NG(", input$r_negativebinomial, ", ", input$p_negativebinomial, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -1962,7 +1962,7 @@ server <- function(input, output) {
       ) +
       theme_minimal() +
       theme(legend.position = "none") +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: NG(", input$r_negativebinomial, ", ", input$p_negativebinomial, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -1982,7 +1982,7 @@ server <- function(input, output) {
       ) +
       theme_minimal() +
       theme(legend.position = "none") +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: NG(", input$r_negativebinomial2, ", ", input$p_negativebinomial2, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -2001,7 +2001,7 @@ server <- function(input, output) {
       ) +
       theme_minimal() +
       theme(legend.position = "none") +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: NG(", input$r_negativebinomial2, ", ", input$p_negativebinomial2, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -2020,7 +2020,7 @@ server <- function(input, output) {
       ) +
       theme_minimal() +
       theme(legend.position = "none") +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: NG(", input$r_negativebinomial2, ", ", input$p_negativebinomial2, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -2043,7 +2043,7 @@ server <- function(input, output) {
       )) +
       stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
       theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: N(", input$mean_normal, ", ", ifelse(input$variance_sd == "variance_true", input$variance_normal, (input$sd_normal^2)), ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -2065,7 +2065,7 @@ server <- function(input, output) {
       )) +
       stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
       theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: N(", input$mean_normal, ", ", ifelse(input$variance_sd == "variance_true", input$variance_normal, (input$sd_normal^2)), ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -2087,7 +2087,7 @@ server <- function(input, output) {
       )) +
       stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
       theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: N(", input$mean_normal, ", ", ifelse(input$variance_sd == "variance_true", input$variance_normal, (input$sd_normal^2)), ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -2107,7 +2107,7 @@ server <- function(input, output) {
       ) +
       theme_minimal() +
       theme(legend.position = "none") +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: Pois(", input$lambda_poisson, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -2126,7 +2126,7 @@ server <- function(input, output) {
       ) +
       theme_minimal() +
       theme(legend.position = "none") +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: Pois(", input$lambda_poisson, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -2145,7 +2145,7 @@ server <- function(input, output) {
       ) +
       theme_minimal() +
       theme(legend.position = "none") +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: Pois(", input$lambda_poisson, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -2162,7 +2162,7 @@ server <- function(input, output) {
       stat_function(fun = dt, args = list(df = input$df_student)) +
       stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
       theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: St(", input$df_student, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -2178,7 +2178,7 @@ server <- function(input, output) {
       stat_function(fun = dt, args = list(df = input$df_student)) +
       stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
       theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: St(", input$df_student, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -2194,7 +2194,7 @@ server <- function(input, output) {
       stat_function(fun = dt, args = list(df = input$df_student)) +
       stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
       theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: St(", input$df_student, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -2211,7 +2211,7 @@ server <- function(input, output) {
       stat_function(fun = dweibull, args = list(shape = input$alpha_weibull, scale = input$beta_weibull)) +
       stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
       theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: Weibull(", input$alpha_weibull, ", ", input$beta_weibull, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -2227,7 +2227,7 @@ server <- function(input, output) {
       stat_function(fun = dweibull, args = list(shape = input$alpha_weibull, scale = input$beta_weibull)) +
       stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
       theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: Weibull(", input$alpha_weibull, ", ", input$beta_weibull, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
@@ -2243,7 +2243,7 @@ server <- function(input, output) {
       stat_function(fun = dweibull, args = list(shape = input$alpha_weibull, scale = input$beta_weibull)) +
       stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
       theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution")) +
+      ggtitle(paste0(input$distribution, " distribution: Weibull(", input$alpha_weibull, ", ", input$beta_weibull, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
       ylab("Density") +
       xlab("x")
