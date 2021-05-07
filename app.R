@@ -1333,7 +1333,7 @@ server <- function(input, output) {
       theme(legend.position = "none") +
       ggtitle(paste0(input$distribution, " distribution: Bin(", input$n_binomial, ", ", input$p_binomial, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
+      ylab("Probability mass function") +
       xlab("x")
     p
   })
@@ -1352,7 +1352,7 @@ server <- function(input, output) {
       theme(legend.position = "none") +
       ggtitle(paste0(input$distribution, " distribution: Bin(", input$n_binomial, ", ", input$p_binomial, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
+      ylab("Probability mass function") +
       xlab("x")
     p
   })
@@ -1371,7 +1371,7 @@ server <- function(input, output) {
       theme(legend.position = "none") +
       ggtitle(paste0(input$distribution, " distribution: Bin(", input$n_binomial, ", ", input$p_binomial, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
+      ylab("Probability mass function") +
       xlab("x")
     p
   })
@@ -1636,7 +1636,7 @@ server <- function(input, output) {
       theme(legend.position = "none") +
       ggtitle(paste0(input$distribution, " distribution: Geom(", input$p_geometric, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
+      ylab("Probability mass function") +
       xlab("x")
     p
   })
@@ -1655,7 +1655,7 @@ server <- function(input, output) {
       theme(legend.position = "none") +
       ggtitle(paste0(input$distribution, " distribution: Geom(", input$p_geometric, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
+      ylab("Probability mass function") +
       xlab("x")
     p
   })
@@ -1674,7 +1674,7 @@ server <- function(input, output) {
       theme(legend.position = "none") +
       ggtitle(paste0(input$distribution, " distribution: Geom(", input$p_geometric, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
+      ylab("Probability mass function") +
       xlab("x")
     p
   })
@@ -1694,7 +1694,7 @@ server <- function(input, output) {
       theme(legend.position = "none") +
       ggtitle(paste0(input$distribution, " distribution: Geom(", input$p_geometric2, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
+      ylab("Probability mass function") +
       xlab("x")
     p
   })
@@ -1713,7 +1713,7 @@ server <- function(input, output) {
       theme(legend.position = "none") +
       ggtitle(paste0(input$distribution, " distribution: Geom(", input$p_geometric2, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
+      ylab("Probability mass function") +
       xlab("x")
     p
   })
@@ -1732,7 +1732,7 @@ server <- function(input, output) {
       theme(legend.position = "none") +
       ggtitle(paste0(input$distribution, " distribution: Geom(", input$p_geometric2, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
+      ylab("Probability mass function") +
       xlab("x")
     p
   })
@@ -1752,7 +1752,7 @@ server <- function(input, output) {
       theme(legend.position = "none") +
       ggtitle(paste0(input$distribution, " distribution: HG(", input$n_hypergeometric, ", ", input$N_hypergeometric, ", ", input$M_hypergeometric, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
+      ylab("Probability mass function") +
       xlab("x")
     p
   })
@@ -1771,7 +1771,7 @@ server <- function(input, output) {
       theme(legend.position = "none") +
       ggtitle(paste0(input$distribution, " distribution: HG(", input$n_hypergeometric, ", ", input$N_hypergeometric, ", ", input$M_hypergeometric, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
+      ylab("Probability mass function") +
       xlab("x")
     p
   })
@@ -1790,7 +1790,7 @@ server <- function(input, output) {
       theme(legend.position = "none") +
       ggtitle(paste0(input$distribution, " distribution: HG(", input$n_hypergeometric, ", ", input$N_hypergeometric, ", ", input$M_hypergeometric, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
+      ylab("Probability mass function") +
       xlab("x")
     p
   })
@@ -1926,7 +1926,7 @@ server <- function(input, output) {
       theme(legend.position = "none") +
       ggtitle(paste0(input$distribution, " distribution: NG(", input$r_negativebinomial, ", ", input$p_negativebinomial, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
+      ylab("Probability mass function") +
       xlab("x")
     p
   })
@@ -1945,7 +1945,7 @@ server <- function(input, output) {
       theme(legend.position = "none") +
       ggtitle(paste0(input$distribution, " distribution: NG(", input$r_negativebinomial, ", ", input$p_negativebinomial, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
+      ylab("Probability mass function") +
       xlab("x")
     p
   })
@@ -1964,7 +1964,7 @@ server <- function(input, output) {
       theme(legend.position = "none") +
       ggtitle(paste0(input$distribution, " distribution: NG(", input$r_negativebinomial, ", ", input$p_negativebinomial, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
+      ylab("Probability mass function") +
       xlab("x")
     p
   })
@@ -1984,7 +1984,7 @@ server <- function(input, output) {
       theme(legend.position = "none") +
       ggtitle(paste0(input$distribution, " distribution: NG(", input$r_negativebinomial2, ", ", input$p_negativebinomial2, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
+      ylab("Probability mass function") +
       xlab("x")
     p
   })
@@ -2003,7 +2003,7 @@ server <- function(input, output) {
       theme(legend.position = "none") +
       ggtitle(paste0(input$distribution, " distribution: NG(", input$r_negativebinomial2, ", ", input$p_negativebinomial2, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
+      ylab("Probability mass function") +
       xlab("x")
     p
   })
@@ -2022,7 +2022,7 @@ server <- function(input, output) {
       theme(legend.position = "none") +
       ggtitle(paste0(input$distribution, " distribution: NG(", input$r_negativebinomial2, ", ", input$p_negativebinomial2, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
+      ylab("Probability mass function") +
       xlab("x")
     p
   })
@@ -2109,7 +2109,7 @@ server <- function(input, output) {
       theme(legend.position = "none") +
       ggtitle(paste0(input$distribution, " distribution: Pois(", input$lambda_poisson, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
+      ylab("Probability mass function") +
       xlab("x")
     p
   })
@@ -2128,7 +2128,7 @@ server <- function(input, output) {
       theme(legend.position = "none") +
       ggtitle(paste0(input$distribution, " distribution: Pois(", input$lambda_poisson, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
+      ylab("Probability mass function") +
       xlab("x")
     p
   })
@@ -2147,7 +2147,7 @@ server <- function(input, output) {
       theme(legend.position = "none") +
       ggtitle(paste0(input$distribution, " distribution: Pois(", input$lambda_poisson, ")")) +
       theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
+      ylab("Probability mass function") +
       xlab("x")
     p
   })
@@ -2262,7 +2262,7 @@ server <- function(input, output) {
       )
     } else if (input$distribution == "Binomial") {
       withMathJax(
-        helpText("Probability density function: $$ f(x) = P(X = x) = \\binom{n}{x}p^x(1-p)^{n-x}$$ "),
+        helpText("Probability mass function: $$ p(x) = P(X = x) = \\binom{n}{x}p^x(1-p)^{n-x}$$ "),
         helpText("where \\( x = 0, 1, \\dots, n\\) and \\( 0 \\leq p \\leq 1 \\)"),
         br(),
         helpText("\\(\\mu = E(X) = np = \\)", round(input$n_binomial * input$p_binomial, 3)),
@@ -2318,7 +2318,7 @@ server <- function(input, output) {
       )
     } else if (input$distribution == "Geometric (I)") {
       withMathJax(
-        helpText("Probability density function: $$ f(x) = P(X = x) = (1 - p)^x p $$"),
+        helpText("Probability mass function: $$ p(x) = P(X = x) = (1 - p)^x p $$"),
         helpText("where \\( x = 0, 1, 2, \\dots \\) and \\( 0 < p \\leq 1 \\)"),
         br(),
         helpText("\\(\\mu = E(X) = \\dfrac{1-p}{p} = \\)", round((1 - input$p_geometric) / input$p_geometric, 3)),
@@ -2327,7 +2327,7 @@ server <- function(input, output) {
       )
     } else if (input$distribution == "Geometric (II)") {
       withMathJax(
-        helpText("Probability density function: $$ f(x) = P(X = x) = (1 - p)^{x-1} p $$"),
+        helpText("Probability mass function: $$ p(x) = P(X = x) = (1 - p)^{x-1} p $$"),
         helpText("where \\( x = 1, 2, \\dots \\) and \\( 0 < p \\leq 1 \\)"),
         br(),
         helpText("\\(\\mu = E(X) = \\dfrac{1}{p} = \\)", round((1) / input$p_geometric2, 3)),
@@ -2336,7 +2336,7 @@ server <- function(input, output) {
       )
     } else if (input$distribution == "Hypergeometric") {
       withMathJax(
-        helpText("Probability density function: $$ f(x) = P(X = x) = \\dfrac{\\binom{M}{x} \\binom{N-M}{n-x}}{\\binom{N}{n}}  $$"),
+        helpText("Probability mass function: $$ p(x) = P(X = x) = \\dfrac{\\binom{M}{x} \\binom{N-M}{n-x}}{\\binom{N}{n}}  $$"),
         helpText("for \\( x = 0, 1, \\dots , n\\)"),
         helpText("where \\( x \\leq M \\) and \\( n - x \\leq N - M \\)"),
         br(),
@@ -2364,7 +2364,7 @@ server <- function(input, output) {
       )
     } else if (input$distribution == "Negative Binomial (I)") {
       withMathJax(
-        helpText("Probability density function: $$ f(x) = P(X = x) = \\binom{x+r-1}{r-1} (1-p)^x p^r $$"),
+        helpText("Probability mass function: $$ p(x) = P(X = x) = \\binom{x+r-1}{r-1} (1-p)^x p^r $$"),
         helpText("where \\( x = 0, 1, 2, \\dots, r = 1, 2, \\dots \\) and \\( 0 < p \\leq 1 \\)"),
         br(),
         helpText("\\(\\mu = E(X) = \\dfrac{r(1-p)}{p} = \\)", round((input$r_negativebinomial * (1 - input$p_negativebinomial) / input$p_negativebinomial), 3)),
@@ -2373,7 +2373,7 @@ server <- function(input, output) {
       )
     } else if (input$distribution == "Negative Binomial (II)") {
       withMathJax(
-        helpText("Probability density function: $$ f(x) = P(X = x) = \\binom{x-1}{r-1}p^r (1-p)^{x-r} $$"),
+        helpText("Probability mass function: $$ p(x) = P(X = x) = \\binom{x-1}{r-1}p^r (1-p)^{x-r} $$"),
         helpText("where \\( x = r, r+1, \\dots \\) and \\( 0 < p \\leq 1 \\)"),
         br(),
         helpText("\\(\\mu = E(X) = \\dfrac{r}{p} = \\)", round((input$r_negativebinomial2 / input$p_negativebinomial2), 3)),
@@ -2391,7 +2391,7 @@ server <- function(input, output) {
       )
     } else if (input$distribution == "Poisson") {
       withMathJax(
-        helpText("Probability density function: $$ f(x) = P(X = x) = \\dfrac{e^{-\\lambda}\\lambda^x}{x!} $$"),
+        helpText("Probability mass function: $$ p(x) = P(X = x) = \\dfrac{e^{-\\lambda}\\lambda^x}{x!} $$"),
         helpText("for \\( x = 0, 1, 2, \\dots\\)"),
         helpText("where \\( \\lambda > 0 \\)"),
         br(),
