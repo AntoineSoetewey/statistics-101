@@ -22,7 +22,7 @@ ui <- fluidPage(
 
   # Application title
   titlePanel("Statistics 101 - Probability distributions"),
-  h4(tags$a(href = "https://www.antoinesoetewey.com/", "Antoine Soetewey")),
+  h4(tags$a(href = "https://antoinesoetewey.com/", "Antoine Soetewey")),
   withMathJax(),
 
   # tabsetPanel(
@@ -832,7 +832,7 @@ ui <- fluidPage(
         )
       ),
       hr(),
-      HTML('<p>Report a <a href="https://github.com/AntoineSoetewey/statistics-101/issues">bug</a> or view the <a href="https://github.com/AntoineSoetewey/statistics-101">code</a>. Back to <a href="https://www.antoinesoetewey.com/">antoinesoetewey.com</a> or <a href="https://statsandr.com/">statsandr.com</a>.</p>'),
+      HTML('<p>Report a <a href="https://github.com/AntoineSoetewey/statistics-101/issues">bug</a> or view the <a href="https://github.com/AntoineSoetewey/statistics-101">code</a>. Back to <a href="https://antoinesoetewey.com/">antoinesoetewey.com</a> or <a href="https://statsandr.com/">statsandr.com</a>.</p>'),
       hr(),
       # HTML('<hr style="border:1px solid #ccc;"/>'),
       HTML('<a rel="license" href="http://creativecommons.org/licenses/by/2.0/be/" target="_blank"><img alt="Licence Creative Commons" style="border-width:0"
@@ -1070,7 +1070,7 @@ ui <- fluidPage(
       uiOutput("parameters_distribution"),
       # br(),
       # br(),
-      # tags$a(href="https://www.antoinesoetewey.com/", "Back to antoinesoetewey.com"),
+      # tags$a(href="https://antoinesoetewey.com/", "Back to antoinesoetewey.com"),
       br(),
       br()
     )
@@ -1094,7 +1094,7 @@ ui <- fluidPage(
     #         selected = "Normal"
     #       ),
     #       hr(),
-    #       HTML('<p>Report a bug or request the code <a href="https://www.antoinesoetewey.com/contact/">here</a>.</p>')
+    #       HTML('<p>Report a bug or request the code <a href="https://antoinesoetewey.com/contact/">here</a>.</p>')
     #     ),
     #
     #     # Main panel for displaying outputs ----
@@ -1102,7 +1102,7 @@ ui <- fluidPage(
     #       br(),
     #       textOutput("results_tests"),
     #       br(),
-    #       tags$a(href="https://www.antoinesoetewey.com/", "Back to antoinesoetewey.com"),
+    #       tags$a(href="https://antoinesoetewey.com/", "Back to antoinesoetewey.com"),
     #       br(),
     #       br()
     #     )
