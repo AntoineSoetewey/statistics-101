@@ -7,11 +7,6 @@ ui <- fluidPage(
   h4(tags$a(href = "https://antoinesoetewey.com/", "Antoine Soetewey")),
   withMathJax(),
   
-  # tabsetPanel(
-  # Create tab1
-  # tabPanel(
-  #   title = "Distributions",
-  
   # Sidebar with a slider input for number of bins
   sidebarLayout(
     sidebarPanel(
@@ -1050,45 +1045,8 @@ ui <- fluidPage(
       tags$b("Details:"),
       br(),
       uiOutput("parameters_distribution"),
-      # br(),
-      # br(),
-      # tags$a(href="https://antoinesoetewey.com/", "Back to antoinesoetewey.com"),
       br(),
       br()
     )
-    # )
-    # )
-    # ,
-    # tabPanel(
-    #   title = "Statistical tests",
-    #   # Sidebar layout with input and output definitions ----
-    #   sidebarLayout(
-    #
-    #     # Sidebar to demonstrate various slider options ----
-    #     sidebarPanel(
-    #
-    #       # Input: Simple integer interval ----
-    #       selectInput(
-    #         inputId = "test",
-    #         label = "Test:",
-    #         choices = c("Binomial", "Chi-square", "Fisher", "Normal", "Poisson", "Student"),
-    #         multiple = FALSE,
-    #         selected = "Normal"
-    #       ),
-    #       hr(),
-    #       HTML('<p>Report a bug or request the code <a href="https://antoinesoetewey.com/contact/">here</a>.</p>')
-    #     ),
-    #
-    #     # Main panel for displaying outputs ----
-    #     mainPanel(
-    #       br(),
-    #       textOutput("results_tests"),
-    #       br(),
-    #       tags$a(href="https://antoinesoetewey.com/", "Back to antoinesoetewey.com"),
-    #       br(),
-    #       br()
-    #     )
-    #   )
-    # )
   )
 )
