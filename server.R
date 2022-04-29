@@ -1,9 +1,4 @@
 server <- function(input, output) {
-  # waiter <- waiter::Waiter$new(html = spin_loaders(5))
-  # waiter2 <- waiter::Waiter$new(html = "Loading...<br />The app may take several seconds to appear.<br />Thanks for your patience.")
-  # waiter$show()
-  # waiter2$show()
-  
   output$results_distribution <- renderUI({
     if (input$distribution == "Beta") {
       withMathJax(

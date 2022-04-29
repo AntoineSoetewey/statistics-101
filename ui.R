@@ -1,7 +1,4 @@
 ui <- fluidPage(
-  # waiter::use_waiter(),
-  # waiter_hide_on_render("normalPlot_lower"),
-  
   # Application title
   titlePanel("Statistics 101 - Probability distributions"),
   h4(tags$a(href = "https://antoinesoetewey.com/", "Antoine Soetewey")),
