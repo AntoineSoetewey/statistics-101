@@ -1,8 +1,8 @@
 server <- function(input, output) {
   # waiter <- waiter::Waiter$new(html = spin_loaders(5))
-  waiter2 <- waiter::Waiter$new(html = "Loading...<br />The app may take several seconds to appear.<br />Thanks for your patience.")
+  # waiter2 <- waiter::Waiter$new(html = "Loading...<br />The app may take several seconds to appear.<br />Thanks for your patience.")
   # waiter$show()
-  waiter2$show()
+  # waiter2$show()
   
   output$results_distribution <- renderUI({
     if (input$distribution == "Beta") {
@@ -154,985 +154,924 @@ server <- function(input, output) {
     }
   })
   
-  output$betaPlot_lower <- renderPlot({
-    funcShaded <- function(x) {
-      y <- dbeta(x, shape1 = input$alpha_beta, shape2 = input$beta_beta)
-      y[x > input$x1_beta] <- NA
-      return(y)
+  # reactive to contain plot:
+  r_plot <- reactive({
+    res <- if (input$distribution == "Beta" && input$lower_tail_beta == "lower.tail") {
+      funcShaded <- function(x) {
+        y <- dbeta(x, shape1 = input$alpha_beta, shape2 = input$beta_beta)
+        y[x > input$x1_beta] <- NA
+        return(y)
+      }
+      p <- ggplot(data.frame(x = c(qbeta(0.99999, shape1 = input$alpha_beta, shape2 = input$beta_beta, lower.tail = FALSE), qbeta(0.99999, shape1 = input$alpha_beta, shape2 = input$beta_beta, lower.tail = TRUE))), aes(x = x)) +
+        stat_function(fun = dbeta, args = list(shape1 = input$alpha_beta, shape2 = input$beta_beta)) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        theme_minimal() +
+        ggtitle(paste0(input$distribution, " distribution: Beta(", input$alpha_beta, ", ", input$beta_beta, ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Density") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Beta' && input$lower_tail_beta == 'upper.tail') {
+      funcShaded <- function(x) {
+        y <- dbeta(x, shape1 = input$alpha_beta, shape2 = input$beta_beta)
+        y[x < input$x2_beta] <- NA
+        return(y)
+      }
+      p <- ggplot(data.frame(x = c(qbeta(0.99999, shape1 = input$alpha_beta, shape2 = input$beta_beta, lower.tail = FALSE), qbeta(0.99999, shape1 = input$alpha_beta, shape2 = input$beta_beta, lower.tail = TRUE))), aes(x = x)) +
+        stat_function(fun = dbeta, args = list(shape1 = input$alpha_beta, shape2 = input$beta_beta)) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        theme_minimal() +
+        ggtitle(paste0(input$distribution, " distribution: Beta(", input$alpha_beta, ", ", input$beta_beta, ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Density") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Beta' && input$lower_tail_beta == 'interval') {
+      funcShaded <- function(x) {
+        y <- dbeta(x, shape1 = input$alpha_beta, shape2 = input$beta_beta)
+        y[x < input$a_beta | x > input$b_beta] <- NA
+        return(y)
+      }
+      p <- ggplot(data.frame(x = c(qbeta(0.99999, shape1 = input$alpha_beta, shape2 = input$beta_beta, lower.tail = FALSE), qbeta(0.99999, shape1 = input$alpha_beta, shape2 = input$beta_beta, lower.tail = TRUE))), aes(x = x)) +
+        stat_function(fun = dbeta, args = list(shape1 = input$alpha_beta, shape2 = input$beta_beta)) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        theme_minimal() +
+        ggtitle(paste0(input$distribution, " distribution: Beta(", input$alpha_beta, ", ", input$beta_beta, ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Density") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Binomial' && input$lower_tail_binomial == 'lower.tail') {
+      p <- data.frame(heads = qbinom(0.99999, size = input$n_binomial, prob = input$p_binomial, lower.tail = FALSE):qbinom(0.99999, size = input$n_binomial, prob = input$p_binomial, lower.tail = TRUE), prob = dbinom(x = qbinom(0.99999, size = input$n_binomial, prob = input$p_binomial, lower.tail = FALSE):qbinom(0.99999, size = input$n_binomial, prob = input$p_binomial, lower.tail = TRUE), size = input$n_binomial, prob = input$p_binomial)) %>%
+        mutate(Heads = ifelse(heads <= input$x1_binomial, "2", "Other")) %>%
+        ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
+        geom_col() +
+        geom_text(
+          aes(label = round(prob, 3), y = prob + 0.005),
+          position = position_dodge(0.9),
+          size = 3,
+          vjust = 0
+        ) +
+        theme_minimal() +
+        theme(legend.position = "none") +
+        ggtitle(paste0(input$distribution, " distribution: Bin(", input$n_binomial, ", ", input$p_binomial, ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Probability mass function") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Binomial' && input$lower_tail_binomial == 'upper.tail') {
+      p <- data.frame(heads = qbinom(0.99999, size = input$n_binomial, prob = input$p_binomial, lower.tail = FALSE):qbinom(0.99999, size = input$n_binomial, prob = input$p_binomial, lower.tail = TRUE), prob = dbinom(x = qbinom(0.99999, size = input$n_binomial, prob = input$p_binomial, lower.tail = FALSE):qbinom(0.99999, size = input$n_binomial, prob = input$p_binomial, lower.tail = TRUE), size = input$n_binomial, prob = input$p_binomial)) %>%
+        mutate(Heads = ifelse(heads > input$x2_binomial, "2", "other")) %>%
+        ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
+        geom_col() +
+        geom_text(
+          aes(label = round(prob, 3), y = prob + 0.005),
+          position = position_dodge(0.9),
+          size = 3,
+          vjust = 0
+        ) +
+        theme_minimal() +
+        theme(legend.position = "none") +
+        ggtitle(paste0(input$distribution, " distribution: Bin(", input$n_binomial, ", ", input$p_binomial, ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Probability mass function") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Binomial' && input$lower_tail_binomial == 'interval') {
+      p <- data.frame(heads = qbinom(0.99999, size = input$n_binomial, prob = input$p_binomial, lower.tail = FALSE):qbinom(0.99999, size = input$n_binomial, prob = input$p_binomial, lower.tail = TRUE), prob = dbinom(x = qbinom(0.99999, size = input$n_binomial, prob = input$p_binomial, lower.tail = FALSE):qbinom(0.99999, size = input$n_binomial, prob = input$p_binomial, lower.tail = TRUE), size = input$n_binomial, prob = input$p_binomial)) %>%
+        mutate(Heads = ifelse(heads >= input$a_binomial & heads <= input$b_binomial, "2", "other")) %>%
+        ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
+        geom_col() +
+        geom_text(
+          aes(label = round(prob, 3), y = prob + 0.005),
+          position = position_dodge(0.9),
+          size = 3,
+          vjust = 0
+        ) +
+        theme_minimal() +
+        theme(legend.position = "none") +
+        ggtitle(paste0(input$distribution, " distribution: Bin(", input$n_binomial, ", ", input$p_binomial, ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Probability mass function") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Cauchy' && input$lower_tail_cauchy == 'lower.tail') {
+      funcShaded <- function(x) {
+        y <- dcauchy(x, location = input$location_cauchy, scale = input$scale_cauchy)
+        y[x > input$x1_cauchy] <- NA
+        return(y)
+      }
+      p <- ggplot(data.frame(x = c(input$location_cauchy - (6 * input$scale_cauchy), input$location_cauchy + (6 * input$scale_cauchy))), aes(x = x)) +
+        stat_function(fun = dcauchy, args = list(location = input$location_cauchy, scale = input$scale_cauchy)) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        theme_minimal() +
+        ggtitle(paste0(input$distribution, " distribution: Cauchy(", input$location_cauchy, ", ", input$scale_cauchy, ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Density") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Cauchy' && input$lower_tail_cauchy == 'upper.tail') {
+      funcShaded <- function(x) {
+        y <- dcauchy(x, location = input$location_cauchy, scale = input$scale_cauchy)
+        y[x < input$x2_cauchy] <- NA
+        return(y)
+      }
+      p <- ggplot(data.frame(x = c(input$location_cauchy - (6 * input$scale_cauchy), input$location_cauchy + (6 * input$scale_cauchy))), aes(x = x)) +
+        stat_function(fun = dcauchy, args = list(location = input$location_cauchy, scale = input$scale_cauchy)) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        theme_minimal() +
+        ggtitle(paste0(input$distribution, " distribution: Cauchy(", input$location_cauchy, ", ", input$scale_cauchy, ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Density") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Cauchy' && input$lower_tail_cauchy == 'interval') {
+      funcShaded <- function(x) {
+        y <- dcauchy(x, location = input$location_cauchy, scale = input$scale_cauchy)
+        y[x < input$a_cauchy | x > input$b_cauchy] <- NA
+        return(y)
+      }
+      p <- ggplot(data.frame(x = c(input$location_cauchy - (6 * input$scale_cauchy), input$location_cauchy + (6 * input$scale_cauchy))), aes(x = x)) +
+        stat_function(fun = dcauchy, args = list(location = input$location_cauchy, scale = input$scale_cauchy)) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        theme_minimal() +
+        ggtitle(paste0(input$distribution, " distribution: Cauchy(", input$location_cauchy, ", ", input$scale_cauchy, ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Density") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Chi-square' && input$lower_tail_chisquare == 'lower.tail') {
+      funcShaded <- function(x) {
+        y <- dchisq(x, df = input$df_chisquare)
+        y[x > input$x1_chisquare] <- NA
+        return(y)
+      }
+      p <- ggplot(data.frame(x = c(qchisq(0.99999, df = input$df_chisquare, lower.tail = FALSE), qchisq(0.99999, df = input$df_chisquare, lower.tail = TRUE))), aes(x = x)) +
+        stat_function(fun = dchisq, args = list(df = input$df_chisquare)) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        theme_minimal() +
+        ggtitle(paste0(input$distribution, " distribution: Chi(", input$df_chisquare, ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Density") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Chi-square' && input$lower_tail_chisquare == 'upper.tail') {
+      funcShaded <- function(x) {
+        y <- dchisq(x, df = input$df_chisquare)
+        y[x < input$x2_chisquare] <- NA
+        return(y)
+      }
+      p <- ggplot(data.frame(x = c(qchisq(0.99999, df = input$df_chisquare, lower.tail = FALSE), qchisq(0.99999, df = input$df_chisquare, lower.tail = TRUE))), aes(x = x)) +
+        stat_function(fun = dchisq, args = list(df = input$df_chisquare)) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        theme_minimal() +
+        ggtitle(paste0(input$distribution, " distribution: Chi(", input$df_chisquare, ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Density") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Chi-square' && input$lower_tail_chisquare == 'interval') {
+      funcShaded <- function(x) {
+        y <- dchisq(x, df = input$df_chisquare)
+        y[x < input$a_chisquare | x > input$b_chisquare] <- NA
+        return(y)
+      }
+      p <- ggplot(data.frame(x = c(qchisq(0.99999, df = input$df_chisquare, lower.tail = FALSE), qchisq(0.99999, df = input$df_chisquare, lower.tail = TRUE))), aes(x = x)) +
+        stat_function(fun = dchisq, args = list(df = input$df_chisquare)) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        theme_minimal() +
+        ggtitle(paste0(input$distribution, " distribution: Chi(", input$df_chisquare, ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Density") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Exponential' && input$lower_tail_exponential == 'lower.tail') {
+      funcShaded <- function(x) {
+        y <- dexp(x, rate = input$rate_exponential)
+        y[x > input$x1_exponential] <- NA
+        return(y)
+      }
+      p <- ggplot(data.frame(x = c(qexp(0.99999, rate = input$rate_exponential, lower.tail = FALSE), qexp(0.99999, rate = input$rate_exponential, lower.tail = TRUE))), aes(x = x)) +
+        stat_function(fun = dexp, args = list(rate = input$rate_exponential)) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        theme_minimal() +
+        ggtitle(paste0(input$distribution, " distribution: Exp(", input$rate_exponential, ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Density") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Exponential' && input$lower_tail_exponential == 'upper.tail') {
+      funcShaded <- function(x) {
+        y <- dexp(x, rate = input$rate_exponential)
+        y[x < input$x2_exponential] <- NA
+        return(y)
+      }
+      p <- ggplot(data.frame(x = c(qexp(0.99999, rate = input$rate_exponential, lower.tail = FALSE), qexp(0.99999, rate = input$rate_exponential, lower.tail = TRUE))), aes(x = x)) +
+        stat_function(fun = dexp, args = list(rate = input$rate_exponential)) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        theme_minimal() +
+        ggtitle(paste0(input$distribution, " distribution: Exp(", input$rate_exponential, ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Density") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Exponential' && input$lower_tail_exponential == 'interval') {
+      funcShaded <- function(x) {
+        y <- dexp(x, rate = input$rate_exponential)
+        y[x < input$a_exponential | x > input$b_exponential] <- NA
+        return(y)
+      }
+      p <- ggplot(data.frame(x = c(qexp(0.99999, rate = input$rate_exponential, lower.tail = FALSE), qexp(0.99999, rate = input$rate_exponential, lower.tail = TRUE))), aes(x = x)) +
+        stat_function(fun = dexp, args = list(rate = input$rate_exponential)) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        theme_minimal() +
+        ggtitle(paste0(input$distribution, " distribution: Exp(", input$rate_exponential, ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Density") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Fisher' && input$lower_tail_fisher == 'lower.tail') {
+      funcShaded <- function(x) {
+        y <- df(x, df1 = input$df1_fisher, df2 = input$df2_fisher)
+        y[x > input$x1_fisher] <- NA
+        return(y)
+      }
+      p <- ggplot(data.frame(x = c(0, 5)), aes(x = x)) +
+        stat_function(fun = df, args = list(df1 = input$df1_fisher, df2 = input$df2_fisher)) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        theme_minimal() +
+        ggtitle(paste0(input$distribution, " distribution: F(", input$df1_fisher, ", ", input$df2_fisher, ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Density") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Fisher' && input$lower_tail_fisher == 'upper.tail') {
+      funcShaded <- function(x) {
+        y <- df(x, df1 = input$df1_fisher, df2 = input$df2_fisher)
+        y[x < input$x2_fisher] <- NA
+        return(y)
+      }
+      p <- ggplot(data.frame(x = c(0, 5)), aes(x = x)) +
+        stat_function(fun = df, args = list(df1 = input$df1_fisher, df2 = input$df2_fisher)) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        theme_minimal() +
+        ggtitle(paste0(input$distribution, " distribution: F(", input$df1_fisher, ", ", input$df2_fisher, ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Density") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Fisher' && input$lower_tail_fisher == 'interval') {
+      funcShaded <- function(x) {
+        y <- df(x, df1 = input$df1_fisher, df2 = input$df2_fisher)
+        y[x < input$a_fisher | x > input$b_fisher] <- NA
+        return(y)
+      }
+      p <- ggplot(data.frame(x = c(0, 5)), aes(x = x)) +
+        stat_function(fun = df, args = list(df1 = input$df1_fisher, df2 = input$df2_fisher)) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        theme_minimal() +
+        ggtitle(paste0(input$distribution, " distribution: F(", input$df1_fisher, ", ", input$df2_fisher, ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Density") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Gamma' && input$lower_tail_gamma == 'lower.tail') {
+      funcShaded <- function(x) {
+        y <- dgamma(x, shape = input$alpha_gamma, rate = input$beta_gamma)
+        y[x > input$x1_gamma] <- NA
+        return(y)
+      }
+      p <- ggplot(data.frame(x = c(qgamma(0.99999, shape = input$alpha_gamma, rate = input$beta_gamma, lower.tail = FALSE), qgamma(0.99999, shape = input$alpha_gamma, rate = input$beta_gamma, lower.tail = TRUE))), aes(x = x)) +
+        stat_function(fun = dgamma, args = list(shape = input$alpha_gamma, rate = input$beta_gamma)) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        theme_minimal() +
+        ggtitle(paste0(input$distribution, " distribution: Gamma(", input$alpha_gamma, ", ", input$beta_gamma, ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Density") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Gamma' && input$lower_tail_gamma == 'upper.tail') {
+      funcShaded <- function(x) {
+        y <- dgamma(x, shape = input$alpha_gamma, rate = input$beta_gamma)
+        y[x < input$x2_gamma] <- NA
+        return(y)
+      }
+      p <- ggplot(data.frame(x = c(qgamma(0.99999, shape = input$alpha_gamma, rate = input$beta_gamma, lower.tail = FALSE), qgamma(0.99999, shape = input$alpha_gamma, rate = input$beta_gamma, lower.tail = TRUE))), aes(x = x)) +
+        stat_function(fun = dgamma, args = list(shape = input$alpha_gamma, rate = input$beta_gamma)) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        theme_minimal() +
+        ggtitle(paste0(input$distribution, " distribution: Gamma(", input$alpha_gamma, ", ", input$beta_gamma, ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Density") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Gamma' && input$lower_tail_gamma == 'interval') {
+      funcShaded <- function(x) {
+        y <- dgamma(x, shape = input$alpha_gamma, rate = input$beta_gamma)
+        y[x < input$a_gamma | x > input$b_gamma] <- NA
+        return(y)
+      }
+      p <- ggplot(data.frame(x = c(qgamma(0.99999, shape = input$alpha_gamma, rate = input$beta_gamma, lower.tail = FALSE), qgamma(0.99999, shape = input$alpha_gamma, rate = input$beta_gamma, lower.tail = TRUE))), aes(x = x)) +
+        stat_function(fun = dgamma, args = list(shape = input$alpha_gamma, rate = input$beta_gamma)) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        theme_minimal() +
+        ggtitle(paste0(input$distribution, " distribution: Gamma(", input$alpha_gamma, ", ", input$beta_gamma, ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Density") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Geometric (I)' && input$lower_tail_geometric == 'lower.tail') {
+      p <- data.frame(heads = 0:(input$p_geometric + (5 * sqrt((1 - input$p_geometric) / (input$p_geometric^2)))), prob = dgeom(x = 0:(input$p_geometric + (5 * sqrt((1 - input$p_geometric) / (input$p_geometric^2)))), prob = input$p_geometric)) %>%
+        mutate(Heads = ifelse(heads <= input$x1_geometric, "2", "Other")) %>%
+        ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
+        geom_col() +
+        geom_text(
+          aes(label = round(prob, 3), y = prob + 0.005),
+          position = position_dodge(0.9),
+          size = 3,
+          vjust = 0
+        ) +
+        theme_minimal() +
+        theme(legend.position = "none") +
+        ggtitle(paste0(input$distribution, " distribution: Geom(", input$p_geometric, ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Probability mass function") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Geometric (I)' && input$lower_tail_geometric == 'upper.tail') {
+      p <- data.frame(heads = 0:(input$p_geometric + (5 * sqrt((1 - input$p_geometric) / (input$p_geometric^2)))), prob = dgeom(x = 0:(input$p_geometric + (5 * sqrt((1 - input$p_geometric) / (input$p_geometric^2)))), prob = input$p_geometric)) %>%
+        mutate(Heads = ifelse(heads > input$x2_geometric, "2", "other")) %>%
+        ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
+        geom_col() +
+        geom_text(
+          aes(label = round(prob, 3), y = prob + 0.005),
+          position = position_dodge(0.9),
+          size = 3,
+          vjust = 0
+        ) +
+        theme_minimal() +
+        theme(legend.position = "none") +
+        ggtitle(paste0(input$distribution, " distribution: Geom(", input$p_geometric, ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Probability mass function") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Geometric (I)' && input$lower_tail_geometric == 'interval') {
+      p <- data.frame(heads = 0:(input$p_geometric + (5 * sqrt((1 - input$p_geometric) / (input$p_geometric^2)))), prob = dgeom(x = 0:(input$p_geometric + (5 * sqrt((1 - input$p_geometric) / (input$p_geometric^2)))), prob = input$p_geometric)) %>%
+        mutate(Heads = ifelse(heads >= input$a_geometric & heads <= input$b_geometric, "2", "other")) %>%
+        ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
+        geom_col() +
+        geom_text(
+          aes(label = round(prob, 3), y = prob + 0.005),
+          position = position_dodge(0.9),
+          size = 3,
+          vjust = 0
+        ) +
+        theme_minimal() +
+        theme(legend.position = "none") +
+        ggtitle(paste0(input$distribution, " distribution: Geom(", input$p_geometric, ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Probability mass function") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Geometric (II)' && input$lower_tail_geometric2 == 'lower.tail') {
+      p <- data.frame(heads = 1:(input$p_geometric2 + (5 * sqrt((1 - input$p_geometric2) / (input$p_geometric2^2))) + 1), prob = dgeom(x = 0:(input$p_geometric2 + (5 * sqrt((1 - input$p_geometric2) / (input$p_geometric2^2)))), prob = input$p_geometric2)) %>%
+        mutate(Heads = ifelse(heads <= input$x1_geometric2, "2", "Other")) %>%
+        ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
+        geom_col() +
+        geom_text(
+          aes(label = round(prob, 3), y = prob + 0.005),
+          position = position_dodge(0.9),
+          size = 3,
+          vjust = 0
+        ) +
+        theme_minimal() +
+        theme(legend.position = "none") +
+        ggtitle(paste0(input$distribution, " distribution: Geom(", input$p_geometric2, ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Probability mass function") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Geometric (II)' && input$lower_tail_geometric2 == 'upper.tail') {
+      p <- data.frame(heads = 1:(input$p_geometric2 + (5 * sqrt((1 - input$p_geometric2) / (input$p_geometric2^2))) + 1), prob = dgeom(x = 0:(input$p_geometric2 + (5 * sqrt((1 - input$p_geometric2) / (input$p_geometric2^2)))), prob = input$p_geometric2)) %>%
+        mutate(Heads = ifelse(heads > input$x2_geometric2, "2", "other")) %>%
+        ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
+        geom_col() +
+        geom_text(
+          aes(label = round(prob, 3), y = prob + 0.005),
+          position = position_dodge(0.9),
+          size = 3,
+          vjust = 0
+        ) +
+        theme_minimal() +
+        theme(legend.position = "none") +
+        ggtitle(paste0(input$distribution, " distribution: Geom(", input$p_geometric2, ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Probability mass function") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Geometric (II)' && input$lower_tail_geometric2 == 'interval') {
+      p <- data.frame(heads = 1:(input$p_geometric2 + (5 * sqrt((1 - input$p_geometric2) / (input$p_geometric2^2))) + 1), prob = dgeom(x = 0:(input$p_geometric2 + (5 * sqrt((1 - input$p_geometric2) / (input$p_geometric2^2)))), prob = input$p_geometric2)) %>%
+        mutate(Heads = ifelse(heads >= input$a_geometric2 & heads <= input$b_geometric2, "2", "other")) %>%
+        ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
+        geom_col() +
+        geom_text(
+          aes(label = round(prob, 3), y = prob + 0.005),
+          position = position_dodge(0.9),
+          size = 3,
+          vjust = 0
+        ) +
+        theme_minimal() +
+        theme(legend.position = "none") +
+        ggtitle(paste0(input$distribution, " distribution: Geom(", input$p_geometric2, ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Probability mass function") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Hypergeometric' && input$lower_tail_hypergeometric == 'lower.tail') {
+      p <- data.frame(heads = qhyper(0.99999, m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric, lower.tail = FALSE):qhyper(0.99999, m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric, lower.tail = TRUE), prob = dhyper(x = qhyper(0.99999, m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric, lower.tail = FALSE):qhyper(0.99999, m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric, lower.tail = TRUE), m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric)) %>%
+        mutate(Heads = ifelse(heads <= input$x1_hypergeometric, "2", "Other")) %>%
+        ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
+        geom_col() +
+        geom_text(
+          aes(label = round(prob, 3), y = prob + 0.005),
+          position = position_dodge(0.9),
+          size = 3,
+          vjust = 0
+        ) +
+        theme_minimal() +
+        theme(legend.position = "none") +
+        ggtitle(paste0(input$distribution, " distribution: HG(", input$n_hypergeometric, ", ", input$N_hypergeometric, ", ", input$M_hypergeometric, ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Probability mass function") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Hypergeometric' && input$lower_tail_hypergeometric == 'upper.tail') {
+      p <- data.frame(heads = qhyper(0.99999, m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric, lower.tail = FALSE):qhyper(0.99999, m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric, lower.tail = TRUE), prob = dhyper(x = qhyper(0.99999, m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric, lower.tail = FALSE):qhyper(0.99999, m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric, lower.tail = TRUE), m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric)) %>%
+        mutate(Heads = ifelse(heads > input$x2_hypergeometric, "2", "other")) %>%
+        ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
+        geom_col() +
+        geom_text(
+          aes(label = round(prob, 3), y = prob + 0.005),
+          position = position_dodge(0.9),
+          size = 3,
+          vjust = 0
+        ) +
+        theme_minimal() +
+        theme(legend.position = "none") +
+        ggtitle(paste0(input$distribution, " distribution: HG(", input$n_hypergeometric, ", ", input$N_hypergeometric, ", ", input$M_hypergeometric, ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Probability mass function") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Hypergeometric' && input$lower_tail_hypergeometric == 'interval') {
+      p <- data.frame(heads = qhyper(0.99999, m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric, lower.tail = FALSE):qhyper(0.99999, m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric, lower.tail = TRUE), prob = dhyper(x = qhyper(0.99999, m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric, lower.tail = FALSE):qhyper(0.99999, m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric, lower.tail = TRUE), m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric)) %>%
+        mutate(Heads = ifelse(heads >= input$a_hypergeometric & heads <= input$b_hypergeometric, "2", "other")) %>%
+        ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
+        geom_col() +
+        geom_text(
+          aes(label = round(prob, 3), y = prob + 0.005),
+          position = position_dodge(0.9),
+          size = 3,
+          vjust = 0
+        ) +
+        theme_minimal() +
+        theme(legend.position = "none") +
+        ggtitle(paste0(input$distribution, " distribution: HG(", input$n_hypergeometric, ", ", input$N_hypergeometric, ", ", input$M_hypergeometric, ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Probability mass function") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Logistic' && input$lower_tail_logistic == 'lower.tail') {
+      funcShaded <- function(x) {
+        y <- dlogis(x, location = input$location_logistic, scale = input$scale_logistic)
+        y[x > input$x1_logistic] <- NA
+        return(y)
+      }
+      p <- ggplot(data.frame(x = c(qlogis(0.99999, location = input$location_logistic, scale = input$scale_logistic, lower.tail = FALSE), qlogis(0.99999, location = input$location_logistic, scale = input$scale_logistic, lower.tail = TRUE))), aes(x = x)) +
+        stat_function(fun = dlogis, args = list(location = input$location_logistic, scale = input$scale_logistic)) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        theme_minimal() +
+        ggtitle(paste0(input$distribution, " distribution: Logi(", input$location_logistic, ", ", input$scale_logistic, ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Density") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Logistic' && input$lower_tail_logistic == 'upper.tail') {
+      funcShaded <- function(x) {
+        y <- dlogis(x, location = input$location_logistic, scale = input$scale_logistic)
+        y[x < input$x2_logistic] <- NA
+        return(y)
+      }
+      p <- ggplot(data.frame(x = c(qlogis(0.99999, location = input$location_logistic, scale = input$scale_logistic, lower.tail = FALSE), qlogis(0.99999, location = input$location_logistic, scale = input$scale_logistic, lower.tail = TRUE))), aes(x = x)) +
+        stat_function(fun = dlogis, args = list(location = input$location_logistic, scale = input$scale_logistic)) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        theme_minimal() +
+        ggtitle(paste0(input$distribution, " distribution: Logi(", input$location_logistic, ", ", input$scale_logistic, ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Density") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Logistic' && input$lower_tail_logistic == 'interval') {
+      funcShaded <- function(x) {
+        y <- dlogis(x, location = input$location_logistic, scale = input$scale_logistic)
+        y[x < input$a_logistic | x > input$b_logistic] <- NA
+        return(y)
+      }
+      p <- ggplot(data.frame(x = c(qlogis(0.99999, location = input$location_logistic, scale = input$scale_logistic, lower.tail = FALSE), qlogis(0.99999, location = input$location_logistic, scale = input$scale_logistic, lower.tail = TRUE))), aes(x = x)) +
+        stat_function(fun = dlogis, args = list(location = input$location_logistic, scale = input$scale_logistic)) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        theme_minimal() +
+        ggtitle(paste0(input$distribution, " distribution: Logi(", input$location_logistic, ", ", input$scale_logistic, ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Density") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Log-Normal' && input$lower_tail_lognormal == 'lower.tail') {
+      funcShaded <- function(x) {
+        y <- dlnorm(x,
+                    meanlog = input$mean_lognormal,
+                    sdlog = ifelse(input$variance_sd_lognormal == "variance_true", sqrt(input$variance_lognormal), input$sd_lognormal)
+        )
+        y[x > input$x1_lognormal] <- NA
+        return(y)
+      }
+      p <- ggplot(data.frame(x = c(0, qlnorm(0.9, meanlog = input$mean_lognormal, sdlog = input$sd_lognormal))), aes(x = x)) +
+        stat_function(fun = dlnorm, args = list(
+          meanlog = input$mean_lognormal,
+          sdlog = ifelse(input$variance_sd_lognormal == "variance_true", sqrt(input$variance_lognormal), input$sd_lognormal)
+        )) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        theme_minimal() +
+        ggtitle(paste0(input$distribution, " distribution: Lognormal(", input$mean_lognormal, ", ", ifelse(input$variance_sd_lognormal == "variance_true", input$variance_lognormal, (input$sd_lognormal^2)), ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Density") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Log-Normal' && input$lower_tail_lognormal == 'upper.tail') {
+      funcShaded <- function(x) {
+        y <- dlnorm(x,
+                    meanlog = input$mean_lognormal,
+                    sdlog = ifelse(input$variance_sd_lognormal == "variance_true", sqrt(input$variance_lognormal), input$sd_lognormal)
+        )
+        y[x < input$x2_lognormal] <- NA
+        return(y)
+      }
+      p <- ggplot(data.frame(x = c(0, qlnorm(0.9, meanlog = input$mean_lognormal, sdlog = input$sd_lognormal))), aes(x = x)) +
+        stat_function(fun = dlnorm, args = list(
+          meanlog = input$mean_lognormal,
+          sdlog = ifelse(input$variance_sd_lognormal == "variance_true", sqrt(input$variance_lognormal), input$sd_lognormal)
+        )) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        theme_minimal() +
+        ggtitle(paste0(input$distribution, " distribution: Lognormal(", input$mean_lognormal, ", ", ifelse(input$variance_sd_lognormal == "variance_true", input$variance_lognormal, (input$sd_lognormal^2)), ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Density") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Log-Normal' && input$lower_tail_lognormal == 'interval') {
+      funcShaded <- function(x) {
+        y <- dlnorm(x,
+                    meanlog = input$mean_lognormal,
+                    sdlog = ifelse(input$variance_sd_lognormal == "variance_true", sqrt(input$variance_lognormal), input$sd_lognormal)
+        )
+        y[x < input$a_lognormal | x > input$b_lognormal] <- NA
+        return(y)
+      }
+      p <- ggplot(data.frame(x = c(0, qlnorm(0.9, meanlog = input$mean_lognormal, sdlog = input$sd_lognormal))), aes(x = x)) +
+        stat_function(fun = dlnorm, args = list(
+          meanlog = input$mean_lognormal,
+          sdlog = ifelse(input$variance_sd_lognormal == "variance_true", sqrt(input$variance_lognormal), input$sd_lognormal)
+        )) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        theme_minimal() +
+        ggtitle(paste0(input$distribution, " distribution: Lognormal(", input$mean_lognormal, ", ", ifelse(input$variance_sd_lognormal == "variance_true", input$variance_lognormal, (input$sd_lognormal^2)), ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Density") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Negative Binomial (I)' && input$lower_tail_negativebinomial == 'lower.tail') {
+      p <- data.frame(heads = qnbinom(0.999, size = input$r_negativebinomial, prob = input$p_negativebinomial, lower.tail = FALSE):qnbinom(0.999, size = input$r_negativebinomial, prob = input$p_negativebinomial, lower.tail = TRUE), prob = dnbinom(x = qnbinom(0.999, size = input$r_negativebinomial, prob = input$p_negativebinomial, lower.tail = FALSE):qnbinom(0.999, size = input$r_negativebinomial, prob = input$p_negativebinomial, lower.tail = TRUE), size = input$r_negativebinomial, prob = input$p_negativebinomial)) %>%
+        mutate(Heads = ifelse(heads <= input$x1_negativebinomial, "2", "Other")) %>%
+        ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
+        geom_col() +
+        geom_text(
+          aes(label = round(prob, 3), y = prob + 0.005),
+          position = position_dodge(0.9),
+          size = 3,
+          vjust = 0
+        ) +
+        theme_minimal() +
+        theme(legend.position = "none") +
+        ggtitle(paste0(input$distribution, " distribution: NG(", input$r_negativebinomial, ", ", input$p_negativebinomial, ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Probability mass function") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Negative Binomial (I)' && input$lower_tail_negativebinomial == 'upper.tail') {
+      p <- data.frame(heads = qnbinom(0.999, size = input$r_negativebinomial, prob = input$p_negativebinomial, lower.tail = FALSE):qnbinom(0.999, size = input$r_negativebinomial, prob = input$p_negativebinomial, lower.tail = TRUE), prob = dnbinom(x = qnbinom(0.999, size = input$r_negativebinomial, prob = input$p_negativebinomial, lower.tail = FALSE):qnbinom(0.999, size = input$r_negativebinomial, prob = input$p_negativebinomial, lower.tail = TRUE), size = input$r_negativebinomial, prob = input$p_negativebinomial)) %>%
+        mutate(Heads = ifelse(heads > input$x2_negativebinomial, "2", "other")) %>%
+        ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
+        geom_col() +
+        geom_text(
+          aes(label = round(prob, 3), y = prob + 0.005),
+          position = position_dodge(0.9),
+          size = 3,
+          vjust = 0
+        ) +
+        theme_minimal() +
+        theme(legend.position = "none") +
+        ggtitle(paste0(input$distribution, " distribution: NG(", input$r_negativebinomial, ", ", input$p_negativebinomial, ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Probability mass function") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Negative Binomial (I)' && input$lower_tail_negativebinomial == 'interval') {
+      p <- data.frame(heads = qnbinom(0.999, size = input$r_negativebinomial, prob = input$p_negativebinomial, lower.tail = FALSE):qnbinom(0.999, size = input$r_negativebinomial, prob = input$p_negativebinomial, lower.tail = TRUE), prob = dnbinom(x = qnbinom(0.999, size = input$r_negativebinomial, prob = input$p_negativebinomial, lower.tail = FALSE):qnbinom(0.999, size = input$r_negativebinomial, prob = input$p_negativebinomial, lower.tail = TRUE), size = input$r_negativebinomial, prob = input$p_negativebinomial)) %>%
+        mutate(Heads = ifelse(heads >= input$a_negativebinomial & heads <= input$b_negativebinomial, "2", "other")) %>%
+        ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
+        geom_col() +
+        geom_text(
+          aes(label = round(prob, 3), y = prob + 0.005),
+          position = position_dodge(0.9),
+          size = 3,
+          vjust = 0
+        ) +
+        theme_minimal() +
+        theme(legend.position = "none") +
+        ggtitle(paste0(input$distribution, " distribution: NG(", input$r_negativebinomial, ", ", input$p_negativebinomial, ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Probability mass function") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Negative Binomial (II)' && input$lower_tail_negativebinomial2 == 'lower.tail') {
+      p <- data.frame(heads = input$r_negativebinomial2:(qnbinom(0.999, size = input$r_negativebinomial2, prob = input$p_negativebinomial2, lower.tail = TRUE) + input$r_negativebinomial2), prob = dnbinom(x = 0:qnbinom(0.999, size = input$r_negativebinomial2, prob = input$p_negativebinomial2, lower.tail = TRUE), size = input$r_negativebinomial2, prob = input$p_negativebinomial2)) %>%
+        mutate(Heads = ifelse(heads <= input$x1_negativebinomial2, "2", "Other")) %>%
+        ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
+        geom_col() +
+        geom_text(
+          aes(label = round(prob, 3), y = prob + 0.005),
+          position = position_dodge(0.9),
+          size = 3,
+          vjust = 0
+        ) +
+        theme_minimal() +
+        theme(legend.position = "none") +
+        ggtitle(paste0(input$distribution, " distribution: NG(", input$r_negativebinomial2, ", ", input$p_negativebinomial2, ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Probability mass function") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Negative Binomial (II)' && input$lower_tail_negativebinomial2 == 'upper.tail') {
+      p <- data.frame(heads = input$r_negativebinomial2:(qnbinom(0.999, size = input$r_negativebinomial2, prob = input$p_negativebinomial2, lower.tail = TRUE) + input$r_negativebinomial2), prob = dnbinom(x = 0:qnbinom(0.999, size = input$r_negativebinomial2, prob = input$p_negativebinomial2, lower.tail = TRUE), size = input$r_negativebinomial2, prob = input$p_negativebinomial2)) %>%
+        mutate(Heads = ifelse(heads > input$x2_negativebinomial2, "2", "other")) %>%
+        ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
+        geom_col() +
+        geom_text(
+          aes(label = round(prob, 3), y = prob + 0.005),
+          position = position_dodge(0.9),
+          size = 3,
+          vjust = 0
+        ) +
+        theme_minimal() +
+        theme(legend.position = "none") +
+        ggtitle(paste0(input$distribution, " distribution: NG(", input$r_negativebinomial2, ", ", input$p_negativebinomial2, ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Probability mass function") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Negative Binomial (II)' && input$lower_tail_negativebinomial2 == 'interval') {
+      p <- data.frame(heads = input$r_negativebinomial2:(qnbinom(0.999, size = input$r_negativebinomial2, prob = input$p_negativebinomial2, lower.tail = TRUE) + input$r_negativebinomial2), prob = dnbinom(x = 0:qnbinom(0.999, size = input$r_negativebinomial2, prob = input$p_negativebinomial2, lower.tail = TRUE), size = input$r_negativebinomial2, prob = input$p_negativebinomial2)) %>%
+        mutate(Heads = ifelse(heads >= input$a_negativebinomial2 & heads <= input$b_negativebinomial2, "2", "other")) %>%
+        ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
+        geom_col() +
+        geom_text(
+          aes(label = round(prob, 3), y = prob + 0.005),
+          position = position_dodge(0.9),
+          size = 3,
+          vjust = 0
+        ) +
+        theme_minimal() +
+        theme(legend.position = "none") +
+        ggtitle(paste0(input$distribution, " distribution: NG(", input$r_negativebinomial2, ", ", input$p_negativebinomial2, ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Probability mass function") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Normal' && input$lower_tail_normal == 'lower.tail') {
+      funcShaded <- function(x) {
+        y <- dnorm(x,
+                   mean = input$mean_normal,
+                   sd = ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal)
+        )
+        y[x > input$x1_normal] <- NA
+        return(y)
+      }
+      p <- ggplot(data.frame(x = c(qnorm(0.99999, mean = input$mean_normal, sd = ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal), lower.tail = FALSE), qnorm(0.99999, mean = input$mean_normal, sd = ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal), lower.tail = TRUE))), aes(x = x)) +
+        stat_function(fun = dnorm, args = list(
+          mean = input$mean_normal,
+          sd = ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal)
+        )) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        theme_minimal() +
+        ggtitle(paste0(input$distribution, " distribution: N(", input$mean_normal, ", ", ifelse(input$variance_sd == "variance_true", input$variance_normal, (input$sd_normal^2)), ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Density") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Normal' && input$lower_tail_normal == 'upper.tail') {
+      funcShaded <- function(x) {
+        y <- dnorm(x,
+                   mean = input$mean_normal,
+                   sd = ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal)
+        )
+        y[x < input$x2_normal] <- NA
+        return(y)
+      }
+      p <- ggplot(data.frame(x = c(qnorm(0.99999, mean = input$mean_normal, sd = ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal), lower.tail = FALSE), qnorm(0.99999, mean = input$mean_normal, sd = ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal), lower.tail = TRUE))), aes(x = x)) +
+        stat_function(fun = dnorm, args = list(
+          mean = input$mean_normal,
+          sd = ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal)
+        )) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        theme_minimal() +
+        ggtitle(paste0(input$distribution, " distribution: N(", input$mean_normal, ", ", ifelse(input$variance_sd == "variance_true", input$variance_normal, (input$sd_normal^2)), ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Density") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Normal' && input$lower_tail_normal == 'interval') {
+      funcShaded <- function(x) {
+        y <- dnorm(x,
+                   mean = input$mean_normal,
+                   sd = ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal)
+        )
+        y[x < input$a_normal | x > input$b_normal] <- NA
+        return(y)
+      }
+      p <- ggplot(data.frame(x = c(qnorm(0.99999, mean = input$mean_normal, sd = ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal), lower.tail = FALSE), qnorm(0.99999, mean = input$mean_normal, sd = ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal), lower.tail = TRUE))), aes(x = x)) +
+        stat_function(fun = dnorm, args = list(
+          mean = input$mean_normal,
+          sd = ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal)
+        )) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        theme_minimal() +
+        ggtitle(paste0(input$distribution, " distribution: N(", input$mean_normal, ", ", ifelse(input$variance_sd == "variance_true", input$variance_normal, (input$sd_normal^2)), ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Density") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Poisson' && input$lower_tail_poisson == 'lower.tail') {
+      p <- data.frame(heads = qpois(0.99999, lambda = input$lambda_poisson, lower.tail = FALSE):qpois(0.99999, lambda = input$lambda_poisson, lower.tail = TRUE), prob = dpois(x = qpois(0.99999, lambda = input$lambda_poisson, lower.tail = FALSE):qpois(0.99999, lambda = input$lambda_poisson, lower.tail = TRUE), lambda = input$lambda_poisson)) %>%
+        mutate(Heads = ifelse(heads <= input$x1_poisson, "2", "Other")) %>%
+        ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
+        geom_col() +
+        geom_text(
+          aes(label = round(prob, 3), y = prob + 0.005),
+          position = position_dodge(0.9),
+          size = 3,
+          vjust = 0
+        ) +
+        theme_minimal() +
+        theme(legend.position = "none") +
+        ggtitle(paste0(input$distribution, " distribution: Pois(", input$lambda_poisson, ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Probability mass function") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Poisson' && input$lower_tail_poisson == 'upper.tail') {
+      p <- data.frame(heads = qpois(0.99999, lambda = input$lambda_poisson, lower.tail = FALSE):qpois(0.99999, lambda = input$lambda_poisson, lower.tail = TRUE), prob = dpois(x = qpois(0.99999, lambda = input$lambda_poisson, lower.tail = FALSE):qpois(0.99999, lambda = input$lambda_poisson, lower.tail = TRUE), lambda = input$lambda_poisson)) %>%
+        mutate(Heads = ifelse(heads > input$x2_poisson, "2", "other")) %>%
+        ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
+        geom_col() +
+        geom_text(
+          aes(label = round(prob, 3), y = prob + 0.005),
+          position = position_dodge(0.9),
+          size = 3,
+          vjust = 0
+        ) +
+        theme_minimal() +
+        theme(legend.position = "none") +
+        ggtitle(paste0(input$distribution, " distribution: Pois(", input$lambda_poisson, ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Probability mass function") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Poisson' && input$lower_tail_poisson == 'interval') {
+      p <- data.frame(heads = qpois(0.99999, lambda = input$lambda_poisson, lower.tail = FALSE):qpois(0.99999, lambda = input$lambda_poisson, lower.tail = TRUE), prob = dpois(x = qpois(0.99999, lambda = input$lambda_poisson, lower.tail = FALSE):qpois(0.99999, lambda = input$lambda_poisson, lower.tail = TRUE), lambda = input$lambda_poisson)) %>%
+        mutate(Heads = ifelse(heads >= input$a_poisson & heads <= input$b_poisson, "2", "other")) %>%
+        ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
+        geom_col() +
+        geom_text(
+          aes(label = round(prob, 3), y = prob + 0.005),
+          position = position_dodge(0.9),
+          size = 3,
+          vjust = 0
+        ) +
+        theme_minimal() +
+        theme(legend.position = "none") +
+        ggtitle(paste0(input$distribution, " distribution: Pois(", input$lambda_poisson, ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Probability mass function") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Student' && input$lower_tail_student == 'lower.tail') {
+      funcShaded <- function(x) {
+        y <- dt(x, df = input$df_student)
+        y[x > input$x1_student] <- NA
+        return(y)
+      }
+      p <- ggplot(data.frame(x = c(qt(0.99999, df = input$df_student, lower.tail = FALSE), qt(0.99999, df = input$df_student, lower.tail = TRUE))), aes(x = x)) +
+        stat_function(fun = dt, args = list(df = input$df_student)) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        theme_minimal() +
+        ggtitle(paste0(input$distribution, " distribution: St(", input$df_student, ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Density") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Student' && input$lower_tail_student == 'upper.tail') {
+      funcShaded <- function(x) {
+        y <- dt(x, df = input$df_student)
+        y[x < input$x2_student] <- NA
+        return(y)
+      }
+      p <- ggplot(data.frame(x = c(qt(0.99999, df = input$df_student, lower.tail = FALSE), qt(0.99999, df = input$df_student, lower.tail = TRUE))), aes(x = x)) +
+        stat_function(fun = dt, args = list(df = input$df_student)) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        theme_minimal() +
+        ggtitle(paste0(input$distribution, " distribution: St(", input$df_student, ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Density") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Student' && input$lower_tail_student == 'interval') {
+      funcShaded <- function(x) {
+        y <- dt(x, df = input$df_student)
+        y[x < input$a_student | x > input$b_student] <- NA
+        return(y)
+      }
+      p <- ggplot(data.frame(x = c(qt(0.99999, df = input$df_student, lower.tail = FALSE), qt(0.99999, df = input$df_student, lower.tail = TRUE))), aes(x = x)) +
+        stat_function(fun = dt, args = list(df = input$df_student)) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        theme_minimal() +
+        ggtitle(paste0(input$distribution, " distribution: St(", input$df_student, ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Density") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Weibull' && input$lower_tail_weibull == 'lower.tail') {
+      funcShaded <- function(x) {
+        y <- dweibull(x, shape = input$alpha_weibull, scale = input$beta_weibull)
+        y[x > input$x1_weibull] <- NA
+        return(y)
+      }
+      p <- ggplot(data.frame(x = c(qweibull(0.99999, shape = input$alpha_weibull, scale = input$beta_weibull, lower.tail = FALSE), qweibull(0.99999, shape = input$alpha_weibull, scale = input$beta_weibull, lower.tail = TRUE))), aes(x = x)) +
+        stat_function(fun = dweibull, args = list(shape = input$alpha_weibull, scale = input$beta_weibull)) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        theme_minimal() +
+        ggtitle(paste0(input$distribution, " distribution: Weibull(", input$alpha_weibull, ", ", input$beta_weibull, ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Density") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Weibull' && input$lower_tail_weibull == 'upper.tail') {
+      funcShaded <- function(x) {
+        y <- dweibull(x, shape = input$alpha_weibull, scale = input$beta_weibull)
+        y[x < input$x2_weibull] <- NA
+        return(y)
+      }
+      p <- ggplot(data.frame(x = c(qweibull(0.99999, shape = input$alpha_weibull, scale = input$beta_weibull, lower.tail = FALSE), qweibull(0.99999, shape = input$alpha_weibull, scale = input$beta_weibull, lower.tail = TRUE))), aes(x = x)) +
+        stat_function(fun = dweibull, args = list(shape = input$alpha_weibull, scale = input$beta_weibull)) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        theme_minimal() +
+        ggtitle(paste0(input$distribution, " distribution: Weibull(", input$alpha_weibull, ", ", input$beta_weibull, ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Density") +
+        xlab("x")
+      p
+    } else if (input$distribution == 'Weibull' && input$lower_tail_weibull == 'interval') {
+      funcShaded <- function(x) {
+        y <- dweibull(x, shape = input$alpha_weibull, scale = input$beta_weibull)
+        y[x < input$a_weibull | x > input$b_weibull] <- NA
+        return(y)
+      }
+      p <- ggplot(data.frame(x = c(qweibull(0.99999, shape = input$alpha_weibull, scale = input$beta_weibull, lower.tail = FALSE), qweibull(0.99999, shape = input$alpha_weibull, scale = input$beta_weibull, lower.tail = TRUE))), aes(x = x)) +
+        stat_function(fun = dweibull, args = list(shape = input$alpha_weibull, scale = input$beta_weibull)) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        theme_minimal() +
+        ggtitle(paste0(input$distribution, " distribution: Weibull(", input$alpha_weibull, ", ", input$beta_weibull, ")")) +
+        theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
+        ylab("Density") +
+        xlab("x")
+      p
     }
-    p <- ggplot(data.frame(x = c(qbeta(0.99999, shape1 = input$alpha_beta, shape2 = input$beta_beta, lower.tail = FALSE), qbeta(0.99999, shape1 = input$alpha_beta, shape2 = input$beta_beta, lower.tail = TRUE))), aes(x = x)) +
-      stat_function(fun = dbeta, args = list(shape1 = input$alpha_beta, shape2 = input$beta_beta)) +
-      stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
-      theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution: Beta(", input$alpha_beta, ", ", input$beta_beta, ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
-      xlab("x")
-    p
-  })
-  output$betaPlot_upper <- renderPlot({
-    funcShaded <- function(x) {
-      y <- dbeta(x, shape1 = input$alpha_beta, shape2 = input$beta_beta)
-      y[x < input$x2_beta] <- NA
-      return(y)
-    }
-    p <- ggplot(data.frame(x = c(qbeta(0.99999, shape1 = input$alpha_beta, shape2 = input$beta_beta, lower.tail = FALSE), qbeta(0.99999, shape1 = input$alpha_beta, shape2 = input$beta_beta, lower.tail = TRUE))), aes(x = x)) +
-      stat_function(fun = dbeta, args = list(shape1 = input$alpha_beta, shape2 = input$beta_beta)) +
-      stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
-      theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution: Beta(", input$alpha_beta, ", ", input$beta_beta, ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
-      xlab("x")
-    p
-  })
-  output$betaPlot_interval <- renderPlot({
-    funcShaded <- function(x) {
-      y <- dbeta(x, shape1 = input$alpha_beta, shape2 = input$beta_beta)
-      y[x < input$a_beta | x > input$b_beta] <- NA
-      return(y)
-    }
-    p <- ggplot(data.frame(x = c(qbeta(0.99999, shape1 = input$alpha_beta, shape2 = input$beta_beta, lower.tail = FALSE), qbeta(0.99999, shape1 = input$alpha_beta, shape2 = input$beta_beta, lower.tail = TRUE))), aes(x = x)) +
-      stat_function(fun = dbeta, args = list(shape1 = input$alpha_beta, shape2 = input$beta_beta)) +
-      stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
-      theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution: Beta(", input$alpha_beta, ", ", input$beta_beta, ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
-      xlab("x")
-    p
+    
+    return(res)
   })
   
-  output$binomialPlot_lower <- renderPlot({
-    p <- data.frame(heads = qbinom(0.99999, size = input$n_binomial, prob = input$p_binomial, lower.tail = FALSE):qbinom(0.99999, size = input$n_binomial, prob = input$p_binomial, lower.tail = TRUE), prob = dbinom(x = qbinom(0.99999, size = input$n_binomial, prob = input$p_binomial, lower.tail = FALSE):qbinom(0.99999, size = input$n_binomial, prob = input$p_binomial, lower.tail = TRUE), size = input$n_binomial, prob = input$p_binomial)) %>%
-      mutate(Heads = ifelse(heads <= input$x1_binomial, "2", "Other")) %>%
-      ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
-      geom_col() +
-      geom_text(
-        aes(label = round(prob, 3), y = prob + 0.005),
-        position = position_dodge(0.9),
-        size = 3,
-        vjust = 0
-      ) +
-      theme_minimal() +
-      theme(legend.position = "none") +
-      ggtitle(paste0(input$distribution, " distribution: Bin(", input$n_binomial, ", ", input$p_binomial, ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Probability mass function") +
-      xlab("x")
-    p
-  })
-  output$binomialPlot_upper <- renderPlot({
-    p <- data.frame(heads = qbinom(0.99999, size = input$n_binomial, prob = input$p_binomial, lower.tail = FALSE):qbinom(0.99999, size = input$n_binomial, prob = input$p_binomial, lower.tail = TRUE), prob = dbinom(x = qbinom(0.99999, size = input$n_binomial, prob = input$p_binomial, lower.tail = FALSE):qbinom(0.99999, size = input$n_binomial, prob = input$p_binomial, lower.tail = TRUE), size = input$n_binomial, prob = input$p_binomial)) %>%
-      mutate(Heads = ifelse(heads > input$x2_binomial, "2", "other")) %>%
-      ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
-      geom_col() +
-      geom_text(
-        aes(label = round(prob, 3), y = prob + 0.005),
-        position = position_dodge(0.9),
-        size = 3,
-        vjust = 0
-      ) +
-      theme_minimal() +
-      theme(legend.position = "none") +
-      ggtitle(paste0(input$distribution, " distribution: Bin(", input$n_binomial, ", ", input$p_binomial, ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Probability mass function") +
-      xlab("x")
-    p
-  })
-  output$binomialPlot_interval <- renderPlot({
-    p <- data.frame(heads = qbinom(0.99999, size = input$n_binomial, prob = input$p_binomial, lower.tail = FALSE):qbinom(0.99999, size = input$n_binomial, prob = input$p_binomial, lower.tail = TRUE), prob = dbinom(x = qbinom(0.99999, size = input$n_binomial, prob = input$p_binomial, lower.tail = FALSE):qbinom(0.99999, size = input$n_binomial, prob = input$p_binomial, lower.tail = TRUE), size = input$n_binomial, prob = input$p_binomial)) %>%
-      mutate(Heads = ifelse(heads >= input$a_binomial & heads <= input$b_binomial, "2", "other")) %>%
-      ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
-      geom_col() +
-      geom_text(
-        aes(label = round(prob, 3), y = prob + 0.005),
-        position = position_dodge(0.9),
-        size = 3,
-        vjust = 0
-      ) +
-      theme_minimal() +
-      theme(legend.position = "none") +
-      ggtitle(paste0(input$distribution, " distribution: Bin(", input$n_binomial, ", ", input$p_binomial, ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Probability mass function") +
-      xlab("x")
-    p
-  })
-  
-  output$cauchyPlot_lower <- renderPlot({
-    funcShaded <- function(x) {
-      y <- dcauchy(x, location = input$location_cauchy, scale = input$scale_cauchy)
-      y[x > input$x1_cauchy] <- NA
-      return(y)
-    }
-    p <- ggplot(data.frame(x = c(input$location_cauchy - (6 * input$scale_cauchy), input$location_cauchy + (6 * input$scale_cauchy))), aes(x = x)) +
-      stat_function(fun = dcauchy, args = list(location = input$location_cauchy, scale = input$scale_cauchy)) +
-      stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
-      theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution: Cauchy(", input$location_cauchy, ", ", input$scale_cauchy, ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
-      xlab("x")
-    p
-  })
-  output$cauchyPlot_upper <- renderPlot({
-    funcShaded <- function(x) {
-      y <- dcauchy(x, location = input$location_cauchy, scale = input$scale_cauchy)
-      y[x < input$x2_cauchy] <- NA
-      return(y)
-    }
-    p <- ggplot(data.frame(x = c(input$location_cauchy - (6 * input$scale_cauchy), input$location_cauchy + (6 * input$scale_cauchy))), aes(x = x)) +
-      stat_function(fun = dcauchy, args = list(location = input$location_cauchy, scale = input$scale_cauchy)) +
-      stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
-      theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution: Cauchy(", input$location_cauchy, ", ", input$scale_cauchy, ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
-      xlab("x")
-    p
-  })
-  output$cauchyPlot_interval <- renderPlot({
-    funcShaded <- function(x) {
-      y <- dcauchy(x, location = input$location_cauchy, scale = input$scale_cauchy)
-      y[x < input$a_cauchy | x > input$b_cauchy] <- NA
-      return(y)
-    }
-    p <- ggplot(data.frame(x = c(input$location_cauchy - (6 * input$scale_cauchy), input$location_cauchy + (6 * input$scale_cauchy))), aes(x = x)) +
-      stat_function(fun = dcauchy, args = list(location = input$location_cauchy, scale = input$scale_cauchy)) +
-      stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
-      theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution: Cauchy(", input$location_cauchy, ", ", input$scale_cauchy, ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
-      xlab("x")
-    p
-  })
-  
-  output$chisquarePlot_lower <- renderPlot({
-    funcShaded <- function(x) {
-      y <- dchisq(x, df = input$df_chisquare)
-      y[x > input$x1_chisquare] <- NA
-      return(y)
-    }
-    p <- ggplot(data.frame(x = c(qchisq(0.99999, df = input$df_chisquare, lower.tail = FALSE), qchisq(0.99999, df = input$df_chisquare, lower.tail = TRUE))), aes(x = x)) +
-      stat_function(fun = dchisq, args = list(df = input$df_chisquare)) +
-      stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
-      theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution: Chi(", input$df_chisquare, ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
-      xlab("x")
-    p
-  })
-  output$chisquarePlot_upper <- renderPlot({
-    funcShaded <- function(x) {
-      y <- dchisq(x, df = input$df_chisquare)
-      y[x < input$x2_chisquare] <- NA
-      return(y)
-    }
-    p <- ggplot(data.frame(x = c(qchisq(0.99999, df = input$df_chisquare, lower.tail = FALSE), qchisq(0.99999, df = input$df_chisquare, lower.tail = TRUE))), aes(x = x)) +
-      stat_function(fun = dchisq, args = list(df = input$df_chisquare)) +
-      stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
-      theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution: Chi(", input$df_chisquare, ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
-      xlab("x")
-    p
-  })
-  output$chisquarePlot_interval <- renderPlot({
-    funcShaded <- function(x) {
-      y <- dchisq(x, df = input$df_chisquare)
-      y[x < input$a_chisquare | x > input$b_chisquare] <- NA
-      return(y)
-    }
-    p <- ggplot(data.frame(x = c(qchisq(0.99999, df = input$df_chisquare, lower.tail = FALSE), qchisq(0.99999, df = input$df_chisquare, lower.tail = TRUE))), aes(x = x)) +
-      stat_function(fun = dchisq, args = list(df = input$df_chisquare)) +
-      stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
-      theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution: Chi(", input$df_chisquare, ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
-      xlab("x")
-    p
-  })
-  
-  output$exponentialPlot_lower <- renderPlot({
-    funcShaded <- function(x) {
-      y <- dexp(x, rate = input$rate_exponential)
-      y[x > input$x1_exponential] <- NA
-      return(y)
-    }
-    p <- ggplot(data.frame(x = c(qexp(0.99999, rate = input$rate_exponential, lower.tail = FALSE), qexp(0.99999, rate = input$rate_exponential, lower.tail = TRUE))), aes(x = x)) +
-      stat_function(fun = dexp, args = list(rate = input$rate_exponential)) +
-      stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
-      theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution: Exp(", input$rate_exponential, ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
-      xlab("x")
-    p
-  })
-  output$exponentialPlot_upper <- renderPlot({
-    funcShaded <- function(x) {
-      y <- dexp(x, rate = input$rate_exponential)
-      y[x < input$x2_exponential] <- NA
-      return(y)
-    }
-    p <- ggplot(data.frame(x = c(qexp(0.99999, rate = input$rate_exponential, lower.tail = FALSE), qexp(0.99999, rate = input$rate_exponential, lower.tail = TRUE))), aes(x = x)) +
-      stat_function(fun = dexp, args = list(rate = input$rate_exponential)) +
-      stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
-      theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution: Exp(", input$rate_exponential, ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
-      xlab("x")
-    p
-  })
-  output$exponentialPlot_interval <- renderPlot({
-    funcShaded <- function(x) {
-      y <- dexp(x, rate = input$rate_exponential)
-      y[x < input$a_exponential | x > input$b_exponential] <- NA
-      return(y)
-    }
-    p <- ggplot(data.frame(x = c(qexp(0.99999, rate = input$rate_exponential, lower.tail = FALSE), qexp(0.99999, rate = input$rate_exponential, lower.tail = TRUE))), aes(x = x)) +
-      stat_function(fun = dexp, args = list(rate = input$rate_exponential)) +
-      stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
-      theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution: Exp(", input$rate_exponential, ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
-      xlab("x")
-    p
-  })
-  
-  output$fisherPlot_lower <- renderPlot({
-    funcShaded <- function(x) {
-      y <- df(x, df1 = input$df1_fisher, df2 = input$df2_fisher)
-      y[x > input$x1_fisher] <- NA
-      return(y)
-    }
-    p <- ggplot(data.frame(x = c(0, 5)), aes(x = x)) +
-      stat_function(fun = df, args = list(df1 = input$df1_fisher, df2 = input$df2_fisher)) +
-      stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
-      theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution: F(", input$df1_fisher, ", ", input$df2_fisher, ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
-      xlab("x")
-    p
-  })
-  output$fisherPlot_upper <- renderPlot({
-    funcShaded <- function(x) {
-      y <- df(x, df1 = input$df1_fisher, df2 = input$df2_fisher)
-      y[x < input$x2_fisher] <- NA
-      return(y)
-    }
-    p <- ggplot(data.frame(x = c(0, 5)), aes(x = x)) +
-      stat_function(fun = df, args = list(df1 = input$df1_fisher, df2 = input$df2_fisher)) +
-      stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
-      theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution: F(", input$df1_fisher, ", ", input$df2_fisher, ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
-      xlab("x")
-    p
-  })
-  output$fisherPlot_interval <- renderPlot({
-    funcShaded <- function(x) {
-      y <- df(x, df1 = input$df1_fisher, df2 = input$df2_fisher)
-      y[x < input$a_fisher | x > input$b_fisher] <- NA
-      return(y)
-    }
-    p <- ggplot(data.frame(x = c(0, 5)), aes(x = x)) +
-      stat_function(fun = df, args = list(df1 = input$df1_fisher, df2 = input$df2_fisher)) +
-      stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
-      theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution: F(", input$df1_fisher, ", ", input$df2_fisher, ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
-      xlab("x")
-    p
-  })
-  
-  output$gammaPlot_lower <- renderPlot({
-    funcShaded <- function(x) {
-      y <- dgamma(x, shape = input$alpha_gamma, rate = input$beta_gamma)
-      y[x > input$x1_gamma] <- NA
-      return(y)
-    }
-    p <- ggplot(data.frame(x = c(qgamma(0.99999, shape = input$alpha_gamma, rate = input$beta_gamma, lower.tail = FALSE), qgamma(0.99999, shape = input$alpha_gamma, rate = input$beta_gamma, lower.tail = TRUE))), aes(x = x)) +
-      stat_function(fun = dgamma, args = list(shape = input$alpha_gamma, rate = input$beta_gamma)) +
-      stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
-      theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution: Gamma(", input$alpha_gamma, ", ", input$beta_gamma, ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
-      xlab("x")
-    p
-  })
-  output$gammaPlot_upper <- renderPlot({
-    funcShaded <- function(x) {
-      y <- dgamma(x, shape = input$alpha_gamma, rate = input$beta_gamma)
-      y[x < input$x2_gamma] <- NA
-      return(y)
-    }
-    p <- ggplot(data.frame(x = c(qgamma(0.99999, shape = input$alpha_gamma, rate = input$beta_gamma, lower.tail = FALSE), qgamma(0.99999, shape = input$alpha_gamma, rate = input$beta_gamma, lower.tail = TRUE))), aes(x = x)) +
-      stat_function(fun = dgamma, args = list(shape = input$alpha_gamma, rate = input$beta_gamma)) +
-      stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
-      theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution: Gamma(", input$alpha_gamma, ", ", input$beta_gamma, ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
-      xlab("x")
-    p
-  })
-  output$gammaPlot_interval <- renderPlot({
-    funcShaded <- function(x) {
-      y <- dgamma(x, shape = input$alpha_gamma, rate = input$beta_gamma)
-      y[x < input$a_gamma | x > input$b_gamma] <- NA
-      return(y)
-    }
-    p <- ggplot(data.frame(x = c(qgamma(0.99999, shape = input$alpha_gamma, rate = input$beta_gamma, lower.tail = FALSE), qgamma(0.99999, shape = input$alpha_gamma, rate = input$beta_gamma, lower.tail = TRUE))), aes(x = x)) +
-      stat_function(fun = dgamma, args = list(shape = input$alpha_gamma, rate = input$beta_gamma)) +
-      stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
-      theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution: Gamma(", input$alpha_gamma, ", ", input$beta_gamma, ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
-      xlab("x")
-    p
-  })
-  
-  output$geometricPlot_lower <- renderPlot({
-    p <- data.frame(heads = 0:(input$p_geometric + (5 * sqrt((1 - input$p_geometric) / (input$p_geometric^2)))), prob = dgeom(x = 0:(input$p_geometric + (5 * sqrt((1 - input$p_geometric) / (input$p_geometric^2)))), prob = input$p_geometric)) %>%
-      mutate(Heads = ifelse(heads <= input$x1_geometric, "2", "Other")) %>%
-      ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
-      geom_col() +
-      geom_text(
-        aes(label = round(prob, 3), y = prob + 0.005),
-        position = position_dodge(0.9),
-        size = 3,
-        vjust = 0
-      ) +
-      theme_minimal() +
-      theme(legend.position = "none") +
-      ggtitle(paste0(input$distribution, " distribution: Geom(", input$p_geometric, ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Probability mass function") +
-      xlab("x")
-    p
-  })
-  output$geometricPlot_upper <- renderPlot({
-    p <- data.frame(heads = 0:(input$p_geometric + (5 * sqrt((1 - input$p_geometric) / (input$p_geometric^2)))), prob = dgeom(x = 0:(input$p_geometric + (5 * sqrt((1 - input$p_geometric) / (input$p_geometric^2)))), prob = input$p_geometric)) %>%
-      mutate(Heads = ifelse(heads > input$x2_geometric, "2", "other")) %>%
-      ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
-      geom_col() +
-      geom_text(
-        aes(label = round(prob, 3), y = prob + 0.005),
-        position = position_dodge(0.9),
-        size = 3,
-        vjust = 0
-      ) +
-      theme_minimal() +
-      theme(legend.position = "none") +
-      ggtitle(paste0(input$distribution, " distribution: Geom(", input$p_geometric, ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Probability mass function") +
-      xlab("x")
-    p
-  })
-  output$geometricPlot_interval <- renderPlot({
-    p <- data.frame(heads = 0:(input$p_geometric + (5 * sqrt((1 - input$p_geometric) / (input$p_geometric^2)))), prob = dgeom(x = 0:(input$p_geometric + (5 * sqrt((1 - input$p_geometric) / (input$p_geometric^2)))), prob = input$p_geometric)) %>%
-      mutate(Heads = ifelse(heads >= input$a_geometric & heads <= input$b_geometric, "2", "other")) %>%
-      ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
-      geom_col() +
-      geom_text(
-        aes(label = round(prob, 3), y = prob + 0.005),
-        position = position_dodge(0.9),
-        size = 3,
-        vjust = 0
-      ) +
-      theme_minimal() +
-      theme(legend.position = "none") +
-      ggtitle(paste0(input$distribution, " distribution: Geom(", input$p_geometric, ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Probability mass function") +
-      xlab("x")
-    p
-  })
-  
-  output$geometric2Plot_lower <- renderPlot({
-    p <- data.frame(heads = 1:(input$p_geometric2 + (5 * sqrt((1 - input$p_geometric2) / (input$p_geometric2^2))) + 1), prob = dgeom(x = 0:(input$p_geometric2 + (5 * sqrt((1 - input$p_geometric2) / (input$p_geometric2^2)))), prob = input$p_geometric2)) %>%
-      mutate(Heads = ifelse(heads <= input$x1_geometric2, "2", "Other")) %>%
-      ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
-      geom_col() +
-      geom_text(
-        aes(label = round(prob, 3), y = prob + 0.005),
-        position = position_dodge(0.9),
-        size = 3,
-        vjust = 0
-      ) +
-      theme_minimal() +
-      theme(legend.position = "none") +
-      ggtitle(paste0(input$distribution, " distribution: Geom(", input$p_geometric2, ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Probability mass function") +
-      xlab("x")
-    p
-  })
-  output$geometric2Plot_upper <- renderPlot({
-    p <- data.frame(heads = 1:(input$p_geometric2 + (5 * sqrt((1 - input$p_geometric2) / (input$p_geometric2^2))) + 1), prob = dgeom(x = 0:(input$p_geometric2 + (5 * sqrt((1 - input$p_geometric2) / (input$p_geometric2^2)))), prob = input$p_geometric2)) %>%
-      mutate(Heads = ifelse(heads > input$x2_geometric2, "2", "other")) %>%
-      ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
-      geom_col() +
-      geom_text(
-        aes(label = round(prob, 3), y = prob + 0.005),
-        position = position_dodge(0.9),
-        size = 3,
-        vjust = 0
-      ) +
-      theme_minimal() +
-      theme(legend.position = "none") +
-      ggtitle(paste0(input$distribution, " distribution: Geom(", input$p_geometric2, ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Probability mass function") +
-      xlab("x")
-    p
-  })
-  output$geometric2Plot_interval <- renderPlot({
-    p <- data.frame(heads = 1:(input$p_geometric2 + (5 * sqrt((1 - input$p_geometric2) / (input$p_geometric2^2))) + 1), prob = dgeom(x = 0:(input$p_geometric2 + (5 * sqrt((1 - input$p_geometric2) / (input$p_geometric2^2)))), prob = input$p_geometric2)) %>%
-      mutate(Heads = ifelse(heads >= input$a_geometric2 & heads <= input$b_geometric2, "2", "other")) %>%
-      ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
-      geom_col() +
-      geom_text(
-        aes(label = round(prob, 3), y = prob + 0.005),
-        position = position_dodge(0.9),
-        size = 3,
-        vjust = 0
-      ) +
-      theme_minimal() +
-      theme(legend.position = "none") +
-      ggtitle(paste0(input$distribution, " distribution: Geom(", input$p_geometric2, ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Probability mass function") +
-      xlab("x")
-    p
-  })
-  
-  output$hypergeometricPlot_lower <- renderPlot({
-    p <- data.frame(heads = qhyper(0.99999, m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric, lower.tail = FALSE):qhyper(0.99999, m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric, lower.tail = TRUE), prob = dhyper(x = qhyper(0.99999, m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric, lower.tail = FALSE):qhyper(0.99999, m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric, lower.tail = TRUE), m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric)) %>%
-      mutate(Heads = ifelse(heads <= input$x1_hypergeometric, "2", "Other")) %>%
-      ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
-      geom_col() +
-      geom_text(
-        aes(label = round(prob, 3), y = prob + 0.005),
-        position = position_dodge(0.9),
-        size = 3,
-        vjust = 0
-      ) +
-      theme_minimal() +
-      theme(legend.position = "none") +
-      ggtitle(paste0(input$distribution, " distribution: HG(", input$n_hypergeometric, ", ", input$N_hypergeometric, ", ", input$M_hypergeometric, ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Probability mass function") +
-      xlab("x")
-    p
-  })
-  output$hypergeometricPlot_upper <- renderPlot({
-    p <- data.frame(heads = qhyper(0.99999, m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric, lower.tail = FALSE):qhyper(0.99999, m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric, lower.tail = TRUE), prob = dhyper(x = qhyper(0.99999, m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric, lower.tail = FALSE):qhyper(0.99999, m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric, lower.tail = TRUE), m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric)) %>%
-      mutate(Heads = ifelse(heads > input$x2_hypergeometric, "2", "other")) %>%
-      ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
-      geom_col() +
-      geom_text(
-        aes(label = round(prob, 3), y = prob + 0.005),
-        position = position_dodge(0.9),
-        size = 3,
-        vjust = 0
-      ) +
-      theme_minimal() +
-      theme(legend.position = "none") +
-      ggtitle(paste0(input$distribution, " distribution: HG(", input$n_hypergeometric, ", ", input$N_hypergeometric, ", ", input$M_hypergeometric, ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Probability mass function") +
-      xlab("x")
-    p
-  })
-  output$hypergeometricPlot_interval <- renderPlot({
-    p <- data.frame(heads = qhyper(0.99999, m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric, lower.tail = FALSE):qhyper(0.99999, m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric, lower.tail = TRUE), prob = dhyper(x = qhyper(0.99999, m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric, lower.tail = FALSE):qhyper(0.99999, m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric, lower.tail = TRUE), m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric)) %>%
-      mutate(Heads = ifelse(heads >= input$a_hypergeometric & heads <= input$b_hypergeometric, "2", "other")) %>%
-      ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
-      geom_col() +
-      geom_text(
-        aes(label = round(prob, 3), y = prob + 0.005),
-        position = position_dodge(0.9),
-        size = 3,
-        vjust = 0
-      ) +
-      theme_minimal() +
-      theme(legend.position = "none") +
-      ggtitle(paste0(input$distribution, " distribution: HG(", input$n_hypergeometric, ", ", input$N_hypergeometric, ", ", input$M_hypergeometric, ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Probability mass function") +
-      xlab("x")
-    p
-  })
-  
-  output$logisticPlot_lower <- renderPlot({
-    funcShaded <- function(x) {
-      y <- dlogis(x, location = input$location_logistic, scale = input$scale_logistic)
-      y[x > input$x1_logistic] <- NA
-      return(y)
-    }
-    p <- ggplot(data.frame(x = c(qlogis(0.99999, location = input$location_logistic, scale = input$scale_logistic, lower.tail = FALSE), qlogis(0.99999, location = input$location_logistic, scale = input$scale_logistic, lower.tail = TRUE))), aes(x = x)) +
-      stat_function(fun = dlogis, args = list(location = input$location_logistic, scale = input$scale_logistic)) +
-      stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
-      theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution: Logi(", input$location_logistic, ", ", input$scale_logistic, ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
-      xlab("x")
-    p
-  })
-  output$logisticPlot_upper <- renderPlot({
-    funcShaded <- function(x) {
-      y <- dlogis(x, location = input$location_logistic, scale = input$scale_logistic)
-      y[x < input$x2_logistic] <- NA
-      return(y)
-    }
-    p <- ggplot(data.frame(x = c(qlogis(0.99999, location = input$location_logistic, scale = input$scale_logistic, lower.tail = FALSE), qlogis(0.99999, location = input$location_logistic, scale = input$scale_logistic, lower.tail = TRUE))), aes(x = x)) +
-      stat_function(fun = dlogis, args = list(location = input$location_logistic, scale = input$scale_logistic)) +
-      stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
-      theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution: Logi(", input$location_logistic, ", ", input$scale_logistic, ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
-      xlab("x")
-    p
-  })
-  output$logisticPlot_interval <- renderPlot({
-    funcShaded <- function(x) {
-      y <- dlogis(x, location = input$location_logistic, scale = input$scale_logistic)
-      y[x < input$a_logistic | x > input$b_logistic] <- NA
-      return(y)
-    }
-    p <- ggplot(data.frame(x = c(qlogis(0.99999, location = input$location_logistic, scale = input$scale_logistic, lower.tail = FALSE), qlogis(0.99999, location = input$location_logistic, scale = input$scale_logistic, lower.tail = TRUE))), aes(x = x)) +
-      stat_function(fun = dlogis, args = list(location = input$location_logistic, scale = input$scale_logistic)) +
-      stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
-      theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution: Logi(", input$location_logistic, ", ", input$scale_logistic, ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
-      xlab("x")
-    p
-  })
-  
-  output$lognormalPlot_lower <- renderPlot({
-    funcShaded <- function(x) {
-      y <- dlnorm(x,
-                  meanlog = input$mean_lognormal,
-                  sdlog = ifelse(input$variance_sd_lognormal == "variance_true", sqrt(input$variance_lognormal), input$sd_lognormal)
-      )
-      y[x > input$x1_lognormal] <- NA
-      return(y)
-    }
-    p <- ggplot(data.frame(x = c(0, qlnorm(0.9, meanlog = input$mean_lognormal, sdlog = input$sd_lognormal))), aes(x = x)) +
-      stat_function(fun = dlnorm, args = list(
-        meanlog = input$mean_lognormal,
-        sdlog = ifelse(input$variance_sd_lognormal == "variance_true", sqrt(input$variance_lognormal), input$sd_lognormal)
-      )) +
-      stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
-      theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution: Lognormal(", input$mean_lognormal, ", ", ifelse(input$variance_sd_lognormal == "variance_true", input$variance_lognormal, (input$sd_lognormal^2)), ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
-      xlab("x")
-    p
-  })
-  output$lognormalPlot_upper <- renderPlot({
-    funcShaded <- function(x) {
-      y <- dlnorm(x,
-                  meanlog = input$mean_lognormal,
-                  sdlog = ifelse(input$variance_sd_lognormal == "variance_true", sqrt(input$variance_lognormal), input$sd_lognormal)
-      )
-      y[x < input$x2_lognormal] <- NA
-      return(y)
-    }
-    p <- ggplot(data.frame(x = c(0, qlnorm(0.9, meanlog = input$mean_lognormal, sdlog = input$sd_lognormal))), aes(x = x)) +
-      stat_function(fun = dlnorm, args = list(
-        meanlog = input$mean_lognormal,
-        sdlog = ifelse(input$variance_sd_lognormal == "variance_true", sqrt(input$variance_lognormal), input$sd_lognormal)
-      )) +
-      stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
-      theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution: Lognormal(", input$mean_lognormal, ", ", ifelse(input$variance_sd_lognormal == "variance_true", input$variance_lognormal, (input$sd_lognormal^2)), ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
-      xlab("x")
-    p
-  })
-  output$lognormalPlot_interval <- renderPlot({
-    funcShaded <- function(x) {
-      y <- dlnorm(x,
-                  meanlog = input$mean_lognormal,
-                  sdlog = ifelse(input$variance_sd_lognormal == "variance_true", sqrt(input$variance_lognormal), input$sd_lognormal)
-      )
-      y[x < input$a_lognormal | x > input$b_lognormal] <- NA
-      return(y)
-    }
-    p <- ggplot(data.frame(x = c(0, qlnorm(0.9, meanlog = input$mean_lognormal, sdlog = input$sd_lognormal))), aes(x = x)) +
-      stat_function(fun = dlnorm, args = list(
-        meanlog = input$mean_lognormal,
-        sdlog = ifelse(input$variance_sd_lognormal == "variance_true", sqrt(input$variance_lognormal), input$sd_lognormal)
-      )) +
-      stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
-      theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution: Lognormal(", input$mean_lognormal, ", ", ifelse(input$variance_sd_lognormal == "variance_true", input$variance_lognormal, (input$sd_lognormal^2)), ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
-      xlab("x")
-    p
-  })
-  
-  output$negativebinomialPlot_lower <- renderPlot({
-    p <- data.frame(heads = qnbinom(0.999, size = input$r_negativebinomial, prob = input$p_negativebinomial, lower.tail = FALSE):qnbinom(0.999, size = input$r_negativebinomial, prob = input$p_negativebinomial, lower.tail = TRUE), prob = dnbinom(x = qnbinom(0.999, size = input$r_negativebinomial, prob = input$p_negativebinomial, lower.tail = FALSE):qnbinom(0.999, size = input$r_negativebinomial, prob = input$p_negativebinomial, lower.tail = TRUE), size = input$r_negativebinomial, prob = input$p_negativebinomial)) %>%
-      mutate(Heads = ifelse(heads <= input$x1_negativebinomial, "2", "Other")) %>%
-      ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
-      geom_col() +
-      geom_text(
-        aes(label = round(prob, 3), y = prob + 0.005),
-        position = position_dodge(0.9),
-        size = 3,
-        vjust = 0
-      ) +
-      theme_minimal() +
-      theme(legend.position = "none") +
-      ggtitle(paste0(input$distribution, " distribution: NG(", input$r_negativebinomial, ", ", input$p_negativebinomial, ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Probability mass function") +
-      xlab("x")
-    p
-  })
-  output$negativebinomialPlot_upper <- renderPlot({
-    p <- data.frame(heads = qnbinom(0.999, size = input$r_negativebinomial, prob = input$p_negativebinomial, lower.tail = FALSE):qnbinom(0.999, size = input$r_negativebinomial, prob = input$p_negativebinomial, lower.tail = TRUE), prob = dnbinom(x = qnbinom(0.999, size = input$r_negativebinomial, prob = input$p_negativebinomial, lower.tail = FALSE):qnbinom(0.999, size = input$r_negativebinomial, prob = input$p_negativebinomial, lower.tail = TRUE), size = input$r_negativebinomial, prob = input$p_negativebinomial)) %>%
-      mutate(Heads = ifelse(heads > input$x2_negativebinomial, "2", "other")) %>%
-      ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
-      geom_col() +
-      geom_text(
-        aes(label = round(prob, 3), y = prob + 0.005),
-        position = position_dodge(0.9),
-        size = 3,
-        vjust = 0
-      ) +
-      theme_minimal() +
-      theme(legend.position = "none") +
-      ggtitle(paste0(input$distribution, " distribution: NG(", input$r_negativebinomial, ", ", input$p_negativebinomial, ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Probability mass function") +
-      xlab("x")
-    p
-  })
-  output$negativebinomialPlot_interval <- renderPlot({
-    p <- data.frame(heads = qnbinom(0.999, size = input$r_negativebinomial, prob = input$p_negativebinomial, lower.tail = FALSE):qnbinom(0.999, size = input$r_negativebinomial, prob = input$p_negativebinomial, lower.tail = TRUE), prob = dnbinom(x = qnbinom(0.999, size = input$r_negativebinomial, prob = input$p_negativebinomial, lower.tail = FALSE):qnbinom(0.999, size = input$r_negativebinomial, prob = input$p_negativebinomial, lower.tail = TRUE), size = input$r_negativebinomial, prob = input$p_negativebinomial)) %>%
-      mutate(Heads = ifelse(heads >= input$a_negativebinomial & heads <= input$b_negativebinomial, "2", "other")) %>%
-      ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
-      geom_col() +
-      geom_text(
-        aes(label = round(prob, 3), y = prob + 0.005),
-        position = position_dodge(0.9),
-        size = 3,
-        vjust = 0
-      ) +
-      theme_minimal() +
-      theme(legend.position = "none") +
-      ggtitle(paste0(input$distribution, " distribution: NG(", input$r_negativebinomial, ", ", input$p_negativebinomial, ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Probability mass function") +
-      xlab("x")
-    p
-  })
-  
-  output$negativebinomial2Plot_lower <- renderPlot({
-    p <- data.frame(heads = input$r_negativebinomial2:(qnbinom(0.999, size = input$r_negativebinomial2, prob = input$p_negativebinomial2, lower.tail = TRUE) + input$r_negativebinomial2), prob = dnbinom(x = 0:qnbinom(0.999, size = input$r_negativebinomial2, prob = input$p_negativebinomial2, lower.tail = TRUE), size = input$r_negativebinomial2, prob = input$p_negativebinomial2)) %>%
-      mutate(Heads = ifelse(heads <= input$x1_negativebinomial2, "2", "Other")) %>%
-      ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
-      geom_col() +
-      geom_text(
-        aes(label = round(prob, 3), y = prob + 0.005),
-        position = position_dodge(0.9),
-        size = 3,
-        vjust = 0
-      ) +
-      theme_minimal() +
-      theme(legend.position = "none") +
-      ggtitle(paste0(input$distribution, " distribution: NG(", input$r_negativebinomial2, ", ", input$p_negativebinomial2, ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Probability mass function") +
-      xlab("x")
-    p
-  })
-  output$negativebinomial2Plot_upper <- renderPlot({
-    p <- data.frame(heads = input$r_negativebinomial2:(qnbinom(0.999, size = input$r_negativebinomial2, prob = input$p_negativebinomial2, lower.tail = TRUE) + input$r_negativebinomial2), prob = dnbinom(x = 0:qnbinom(0.999, size = input$r_negativebinomial2, prob = input$p_negativebinomial2, lower.tail = TRUE), size = input$r_negativebinomial2, prob = input$p_negativebinomial2)) %>%
-      mutate(Heads = ifelse(heads > input$x2_negativebinomial2, "2", "other")) %>%
-      ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
-      geom_col() +
-      geom_text(
-        aes(label = round(prob, 3), y = prob + 0.005),
-        position = position_dodge(0.9),
-        size = 3,
-        vjust = 0
-      ) +
-      theme_minimal() +
-      theme(legend.position = "none") +
-      ggtitle(paste0(input$distribution, " distribution: NG(", input$r_negativebinomial2, ", ", input$p_negativebinomial2, ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Probability mass function") +
-      xlab("x")
-    p
-  })
-  output$negativebinomial2Plot_interval <- renderPlot({
-    p <- data.frame(heads = input$r_negativebinomial2:(qnbinom(0.999, size = input$r_negativebinomial2, prob = input$p_negativebinomial2, lower.tail = TRUE) + input$r_negativebinomial2), prob = dnbinom(x = 0:qnbinom(0.999, size = input$r_negativebinomial2, prob = input$p_negativebinomial2, lower.tail = TRUE), size = input$r_negativebinomial2, prob = input$p_negativebinomial2)) %>%
-      mutate(Heads = ifelse(heads >= input$a_negativebinomial2 & heads <= input$b_negativebinomial2, "2", "other")) %>%
-      ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
-      geom_col() +
-      geom_text(
-        aes(label = round(prob, 3), y = prob + 0.005),
-        position = position_dodge(0.9),
-        size = 3,
-        vjust = 0
-      ) +
-      theme_minimal() +
-      theme(legend.position = "none") +
-      ggtitle(paste0(input$distribution, " distribution: NG(", input$r_negativebinomial2, ", ", input$p_negativebinomial2, ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Probability mass function") +
-      xlab("x")
-    p
-  })
-  
-  output$normalPlot_lower <- renderPlot({
-    funcShaded <- function(x) {
-      y <- dnorm(x,
-                 mean = input$mean_normal,
-                 sd = ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal)
-      )
-      y[x > input$x1_normal] <- NA
-      return(y)
-    }
-    p <- ggplot(data.frame(x = c(qnorm(0.99999, mean = input$mean_normal, sd = ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal), lower.tail = FALSE), qnorm(0.99999, mean = input$mean_normal, sd = ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal), lower.tail = TRUE))), aes(x = x)) +
-      stat_function(fun = dnorm, args = list(
-        mean = input$mean_normal,
-        sd = ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal)
-      )) +
-      stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
-      theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution: N(", input$mean_normal, ", ", ifelse(input$variance_sd == "variance_true", input$variance_normal, (input$sd_normal^2)), ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
-      xlab("x")
-    p
-  })
-  output$normalPlot_upper <- renderPlot({
-    funcShaded <- function(x) {
-      y <- dnorm(x,
-                 mean = input$mean_normal,
-                 sd = ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal)
-      )
-      y[x < input$x2_normal] <- NA
-      return(y)
-    }
-    p <- ggplot(data.frame(x = c(qnorm(0.99999, mean = input$mean_normal, sd = ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal), lower.tail = FALSE), qnorm(0.99999, mean = input$mean_normal, sd = ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal), lower.tail = TRUE))), aes(x = x)) +
-      stat_function(fun = dnorm, args = list(
-        mean = input$mean_normal,
-        sd = ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal)
-      )) +
-      stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
-      theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution: N(", input$mean_normal, ", ", ifelse(input$variance_sd == "variance_true", input$variance_normal, (input$sd_normal^2)), ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
-      xlab("x")
-    p
-  })
-  output$normalPlot_interval <- renderPlot({
-    funcShaded <- function(x) {
-      y <- dnorm(x,
-                 mean = input$mean_normal,
-                 sd = ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal)
-      )
-      y[x < input$a_normal | x > input$b_normal] <- NA
-      return(y)
-    }
-    p <- ggplot(data.frame(x = c(qnorm(0.99999, mean = input$mean_normal, sd = ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal), lower.tail = FALSE), qnorm(0.99999, mean = input$mean_normal, sd = ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal), lower.tail = TRUE))), aes(x = x)) +
-      stat_function(fun = dnorm, args = list(
-        mean = input$mean_normal,
-        sd = ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal)
-      )) +
-      stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
-      theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution: N(", input$mean_normal, ", ", ifelse(input$variance_sd == "variance_true", input$variance_normal, (input$sd_normal^2)), ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
-      xlab("x")
-    p
-  })
-  
-  output$poissonPlot_lower <- renderPlot({
-    p <- data.frame(heads = qpois(0.99999, lambda = input$lambda_poisson, lower.tail = FALSE):qpois(0.99999, lambda = input$lambda_poisson, lower.tail = TRUE), prob = dpois(x = qpois(0.99999, lambda = input$lambda_poisson, lower.tail = FALSE):qpois(0.99999, lambda = input$lambda_poisson, lower.tail = TRUE), lambda = input$lambda_poisson)) %>%
-      mutate(Heads = ifelse(heads <= input$x1_poisson, "2", "Other")) %>%
-      ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
-      geom_col() +
-      geom_text(
-        aes(label = round(prob, 3), y = prob + 0.005),
-        position = position_dodge(0.9),
-        size = 3,
-        vjust = 0
-      ) +
-      theme_minimal() +
-      theme(legend.position = "none") +
-      ggtitle(paste0(input$distribution, " distribution: Pois(", input$lambda_poisson, ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Probability mass function") +
-      xlab("x")
-    p
-  })
-  output$poissonPlot_upper <- renderPlot({
-    p <- data.frame(heads = qpois(0.99999, lambda = input$lambda_poisson, lower.tail = FALSE):qpois(0.99999, lambda = input$lambda_poisson, lower.tail = TRUE), prob = dpois(x = qpois(0.99999, lambda = input$lambda_poisson, lower.tail = FALSE):qpois(0.99999, lambda = input$lambda_poisson, lower.tail = TRUE), lambda = input$lambda_poisson)) %>%
-      mutate(Heads = ifelse(heads > input$x2_poisson, "2", "other")) %>%
-      ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
-      geom_col() +
-      geom_text(
-        aes(label = round(prob, 3), y = prob + 0.005),
-        position = position_dodge(0.9),
-        size = 3,
-        vjust = 0
-      ) +
-      theme_minimal() +
-      theme(legend.position = "none") +
-      ggtitle(paste0(input$distribution, " distribution: Pois(", input$lambda_poisson, ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Probability mass function") +
-      xlab("x")
-    p
-  })
-  output$poissonPlot_interval <- renderPlot({
-    p <- data.frame(heads = qpois(0.99999, lambda = input$lambda_poisson, lower.tail = FALSE):qpois(0.99999, lambda = input$lambda_poisson, lower.tail = TRUE), prob = dpois(x = qpois(0.99999, lambda = input$lambda_poisson, lower.tail = FALSE):qpois(0.99999, lambda = input$lambda_poisson, lower.tail = TRUE), lambda = input$lambda_poisson)) %>%
-      mutate(Heads = ifelse(heads >= input$a_poisson & heads <= input$b_poisson, "2", "other")) %>%
-      ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
-      geom_col() +
-      geom_text(
-        aes(label = round(prob, 3), y = prob + 0.005),
-        position = position_dodge(0.9),
-        size = 3,
-        vjust = 0
-      ) +
-      theme_minimal() +
-      theme(legend.position = "none") +
-      ggtitle(paste0(input$distribution, " distribution: Pois(", input$lambda_poisson, ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Probability mass function") +
-      xlab("x")
-    p
-  })
-  
-  output$studentPlot_lower <- renderPlot({
-    funcShaded <- function(x) {
-      y <- dt(x, df = input$df_student)
-      y[x > input$x1_student] <- NA
-      return(y)
-    }
-    p <- ggplot(data.frame(x = c(qt(0.99999, df = input$df_student, lower.tail = FALSE), qt(0.99999, df = input$df_student, lower.tail = TRUE))), aes(x = x)) +
-      stat_function(fun = dt, args = list(df = input$df_student)) +
-      stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
-      theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution: St(", input$df_student, ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
-      xlab("x")
-    p
-  })
-  output$studentPlot_upper <- renderPlot({
-    funcShaded <- function(x) {
-      y <- dt(x, df = input$df_student)
-      y[x < input$x2_student] <- NA
-      return(y)
-    }
-    p <- ggplot(data.frame(x = c(qt(0.99999, df = input$df_student, lower.tail = FALSE), qt(0.99999, df = input$df_student, lower.tail = TRUE))), aes(x = x)) +
-      stat_function(fun = dt, args = list(df = input$df_student)) +
-      stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
-      theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution: St(", input$df_student, ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
-      xlab("x")
-    p
-  })
-  output$studentPlot_interval <- renderPlot({
-    funcShaded <- function(x) {
-      y <- dt(x, df = input$df_student)
-      y[x < input$a_student | x > input$b_student] <- NA
-      return(y)
-    }
-    p <- ggplot(data.frame(x = c(qt(0.99999, df = input$df_student, lower.tail = FALSE), qt(0.99999, df = input$df_student, lower.tail = TRUE))), aes(x = x)) +
-      stat_function(fun = dt, args = list(df = input$df_student)) +
-      stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
-      theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution: St(", input$df_student, ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
-      xlab("x")
-    p
-  })
-  
-  output$weibullPlot_lower <- renderPlot({
-    funcShaded <- function(x) {
-      y <- dweibull(x, shape = input$alpha_weibull, scale = input$beta_weibull)
-      y[x > input$x1_weibull] <- NA
-      return(y)
-    }
-    p <- ggplot(data.frame(x = c(qweibull(0.99999, shape = input$alpha_weibull, scale = input$beta_weibull, lower.tail = FALSE), qweibull(0.99999, shape = input$alpha_weibull, scale = input$beta_weibull, lower.tail = TRUE))), aes(x = x)) +
-      stat_function(fun = dweibull, args = list(shape = input$alpha_weibull, scale = input$beta_weibull)) +
-      stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
-      theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution: Weibull(", input$alpha_weibull, ", ", input$beta_weibull, ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
-      xlab("x")
-    p
-  })
-  output$weibullPlot_upper <- renderPlot({
-    funcShaded <- function(x) {
-      y <- dweibull(x, shape = input$alpha_weibull, scale = input$beta_weibull)
-      y[x < input$x2_weibull] <- NA
-      return(y)
-    }
-    p <- ggplot(data.frame(x = c(qweibull(0.99999, shape = input$alpha_weibull, scale = input$beta_weibull, lower.tail = FALSE), qweibull(0.99999, shape = input$alpha_weibull, scale = input$beta_weibull, lower.tail = TRUE))), aes(x = x)) +
-      stat_function(fun = dweibull, args = list(shape = input$alpha_weibull, scale = input$beta_weibull)) +
-      stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
-      theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution: Weibull(", input$alpha_weibull, ", ", input$beta_weibull, ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
-      xlab("x")
-    p
-  })
-  output$weibullPlot_interval <- renderPlot({
-    funcShaded <- function(x) {
-      y <- dweibull(x, shape = input$alpha_weibull, scale = input$beta_weibull)
-      y[x < input$a_weibull | x > input$b_weibull] <- NA
-      return(y)
-    }
-    p <- ggplot(data.frame(x = c(qweibull(0.99999, shape = input$alpha_weibull, scale = input$beta_weibull, lower.tail = FALSE), qweibull(0.99999, shape = input$alpha_weibull, scale = input$beta_weibull, lower.tail = TRUE))), aes(x = x)) +
-      stat_function(fun = dweibull, args = list(shape = input$alpha_weibull, scale = input$beta_weibull)) +
-      stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
-      theme_minimal() +
-      ggtitle(paste0(input$distribution, " distribution: Weibull(", input$alpha_weibull, ", ", input$beta_weibull, ")")) +
-      theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
-      ylab("Density") +
-      xlab("x")
-    p
+  output$plots <- renderPlot({
+    r_plot()
   })
   
   output$parameters_distribution <- renderUI({
