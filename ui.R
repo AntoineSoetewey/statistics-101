@@ -822,13 +822,25 @@ ui <- fluidPage(
       tags$b("Solution:"),
       uiOutput("results_distribution"),
       br(),
+      
       # ----plots----
-      plotOutput(outputId = "plots"), 
+      plotOutput(outputId = "plots") |> 
+        shinycssloaders::withSpinner(
+          type = 2, 
+          color.background = "white"
+        ), 
       
       br(),
       tags$b("Details:"),
       br(),
-      uiOutput("parameters_distribution"),
+      
+      # ----details----
+      uiOutput("parameters_distribution") |> 
+        shinycssloaders::withSpinner(
+          type = 2, 
+          color.background = "white"
+        ), 
+      
       br(),
       br()
     )
