@@ -1,1119 +1,4 @@
-#
-# This is a Shiny web application. You can run the application by clicking
-# the 'Run App' button above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
-
-library(shiny)
-library(dplyr)
-library(ggplot2)
-library(dplyr)
-library(mixdist)
-library(waiter)
-
-# Define UI for application that draws a histogram
-ui <- fluidPage(
-  
-  waiter::use_waiter(),
-  waiter_hide_on_render("normalPlot_lower"),
-
-  # Application title
-  titlePanel("Statistics 101 - Probability distributions"),
-  h4(tags$a(href = "https://antoinesoetewey.com/", "Antoine Soetewey")),
-  withMathJax(),
-
-  # tabsetPanel(
-  # Create tab1
-  # tabPanel(
-  #   title = "Distributions",
-
-  # Sidebar with a slider input for number of bins
-  sidebarLayout(
-    sidebarPanel(
-      selectInput(
-        inputId = "distribution",
-        label = "Distribution:",
-        choices = c("Beta", "Binomial", "Cauchy", "Chi-square", "Exponential", "Fisher", "Gamma", "Geometric (I)", "Geometric (II)", "Hypergeometric", "Logistic", "Log-Normal", "Negative Binomial (I)", "Negative Binomial (II)", "Normal", "Poisson", "Student", "Weibull"),
-        multiple = FALSE,
-        selected = "Normal"
-      ),
-      hr(),
-      # tags$b("Parameter(s)"),
-      conditionalPanel(
-        condition = "input.distribution == 'Beta'",
-        numericInput("alpha_beta", "Shape \\(\\alpha\\):",
-          value = 1, min = 0, step = 1
-        ),
-        numericInput("beta_beta", "Shape \\(\\beta\\):",
-          value = 3, min = 0, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Binomial'",
-        numericInput("n_binomial", "Number of trials \\(n\\):",
-          value = 20, min = 0, step = 1
-        ),
-        numericInput("p_binomial", "Probability of success \\(p\\):",
-          value = 0.5, min = 0, max = 1, step = 0.01
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Cauchy'",
-        numericInput("location_cauchy", "Location \\(x_0\\):",
-          value = 0, step = 1
-        ),
-        numericInput("scale_cauchy", "Scale \\(\\gamma\\):",
-          value = 1, min = 0, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Chi-square'",
-        numericInput("df_chisquare", "Degrees of freedom \\(df\\):",
-          value = 6, min = 1, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Exponential'",
-        numericInput("rate_exponential", "Rate \\(\\lambda\\):",
-          value = 1, min = 0, step = 0.5
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Fisher'",
-        numericInput("df1_fisher", "Degrees of freedom \\(df_1\\):",
-          value = 10, min = 1, step = 1
-        ),
-        numericInput("df2_fisher", "Degrees of freedom \\(df_2\\):",
-          value = 5, min = 1, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Gamma'",
-        numericInput("alpha_gamma", "Shape \\(\\alpha\\):",
-          value = 3, min = 0, step = 1
-        ),
-        numericInput("beta_gamma", "Rate \\(\\beta\\):",
-          value = 2, min = 0, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Geometric (I)'",
-        numericInput("p_geometric", "Probability of success \\(p\\):",
-          value = 0.5, min = 0, max = 1, step = 0.01
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Geometric (II)'",
-        numericInput("p_geometric2", "Probability of success \\(p\\):",
-          value = 0.5, min = 0, max = 1, step = 0.01
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Hypergeometric'",
-        numericInput("n_hypergeometric", "Sample size \\(n\\):",
-          value = 100, min = 0, step = 1
-        ),
-        numericInput("N_hypergeometric", "Total number of objects \\(N\\):",
-          value = 500, min = 0, step = 1
-        ),
-        numericInput("M_hypergeometric", "Number of successes \\(M\\):",
-          value = 50, min = 0, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Logistic'",
-        numericInput("location_logistic", "Location \\(\\mu\\):",
-          value = 0, step = 1
-        ),
-        numericInput("scale_logistic", "Scale \\(s\\):",
-          value = 1, min = 0, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Log-Normal'",
-        numericInput("mean_lognormal", "Mean \\(\\mu\\):",
-          value = 0, step = 1
-        ),
-        radioButtons(
-          inputId = "variance_sd_lognormal",
-          label = NULL,
-          choices = c(
-            "Variance \\(\\sigma^2\\)" = "variance_true",
-            "Standard deviation \\(\\sigma\\)" = "variance_false"
-          )
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Log-Normal' && input.variance_sd_lognormal == 'variance_true'",
-        numericInput("variance_lognormal", "Variance \\(\\sigma^2\\):",
-          value = 1, min = 0, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Log-Normal' && input.variance_sd_lognormal == 'variance_false'",
-        numericInput("sd_lognormal", "Standard deviation \\(\\sigma\\):",
-          value = 1, min = 0, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Negative Binomial (I)'",
-        numericInput("r_negativebinomial", "Number of successes \\(r\\):",
-          value = 5, min = 1, step = 1
-        ),
-        numericInput("p_negativebinomial", "Probability of success \\(p\\):",
-          value = 0.5, min = 0, max = 1, step = 0.01
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Negative Binomial (II)'",
-        numericInput("r_negativebinomial2", "Number of successes \\(r\\):",
-          value = 5, min = 1, step = 1
-        ),
-        numericInput("p_negativebinomial2", "Probability of success \\(p\\):",
-          value = 0.5, min = 0, max = 1, step = 0.01
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Normal'",
-        numericInput("mean_normal", "Mean \\(\\mu\\):",
-          value = 0, step = 1
-        ),
-        radioButtons(
-          inputId = "variance_sd",
-          label = NULL,
-          choices = c(
-            "Variance \\(\\sigma^2\\)" = "variance_true",
-            "Standard deviation \\(\\sigma\\)" = "variance_false"
-          )
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Normal' && input.variance_sd == 'variance_true'",
-        numericInput("variance_normal", "Variance \\(\\sigma^2\\):",
-          value = 1, min = 0, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Normal' && input.variance_sd == 'variance_false'",
-        numericInput("sd_normal", "Standard deviation \\(\\sigma\\):",
-          value = 1, min = 0, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Poisson'",
-        numericInput("lambda_poisson", "Rate \\(\\lambda\\):",
-          value = 4, min = 1, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Student'",
-        numericInput("df_student", "Degrees of freedom \\(df\\):",
-          value = 10, min = 1, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Weibull'",
-        numericInput("alpha_weibull", "Shape \\(\\alpha\\):",
-          value = 5, min = 0, step = 1
-        ),
-        numericInput("beta_weibull", "Scale \\(\\beta\\):",
-          value = 1, min = 0, step = 1
-        )
-      ),
-      hr(),
-      conditionalPanel(
-        condition = "input.distribution == 'Beta'",
-        radioButtons(
-          inputId = "lower_tail_beta",
-          label = NULL,
-          choices = c(
-            "Lower tail : \\(P(X \\leq x)\\)" = "lower.tail",
-            "Upper tail : \\(P(X > x)\\)" = "upper.tail",
-            "Interval : \\(P(a \\leq X \\leq b)\\)" = "interval"
-          )
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Binomial'",
-        radioButtons(
-          inputId = "lower_tail_binomial",
-          label = NULL,
-          choices = c(
-            "Lower tail : \\(P(X \\leq x)\\)" = "lower.tail",
-            "Upper tail : \\(P(X > x)\\)" = "upper.tail",
-            "Interval : \\(P(a \\leq X \\leq b)\\)" = "interval"
-          )
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Cauchy'",
-        radioButtons(
-          inputId = "lower_tail_cauchy",
-          label = NULL,
-          choices = c(
-            "Lower tail : \\(P(X \\leq x)\\)" = "lower.tail",
-            "Upper tail : \\(P(X > x)\\)" = "upper.tail",
-            "Interval : \\(P(a \\leq X \\leq b)\\)" = "interval"
-          )
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Chi-square'",
-        radioButtons(
-          inputId = "lower_tail_chisquare",
-          label = NULL,
-          choices = c(
-            "Lower tail : \\(P(X \\leq x)\\)" = "lower.tail",
-            "Upper tail : \\(P(X > x)\\)" = "upper.tail",
-            "Interval : \\(P(a \\leq X \\leq b)\\)" = "interval"
-          )
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Exponential'",
-        radioButtons(
-          inputId = "lower_tail_exponential",
-          label = NULL,
-          choices = c(
-            "Lower tail : \\(P(X \\leq x)\\)" = "lower.tail",
-            "Upper tail : \\(P(X > x)\\)" = "upper.tail",
-            "Interval : \\(P(a \\leq X \\leq b)\\)" = "interval"
-          )
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Fisher'",
-        radioButtons(
-          inputId = "lower_tail_fisher",
-          label = NULL,
-          choices = c(
-            "Lower tail : \\(P(X \\leq x)\\)" = "lower.tail",
-            "Upper tail : \\(P(X > x)\\)" = "upper.tail",
-            "Interval : \\(P(a \\leq X \\leq b)\\)" = "interval"
-          )
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Gamma'",
-        radioButtons(
-          inputId = "lower_tail_gamma",
-          label = NULL,
-          choices = c(
-            "Lower tail : \\(P(X \\leq x)\\)" = "lower.tail",
-            "Upper tail : \\(P(X > x)\\)" = "upper.tail",
-            "Interval : \\(P(a \\leq X \\leq b)\\)" = "interval"
-          )
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Geometric (I)'",
-        radioButtons(
-          inputId = "lower_tail_geometric",
-          label = NULL,
-          choices = c(
-            "Lower tail : \\(P(X \\leq x)\\)" = "lower.tail",
-            "Upper tail : \\(P(X > x)\\)" = "upper.tail",
-            "Interval : \\(P(a \\leq X \\leq b)\\)" = "interval"
-          )
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Geometric (II)'",
-        radioButtons(
-          inputId = "lower_tail_geometric2",
-          label = NULL,
-          choices = c(
-            "Lower tail : \\(P(X \\leq x)\\)" = "lower.tail",
-            "Upper tail : \\(P(X > x)\\)" = "upper.tail",
-            "Interval : \\(P(a \\leq X \\leq b)\\)" = "interval"
-          )
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Hypergeometric'",
-        radioButtons(
-          inputId = "lower_tail_hypergeometric",
-          label = NULL,
-          choices = c(
-            "Lower tail : \\(P(X \\leq x)\\)" = "lower.tail",
-            "Upper tail : \\(P(X > x)\\)" = "upper.tail",
-            "Interval : \\(P(a \\leq X \\leq b)\\)" = "interval"
-          )
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Logistic'",
-        radioButtons(
-          inputId = "lower_tail_logistic",
-          label = NULL,
-          choices = c(
-            "Lower tail : \\(P(X \\leq x)\\)" = "lower.tail",
-            "Upper tail : \\(P(X > x)\\)" = "upper.tail",
-            "Interval : \\(P(a \\leq X \\leq b)\\)" = "interval"
-          )
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Log-Normal'",
-        radioButtons(
-          inputId = "lower_tail_lognormal",
-          label = NULL,
-          choices = c(
-            "Lower tail : \\(P(X \\leq x)\\)" = "lower.tail",
-            "Upper tail : \\(P(X > x)\\)" = "upper.tail",
-            "Interval : \\(P(a \\leq X \\leq b)\\)" = "interval"
-          )
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Negative Binomial (I)'",
-        radioButtons(
-          inputId = "lower_tail_negativebinomial",
-          label = NULL,
-          choices = c(
-            "Lower tail : \\(P(X \\leq x)\\)" = "lower.tail",
-            "Upper tail : \\(P(X > x)\\)" = "upper.tail",
-            "Interval : \\(P(a \\leq X \\leq b)\\)" = "interval"
-          )
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Negative Binomial (II)'",
-        radioButtons(
-          inputId = "lower_tail_negativebinomial2",
-          label = NULL,
-          choices = c(
-            "Lower tail : \\(P(X \\leq x)\\)" = "lower.tail",
-            "Upper tail : \\(P(X > x)\\)" = "upper.tail",
-            "Interval : \\(P(a \\leq X \\leq b)\\)" = "interval"
-          )
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Normal'",
-        radioButtons(
-          inputId = "lower_tail_normal",
-          label = NULL,
-          choices = c(
-            "Lower tail : \\(P(X \\leq x)\\)" = "lower.tail",
-            "Upper tail : \\(P(X > x)\\)" = "upper.tail",
-            "Interval : \\(P(a \\leq X \\leq b)\\)" = "interval"
-          )
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Poisson'",
-        radioButtons(
-          inputId = "lower_tail_poisson",
-          label = NULL,
-          choices = c(
-            "Lower tail : \\(P(X \\leq x)\\)" = "lower.tail",
-            "Upper tail : \\(P(X > x)\\)" = "upper.tail",
-            "Interval : \\(P(a \\leq X \\leq b)\\)" = "interval"
-          )
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Student'",
-        radioButtons(
-          inputId = "lower_tail_student",
-          label = NULL,
-          choices = c(
-            "Lower tail : \\(P(X \\leq x)\\)" = "lower.tail",
-            "Upper tail : \\(P(X > x)\\)" = "upper.tail",
-            "Interval : \\(P(a \\leq X \\leq b)\\)" = "interval"
-          )
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Weibull'",
-        radioButtons(
-          inputId = "lower_tail_weibull",
-          label = NULL,
-          choices = c(
-            "Lower tail : \\(P(X \\leq x)\\)" = "lower.tail",
-            "Upper tail : \\(P(X > x)\\)" = "upper.tail",
-            "Interval : \\(P(a \\leq X \\leq b)\\)" = "interval"
-          )
-        )
-      ),
-      hr(),
-      conditionalPanel(
-        condition = "input.distribution == 'Beta' && input.lower_tail_beta == 'lower.tail'",
-        numericInput("x1_beta", "x:",
-          value = 0.45, min = 0, max = 1, step = 0.01
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Beta' && input.lower_tail_beta == 'upper.tail'",
-        numericInput("x2_beta", "x:",
-          value = 0.45, min = 0, max = 1, step = 0.01
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Beta' && input.lower_tail_beta == 'interval'",
-        numericInput("a_beta", "a:",
-          value = 0.25, min = 0, max = 1, step = 0.01
-        ),
-        numericInput("b_beta", "b: \\( (a \\leq b) \\)",
-          value = 0.45, min = 0, max = 1, step = 0.01
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Binomial' && input.lower_tail_binomial == 'lower.tail'",
-        numericInput("x1_binomial", "x:",
-          value = 8, min = 0, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Binomial' && input.lower_tail_binomial == 'upper.tail'",
-        numericInput("x2_binomial", "x:",
-          value = 8, min = 0, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Binomial' && input.lower_tail_binomial == 'interval'",
-        numericInput("a_binomial", "a:",
-          value = 8, min = 0, step = 1
-        ),
-        numericInput("b_binomial", "b: \\( (a \\leq b) \\)",
-          value = 12, min = 0, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Cauchy' && input.lower_tail_cauchy == 'lower.tail'",
-        numericInput("x1_cauchy", "x:",
-          value = 1.2, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Cauchy' && input.lower_tail_cauchy == 'upper.tail'",
-        numericInput("x2_cauchy", "x:",
-          value = 1.2, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Cauchy' && input.lower_tail_cauchy == 'interval'",
-        numericInput("a_cauchy", "a:",
-          value = -1.2, step = 1
-        ),
-        numericInput("b_cauchy", "b: \\( (a \\leq b) \\)",
-          value = 1.2, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Chi-square' && input.lower_tail_chisquare == 'lower.tail'",
-        numericInput("x1_chisquare", "x:",
-          value = 9.6, min = 0, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Chi-square' && input.lower_tail_chisquare == 'upper.tail'",
-        numericInput("x2_chisquare", "x:",
-          value = 9.6, min = 0, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Chi-square' && input.lower_tail_chisquare == 'interval'",
-        numericInput("a_chisquare", "a:",
-          value = 9.6, min = 0, step = 1
-        ),
-        numericInput("b_chisquare", "b: \\( (a \\leq b) \\)",
-          value = 14.4, min = 0, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Exponential' && input.lower_tail_exponential == 'lower.tail'",
-        numericInput("x1_exponential", "x:",
-          value = 2.24, min = 0, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Exponential' && input.lower_tail_exponential == 'upper.tail'",
-        numericInput("x2_exponential", "x:",
-          value = 2.24, min = 0, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Exponential' && input.lower_tail_exponential == 'interval'",
-        numericInput("a_exponential", "a:",
-          value = 2.24, min = 0, step = 1
-        ),
-        numericInput("b_exponential", "b: \\( (a \\leq b) \\)",
-          value = 3.36, min = 0, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Fisher' && input.lower_tail_fisher == 'lower.tail'",
-        numericInput("x1_fisher", "x:",
-          value = 4.14, min = 0, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Fisher' && input.lower_tail_fisher == 'upper.tail'",
-        numericInput("x2_fisher", "x:",
-          value = 4.14, min = 0, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Fisher' && input.lower_tail_fisher == 'interval'",
-        numericInput("a_fisher", "a:",
-          value = 2.76, min = 0, step = 1
-        ),
-        numericInput("b_fisher", "b: \\( (a \\leq b) \\)",
-          value = 4.14, min = 0, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Gamma' && input.lower_tail_gamma == 'lower.tail'",
-        numericInput("x1_gamma", "x:",
-          value = 2.4, min = 0, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Gamma' && input.lower_tail_gamma == 'upper.tail'",
-        numericInput("x2_gamma", "x:",
-          value = 2.4, min = 0, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Gamma' && input.lower_tail_gamma == 'interval'",
-        numericInput("a_gamma", "a:",
-          value = 0.8, min = 0, step = 1
-        ),
-        numericInput("b_gamma", "b: \\( (a \\leq b) \\)",
-          value = 2.4, min = 0, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Geometric (I)' && input.lower_tail_geometric == 'lower.tail'",
-        helpText("Number of failures before the \\(1^{st}\\) success"),
-        numericInput("x1_geometric", "x:",
-          value = 1, min = 0, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Geometric (I)' && input.lower_tail_geometric == 'upper.tail'",
-        helpText("Number of failures before the \\(1^{st}\\) success"),
-        numericInput("x2_geometric", "x:",
-          value = 1, min = 0, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Geometric (I)' && input.lower_tail_geometric == 'interval'",
-        helpText("Number of failures before the \\(1^{st}\\) success"),
-        numericInput("a_geometric", "a:",
-          value = 1, min = 0, step = 1
-        ),
-        numericInput("b_geometric", "b: \\( (a \\leq b) \\)",
-          value = 3, min = 0, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Geometric (II)' && input.lower_tail_geometric2 == 'lower.tail'",
-        helpText("The trial on which the \\(1^{st}\\) success occurs"),
-        numericInput("x1_geometric2", "x:",
-          value = 2, min = 1, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Geometric (II)' && input.lower_tail_geometric2 == 'upper.tail'",
-        helpText("The trial on which the \\(1^{st}\\) success occurs"),
-        numericInput("x2_geometric2", "x:",
-          value = 2, min = 1, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Geometric (II)' && input.lower_tail_geometric2 == 'interval'",
-        helpText("The trial on which the \\(1^{st}\\) success occurs"),
-        numericInput("a_geometric2", "a:",
-          value = 2, min = 1, step = 1
-        ),
-        numericInput("b_geometric2", "b: \\( (a \\leq b) \\)",
-          value = 4, min = 0, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Hypergeometric' && input.lower_tail_hypergeometric == 'lower.tail'",
-        numericInput("x1_hypergeometric", "x:",
-          value = 8, min = 0, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Hypergeometric' && input.lower_tail_hypergeometric == 'upper.tail'",
-        numericInput("x2_hypergeometric", "x:",
-          value = 8, min = 0, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Hypergeometric' && input.lower_tail_hypergeometric == 'interval'",
-        numericInput("a_hypergeometric", "a:",
-          value = 8, min = 0, step = 1
-        ),
-        numericInput("b_hypergeometric", "b: \\( (a \\leq b) \\)",
-          value = 12, min = 0, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Logistic' && input.lower_tail_logistic == 'lower.tail'",
-        numericInput("x1_logistic", "x:",
-          value = 1.2, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Logistic' && input.lower_tail_logistic == 'upper.tail'",
-        numericInput("x2_logistic", "x:",
-          value = 1.2, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Logistic' && input.lower_tail_logistic == 'interval'",
-        numericInput("a_logistic", "a:",
-          value = -1.2, step = 1
-        ),
-        numericInput("b_logistic", "b: \\( (a \\leq b) \\)",
-          value = 1.2, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Log-Normal' && input.lower_tail_lognormal == 'lower.tail'",
-        numericInput("x1_lognormal", "x:",
-          value = 1, min = 0, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Log-Normal' && input.lower_tail_lognormal == 'upper.tail'",
-        numericInput("x2_lognormal", "x:",
-          value = 1, min = 0, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Log-Normal' && input.lower_tail_lognormal == 'interval'",
-        numericInput("a_lognormal", "a:",
-          value = 1, min = 0, step = 1
-        ),
-        numericInput("b_lognormal", "b: \\( (a \\leq b) \\)",
-          value = 2, min = 0, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Negative Binomial (I)' && input.lower_tail_negativebinomial == 'lower.tail'",
-        helpText("Number of failures before the \\(r^{th}\\) success"),
-        numericInput("x1_negativebinomial", "x:",
-          value = 2, min = 0, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Negative Binomial (I)' && input.lower_tail_negativebinomial == 'upper.tail'",
-        helpText("Number of failures before the \\(r^{th}\\) success"),
-        numericInput("x2_negativebinomial", "x:",
-          value = 2, min = 0, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Negative Binomial (I)' && input.lower_tail_negativebinomial == 'interval'",
-        helpText("Number of failures before the \\(r^{th}\\) success"),
-        numericInput("a_negativebinomial", "a:",
-          value = 2, min = 0, step = 1
-        ),
-        numericInput("b_negativebinomial", "b: \\( (a \\leq b) \\)",
-          value = 4, min = 0, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Negative Binomial (II)' && input.lower_tail_negativebinomial2 == 'lower.tail'",
-        helpText("The trial on which the \\(r^{th}\\) success occurs"),
-        numericInput("x1_negativebinomial2", "x: \\( (x \\geq r) \\)",
-          value = 7, min = 1, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Negative Binomial (II)' && input.lower_tail_negativebinomial2 == 'upper.tail'",
-        helpText("The trial on which the \\(r^{th}\\) success occurs"),
-        numericInput("x2_negativebinomial2", "x: \\( (x \\geq r) \\)",
-          value = 7, min = 1, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Negative Binomial (II)' && input.lower_tail_negativebinomial2 == 'interval'",
-        helpText("The trial on which the \\(r^{th}\\) success occurs"),
-        numericInput("a_negativebinomial2", "a: \\( (a \\geq r) \\)",
-          value = 7, min = 1, step = 1
-        ),
-        numericInput("b_negativebinomial2", "b: \\( (r \\leq a \\leq b) \\)",
-          value = 9, min = 1, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Normal' && input.lower_tail_normal == 'lower.tail'",
-        numericInput("x1_normal", "x:",
-          value = 1, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Normal' && input.lower_tail_normal == 'upper.tail'",
-        numericInput("x2_normal", "x:",
-          value = 1, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Normal' && input.lower_tail_normal == 'interval'",
-        numericInput("a_normal", "a:",
-          value = -1, step = 1
-        ),
-        numericInput("b_normal", "b: \\( (a \\leq b) \\)",
-          value = 1, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Poisson' && input.lower_tail_poisson == 'lower.tail'",
-        numericInput("x1_poisson", "x:",
-          value = 6, min = 0, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Poisson' && input.lower_tail_poisson == 'upper.tail'",
-        numericInput("x2_poisson", "x:",
-          value = 6, min = 0, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Poisson' && input.lower_tail_poisson == 'interval'",
-        numericInput("a_poisson", "a:",
-          value = 6, min = 0, step = 1
-        ),
-        numericInput("b_poisson", "b: \\( (a \\leq b) \\)",
-          value = 10, min = 0, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Student' && input.lower_tail_student == 'lower.tail'",
-        numericInput("x1_student", "x:",
-          value = 1, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Student' && input.lower_tail_student == 'upper.tail'",
-        numericInput("x2_student", "x:",
-          value = 1, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Student' && input.lower_tail_student == 'interval'",
-        numericInput("a_student", "a:",
-          value = -1, step = 1
-        ),
-        numericInput("b_student", "b: \\( (a \\leq b) \\)",
-          value = 1, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Weibull' && input.lower_tail_weibull == 'lower.tail'",
-        numericInput("x1_weibull", "x:",
-          value = 0.8, min = 0, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Weibull' && input.lower_tail_weibull == 'upper.tail'",
-        numericInput("x2_weibull", "x:",
-          value = 0.8, min = 0, step = 1
-        )
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Weibull' && input.lower_tail_weibull == 'interval'",
-        numericInput("a_weibull", "a:",
-          value = 0.8, min = 0, step = 1
-        ),
-        numericInput("b_weibull", "b: \\( (a \\leq b) \\)",
-          value = 1.2, min = 0, step = 1
-        )
-      ),
-      hr(),
-      HTML('<p>Report a <a href="https://github.com/AntoineSoetewey/statistics-101/issues">bug</a> or view the <a href="https://github.com/AntoineSoetewey/statistics-101">code</a>. Back to <a href="https://antoinesoetewey.com/">antoinesoetewey.com</a> or <a href="https://statsandr.com/">statsandr.com</a>.</p>'),
-      hr(),
-      # HTML('<hr style="border:1px solid #ccc;"/>'),
-      HTML('<a rel="license" href="http://creativecommons.org/licenses/by/2.0/be/" target="_blank"><img alt="Licence Creative Commons" style="border-width:0"
-        src="http://i.creativecommons.org/l/by/2.0/be/80x15.png"/></a> This work of <span xmlns:cc="http://creativecommons.org/ns#"
-        property="cc:attributionName"><font face="Courier">RShiny@UCLouvain</font></span> is made available under the terms of the <a rel="license"
-        href="http://creativecommons.org/licenses/by/2.0/be/" target="_blank">Creative Commons Attribution 2.0 Belgium license</a>. Details on the use of this resource on <a href="http://sites.uclouvain.be/RShiny"
-        target="_blank"><font face="Courier">RShiny@UCLouvain</font></a>. Source code available on <a href="https://github.com/AntoineSoetewey/statistics-101" target="_blank">GitHub</a>.')
-    ),
-
-    # Show a plot of the generated distribution
-    mainPanel(
-      br(),
-      tags$b("Solution:"),
-      uiOutput("results_distribution"),
-      br(),
-      conditionalPanel(
-        condition = "input.distribution == 'Beta' && input.lower_tail_beta == 'lower.tail'",
-        plotOutput("betaPlot_lower")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Beta' && input.lower_tail_beta == 'upper.tail'",
-        plotOutput("betaPlot_upper")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Beta' && input.lower_tail_beta == 'interval'",
-        plotOutput("betaPlot_interval")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Binomial' && input.lower_tail_binomial == 'lower.tail'",
-        plotOutput("binomialPlot_lower")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Binomial' && input.lower_tail_binomial == 'upper.tail'",
-        plotOutput("binomialPlot_upper")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Binomial' && input.lower_tail_binomial == 'interval'",
-        plotOutput("binomialPlot_interval")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Cauchy' && input.lower_tail_cauchy == 'lower.tail'",
-        plotOutput("cauchyPlot_lower")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Cauchy' && input.lower_tail_cauchy == 'upper.tail'",
-        plotOutput("cauchyPlot_upper")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Cauchy' && input.lower_tail_cauchy == 'interval'",
-        plotOutput("cauchyPlot_interval")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Chi-square' && input.lower_tail_chisquare == 'lower.tail'",
-        plotOutput("chisquarePlot_lower")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Chi-square' && input.lower_tail_chisquare == 'upper.tail'",
-        plotOutput("chisquarePlot_upper")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Chi-square' && input.lower_tail_chisquare == 'interval'",
-        plotOutput("chisquarePlot_interval")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Exponential' && input.lower_tail_exponential == 'lower.tail'",
-        plotOutput("exponentialPlot_lower")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Exponential' && input.lower_tail_exponential == 'upper.tail'",
-        plotOutput("exponentialPlot_upper")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Exponential' && input.lower_tail_exponential == 'interval'",
-        plotOutput("exponentialPlot_interval")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Fisher' && input.lower_tail_fisher == 'lower.tail'",
-        plotOutput("fisherPlot_lower")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Fisher' && input.lower_tail_fisher == 'upper.tail'",
-        plotOutput("fisherPlot_upper")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Fisher' && input.lower_tail_fisher == 'interval'",
-        plotOutput("fisherPlot_interval")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Gamma' && input.lower_tail_gamma == 'lower.tail'",
-        plotOutput("gammaPlot_lower")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Gamma' && input.lower_tail_gamma == 'upper.tail'",
-        plotOutput("gammaPlot_upper")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Gamma' && input.lower_tail_gamma == 'interval'",
-        plotOutput("gammaPlot_interval")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Geometric (I)' && input.lower_tail_geometric == 'lower.tail'",
-        plotOutput("geometricPlot_lower")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Geometric (I)' && input.lower_tail_geometric == 'upper.tail'",
-        plotOutput("geometricPlot_upper")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Geometric (I)' && input.lower_tail_geometric == 'interval'",
-        plotOutput("geometricPlot_interval")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Geometric (II)' && input.lower_tail_geometric2 == 'lower.tail'",
-        plotOutput("geometric2Plot_lower")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Geometric (II)' && input.lower_tail_geometric2 == 'upper.tail'",
-        plotOutput("geometric2Plot_upper")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Geometric (II)' && input.lower_tail_geometric2 == 'interval'",
-        plotOutput("geometric2Plot_interval")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Hypergeometric' && input.lower_tail_hypergeometric == 'lower.tail'",
-        plotOutput("hypergeometricPlot_lower")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Hypergeometric' && input.lower_tail_hypergeometric == 'upper.tail'",
-        plotOutput("hypergeometricPlot_upper")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Hypergeometric' && input.lower_tail_hypergeometric == 'interval'",
-        plotOutput("hypergeometricPlot_interval")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Logistic' && input.lower_tail_logistic == 'lower.tail'",
-        plotOutput("logisticPlot_lower")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Logistic' && input.lower_tail_logistic == 'upper.tail'",
-        plotOutput("logisticPlot_upper")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Logistic' && input.lower_tail_logistic == 'interval'",
-        plotOutput("logisticPlot_interval")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Log-Normal' && input.lower_tail_lognormal == 'lower.tail'",
-        plotOutput("lognormalPlot_lower")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Log-Normal' && input.lower_tail_lognormal == 'upper.tail'",
-        plotOutput("lognormalPlot_upper")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Log-Normal' && input.lower_tail_lognormal == 'interval'",
-        plotOutput("lognormalPlot_interval")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Negative Binomial (I)' && input.lower_tail_negativebinomial == 'lower.tail'",
-        plotOutput("negativebinomialPlot_lower")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Negative Binomial (I)' && input.lower_tail_negativebinomial == 'upper.tail'",
-        plotOutput("negativebinomialPlot_upper")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Negative Binomial (I)' && input.lower_tail_negativebinomial == 'interval'",
-        plotOutput("negativebinomialPlot_interval")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Negative Binomial (II)' && input.lower_tail_negativebinomial2 == 'lower.tail'",
-        plotOutput("negativebinomial2Plot_lower")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Negative Binomial (II)' && input.lower_tail_negativebinomial2 == 'upper.tail'",
-        plotOutput("negativebinomial2Plot_upper")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Negative Binomial (II)' && input.lower_tail_negativebinomial2 == 'interval'",
-        plotOutput("negativebinomial2Plot_interval")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Normal' && input.lower_tail_normal == 'lower.tail'",
-        plotOutput("normalPlot_lower")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Normal' && input.lower_tail_normal == 'upper.tail'",
-        plotOutput("normalPlot_upper")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Normal' && input.lower_tail_normal == 'interval'",
-        plotOutput("normalPlot_interval")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Poisson' && input.lower_tail_poisson == 'lower.tail'",
-        plotOutput("poissonPlot_lower")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Poisson' && input.lower_tail_poisson == 'upper.tail'",
-        plotOutput("poissonPlot_upper")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Poisson' && input.lower_tail_poisson == 'interval'",
-        plotOutput("poissonPlot_interval")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Student' && input.lower_tail_student == 'lower.tail'",
-        plotOutput("studentPlot_lower")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Student' && input.lower_tail_student == 'upper.tail'",
-        plotOutput("studentPlot_upper")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Student' && input.lower_tail_student == 'interval'",
-        plotOutput("studentPlot_interval")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Weibull' && input.lower_tail_weibull == 'lower.tail'",
-        plotOutput("weibullPlot_lower")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Weibull' && input.lower_tail_weibull == 'upper.tail'",
-        plotOutput("weibullPlot_upper")
-      ),
-      conditionalPanel(
-        condition = "input.distribution == 'Weibull' && input.lower_tail_weibull == 'interval'",
-        plotOutput("weibullPlot_interval")
-      ),
-      br(),
-      tags$b("Details:"),
-      br(),
-      uiOutput("parameters_distribution"),
-      # br(),
-      # br(),
-      # tags$a(href="https://antoinesoetewey.com/", "Back to antoinesoetewey.com"),
-      br(),
-      br()
-    )
-    # )
-    # )
-    # ,
-    # tabPanel(
-    #   title = "Statistical tests",
-    #   # Sidebar layout with input and output definitions ----
-    #   sidebarLayout(
-    #
-    #     # Sidebar to demonstrate various slider options ----
-    #     sidebarPanel(
-    #
-    #       # Input: Simple integer interval ----
-    #       selectInput(
-    #         inputId = "test",
-    #         label = "Test:",
-    #         choices = c("Binomial", "Chi-square", "Fisher", "Normal", "Poisson", "Student"),
-    #         multiple = FALSE,
-    #         selected = "Normal"
-    #       ),
-    #       hr(),
-    #       HTML('<p>Report a bug or request the code <a href="https://antoinesoetewey.com/contact/">here</a>.</p>')
-    #     ),
-    #
-    #     # Main panel for displaying outputs ----
-    #     mainPanel(
-    #       br(),
-    #       textOutput("results_tests"),
-    #       br(),
-    #       tags$a(href="https://antoinesoetewey.com/", "Back to antoinesoetewey.com"),
-    #       br(),
-    #       br()
-    #     )
-    #   )
-    # )
-  )
-  )
-
-# Define server logic required to draw a histogram
 server <- function(input, output) {
-  
   # waiter <- waiter::Waiter$new(html = spin_loaders(5))
   waiter2 <- waiter::Waiter$new(html = "Loading...<br />The app may take several seconds to appear.<br />Thanks for your patience.")
   # waiter$show()
@@ -1268,7 +153,7 @@ server <- function(input, output) {
       print("loading...")
     }
   })
-
+  
   output$betaPlot_lower <- renderPlot({
     funcShaded <- function(x) {
       y <- dbeta(x, shape1 = input$alpha_beta, shape2 = input$beta_beta)
@@ -1317,7 +202,7 @@ server <- function(input, output) {
       xlab("x")
     p
   })
-
+  
   output$binomialPlot_lower <- renderPlot({
     p <- data.frame(heads = qbinom(0.99999, size = input$n_binomial, prob = input$p_binomial, lower.tail = FALSE):qbinom(0.99999, size = input$n_binomial, prob = input$p_binomial, lower.tail = TRUE), prob = dbinom(x = qbinom(0.99999, size = input$n_binomial, prob = input$p_binomial, lower.tail = FALSE):qbinom(0.99999, size = input$n_binomial, prob = input$p_binomial, lower.tail = TRUE), size = input$n_binomial, prob = input$p_binomial)) %>%
       mutate(Heads = ifelse(heads <= input$x1_binomial, "2", "Other")) %>%
@@ -1375,7 +260,7 @@ server <- function(input, output) {
       xlab("x")
     p
   })
-
+  
   output$cauchyPlot_lower <- renderPlot({
     funcShaded <- function(x) {
       y <- dcauchy(x, location = input$location_cauchy, scale = input$scale_cauchy)
@@ -1424,7 +309,7 @@ server <- function(input, output) {
       xlab("x")
     p
   })
-
+  
   output$chisquarePlot_lower <- renderPlot({
     funcShaded <- function(x) {
       y <- dchisq(x, df = input$df_chisquare)
@@ -1473,7 +358,7 @@ server <- function(input, output) {
       xlab("x")
     p
   })
-
+  
   output$exponentialPlot_lower <- renderPlot({
     funcShaded <- function(x) {
       y <- dexp(x, rate = input$rate_exponential)
@@ -1522,7 +407,7 @@ server <- function(input, output) {
       xlab("x")
     p
   })
-
+  
   output$fisherPlot_lower <- renderPlot({
     funcShaded <- function(x) {
       y <- df(x, df1 = input$df1_fisher, df2 = input$df2_fisher)
@@ -1571,7 +456,7 @@ server <- function(input, output) {
       xlab("x")
     p
   })
-
+  
   output$gammaPlot_lower <- renderPlot({
     funcShaded <- function(x) {
       y <- dgamma(x, shape = input$alpha_gamma, rate = input$beta_gamma)
@@ -1620,7 +505,7 @@ server <- function(input, output) {
       xlab("x")
     p
   })
-
+  
   output$geometricPlot_lower <- renderPlot({
     p <- data.frame(heads = 0:(input$p_geometric + (5 * sqrt((1 - input$p_geometric) / (input$p_geometric^2)))), prob = dgeom(x = 0:(input$p_geometric + (5 * sqrt((1 - input$p_geometric) / (input$p_geometric^2)))), prob = input$p_geometric)) %>%
       mutate(Heads = ifelse(heads <= input$x1_geometric, "2", "Other")) %>%
@@ -1678,7 +563,7 @@ server <- function(input, output) {
       xlab("x")
     p
   })
-
+  
   output$geometric2Plot_lower <- renderPlot({
     p <- data.frame(heads = 1:(input$p_geometric2 + (5 * sqrt((1 - input$p_geometric2) / (input$p_geometric2^2))) + 1), prob = dgeom(x = 0:(input$p_geometric2 + (5 * sqrt((1 - input$p_geometric2) / (input$p_geometric2^2)))), prob = input$p_geometric2)) %>%
       mutate(Heads = ifelse(heads <= input$x1_geometric2, "2", "Other")) %>%
@@ -1736,7 +621,7 @@ server <- function(input, output) {
       xlab("x")
     p
   })
-
+  
   output$hypergeometricPlot_lower <- renderPlot({
     p <- data.frame(heads = qhyper(0.99999, m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric, lower.tail = FALSE):qhyper(0.99999, m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric, lower.tail = TRUE), prob = dhyper(x = qhyper(0.99999, m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric, lower.tail = FALSE):qhyper(0.99999, m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric, lower.tail = TRUE), m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric)) %>%
       mutate(Heads = ifelse(heads <= input$x1_hypergeometric, "2", "Other")) %>%
@@ -1794,7 +679,7 @@ server <- function(input, output) {
       xlab("x")
     p
   })
-
+  
   output$logisticPlot_lower <- renderPlot({
     funcShaded <- function(x) {
       y <- dlogis(x, location = input$location_logistic, scale = input$scale_logistic)
@@ -1843,12 +728,12 @@ server <- function(input, output) {
       xlab("x")
     p
   })
-
+  
   output$lognormalPlot_lower <- renderPlot({
     funcShaded <- function(x) {
       y <- dlnorm(x,
-        meanlog = input$mean_lognormal,
-        sdlog = ifelse(input$variance_sd_lognormal == "variance_true", sqrt(input$variance_lognormal), input$sd_lognormal)
+                  meanlog = input$mean_lognormal,
+                  sdlog = ifelse(input$variance_sd_lognormal == "variance_true", sqrt(input$variance_lognormal), input$sd_lognormal)
       )
       y[x > input$x1_lognormal] <- NA
       return(y)
@@ -1869,8 +754,8 @@ server <- function(input, output) {
   output$lognormalPlot_upper <- renderPlot({
     funcShaded <- function(x) {
       y <- dlnorm(x,
-        meanlog = input$mean_lognormal,
-        sdlog = ifelse(input$variance_sd_lognormal == "variance_true", sqrt(input$variance_lognormal), input$sd_lognormal)
+                  meanlog = input$mean_lognormal,
+                  sdlog = ifelse(input$variance_sd_lognormal == "variance_true", sqrt(input$variance_lognormal), input$sd_lognormal)
       )
       y[x < input$x2_lognormal] <- NA
       return(y)
@@ -1891,8 +776,8 @@ server <- function(input, output) {
   output$lognormalPlot_interval <- renderPlot({
     funcShaded <- function(x) {
       y <- dlnorm(x,
-        meanlog = input$mean_lognormal,
-        sdlog = ifelse(input$variance_sd_lognormal == "variance_true", sqrt(input$variance_lognormal), input$sd_lognormal)
+                  meanlog = input$mean_lognormal,
+                  sdlog = ifelse(input$variance_sd_lognormal == "variance_true", sqrt(input$variance_lognormal), input$sd_lognormal)
       )
       y[x < input$a_lognormal | x > input$b_lognormal] <- NA
       return(y)
@@ -1910,7 +795,7 @@ server <- function(input, output) {
       xlab("x")
     p
   })
-
+  
   output$negativebinomialPlot_lower <- renderPlot({
     p <- data.frame(heads = qnbinom(0.999, size = input$r_negativebinomial, prob = input$p_negativebinomial, lower.tail = FALSE):qnbinom(0.999, size = input$r_negativebinomial, prob = input$p_negativebinomial, lower.tail = TRUE), prob = dnbinom(x = qnbinom(0.999, size = input$r_negativebinomial, prob = input$p_negativebinomial, lower.tail = FALSE):qnbinom(0.999, size = input$r_negativebinomial, prob = input$p_negativebinomial, lower.tail = TRUE), size = input$r_negativebinomial, prob = input$p_negativebinomial)) %>%
       mutate(Heads = ifelse(heads <= input$x1_negativebinomial, "2", "Other")) %>%
@@ -1968,7 +853,7 @@ server <- function(input, output) {
       xlab("x")
     p
   })
-
+  
   output$negativebinomial2Plot_lower <- renderPlot({
     p <- data.frame(heads = input$r_negativebinomial2:(qnbinom(0.999, size = input$r_negativebinomial2, prob = input$p_negativebinomial2, lower.tail = TRUE) + input$r_negativebinomial2), prob = dnbinom(x = 0:qnbinom(0.999, size = input$r_negativebinomial2, prob = input$p_negativebinomial2, lower.tail = TRUE), size = input$r_negativebinomial2, prob = input$p_negativebinomial2)) %>%
       mutate(Heads = ifelse(heads <= input$x1_negativebinomial2, "2", "Other")) %>%
@@ -2026,12 +911,12 @@ server <- function(input, output) {
       xlab("x")
     p
   })
-
+  
   output$normalPlot_lower <- renderPlot({
     funcShaded <- function(x) {
       y <- dnorm(x,
-        mean = input$mean_normal,
-        sd = ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal)
+                 mean = input$mean_normal,
+                 sd = ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal)
       )
       y[x > input$x1_normal] <- NA
       return(y)
@@ -2052,8 +937,8 @@ server <- function(input, output) {
   output$normalPlot_upper <- renderPlot({
     funcShaded <- function(x) {
       y <- dnorm(x,
-        mean = input$mean_normal,
-        sd = ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal)
+                 mean = input$mean_normal,
+                 sd = ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal)
       )
       y[x < input$x2_normal] <- NA
       return(y)
@@ -2074,8 +959,8 @@ server <- function(input, output) {
   output$normalPlot_interval <- renderPlot({
     funcShaded <- function(x) {
       y <- dnorm(x,
-        mean = input$mean_normal,
-        sd = ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal)
+                 mean = input$mean_normal,
+                 sd = ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal)
       )
       y[x < input$a_normal | x > input$b_normal] <- NA
       return(y)
@@ -2093,7 +978,7 @@ server <- function(input, output) {
       xlab("x")
     p
   })
-
+  
   output$poissonPlot_lower <- renderPlot({
     p <- data.frame(heads = qpois(0.99999, lambda = input$lambda_poisson, lower.tail = FALSE):qpois(0.99999, lambda = input$lambda_poisson, lower.tail = TRUE), prob = dpois(x = qpois(0.99999, lambda = input$lambda_poisson, lower.tail = FALSE):qpois(0.99999, lambda = input$lambda_poisson, lower.tail = TRUE), lambda = input$lambda_poisson)) %>%
       mutate(Heads = ifelse(heads <= input$x1_poisson, "2", "Other")) %>%
@@ -2151,7 +1036,7 @@ server <- function(input, output) {
       xlab("x")
     p
   })
-
+  
   output$studentPlot_lower <- renderPlot({
     funcShaded <- function(x) {
       y <- dt(x, df = input$df_student)
@@ -2200,7 +1085,7 @@ server <- function(input, output) {
       xlab("x")
     p
   })
-
+  
   output$weibullPlot_lower <- renderPlot({
     funcShaded <- function(x) {
       y <- dweibull(x, shape = input$alpha_weibull, scale = input$beta_weibull)
@@ -2249,7 +1134,7 @@ server <- function(input, output) {
       xlab("x")
     p
   })
-
+  
   output$parameters_distribution <- renderUI({
     if (input$distribution == "Beta") {
       withMathJax(
@@ -2423,6 +1308,3 @@ server <- function(input, output) {
   })
   
 }
-
-# Run the application
-shinyApp(ui = ui, server = server)
