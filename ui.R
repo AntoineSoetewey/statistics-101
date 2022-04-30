@@ -2,6 +2,13 @@ ui <- shiny::tagList(
   withMathJax(), 
   includeCSS(path = "www/css/styles.css"), 
   
+  tags$head(
+    tags$link(
+      rel = "shortcut icon", 
+      href = "https://www.assignmentexpert.com/image?k=ffb1f029a1820083d29855055240200b"
+    )
+  ), 
+  
   tags$div(
     tags$div(
       class = "app_title", 
