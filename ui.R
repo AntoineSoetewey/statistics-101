@@ -21,10 +21,10 @@ ui <- shiny::tagList(
     
     # Sidebar with a slider input for number of bins
     fluidPage(
-      theme = shinythemes::shinytheme("flatly"), 
+      theme = shinythemes::shinytheme("yeti"),
       sidebarLayout(
         sidebarPanel(
-          width = 3, 
+          width = 4, 
           
           selectInput(
             inputId = "distribution",
@@ -837,7 +837,7 @@ ui <- shiny::tagList(
         
         # Show a plot of the generated distribution
         mainPanel(
-          width = 9, 
+          width = 8, 
           
           br(),
           tags$b("Solution:"),
