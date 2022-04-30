@@ -21,6 +21,7 @@ ui <- shiny::tagList(
       tags$h4(
         tags$a(
           href = "https://antoinesoetewey.com/", 
+          target = "_blank", 
           "Antoine Soetewey"
         )
       )
