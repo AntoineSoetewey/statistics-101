@@ -30,6 +30,8 @@ ui <- tabsetPanel(
       fluidPage(
         sidebarLayout(
           sidebarPanel(
+            width = 3, 
+            
             selectInput(
               inputId = "distribution",
               label = "Distribution:",
@@ -841,6 +843,8 @@ ui <- tabsetPanel(
         
         # Show a plot of the generated distribution
         mainPanel(
+          width = 9, 
+          
           br(),
           tags$b("Solution:"),
           uiOutput("results_distribution"),
