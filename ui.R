@@ -21,6 +21,7 @@ ui <- shiny::tagList(
     
     # Sidebar with a slider input for number of bins
     fluidPage(
+      theme = shinythemes::shinytheme("flatly"), 
       sidebarLayout(
         sidebarPanel(
           width = 3, 

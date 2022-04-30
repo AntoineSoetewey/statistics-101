@@ -1,6 +1,7 @@
 library(shiny)
+library(shinycssloaders)
+library(shinythemes)
 library(dplyr)
 library(ggplot2)
 library(dplyr)
 library(mixdist)
-library(shinycssloaders)
