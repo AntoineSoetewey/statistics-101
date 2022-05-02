@@ -5,7 +5,7 @@ ui <- shiny::tagList(
   tags$head(
     tags$link(
       rel = "shortcut icon", 
-      href = "https://www.assignmentexpert.com/image?k=ffb1f029a1820083d29855055240200b"
+      href = "https://antoinesoetewey.com/favicon.ico"
     )
   ), 
   
@@ -29,7 +29,7 @@ ui <- shiny::tagList(
     
     # Sidebar with a slider input for number of bins
     fluidPage(
-      theme = shinythemes::shinytheme("yeti"),
+      theme = shinythemes::shinytheme("flatly"),
       sidebarLayout(
         sidebarPanel(
           width = 4, 
