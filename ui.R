@@ -46,10 +46,10 @@ ui <- shiny::tagList(
           conditionalPanel(
             condition = "input.distribution == 'Beta'",
             numericInput("alpha_beta", "Shape \\(\\alpha\\):",
-                         value = 1, min = 0, step = 1
+                         value = 1, min = 0.001, step = 1
             ),
             numericInput("beta_beta", "Shape \\(\\beta\\):",
-                         value = 3, min = 0, step = 1
+                         value = 3, min = 0.001, step = 1
             )
           ),
           conditionalPanel(
@@ -67,7 +67,7 @@ ui <- shiny::tagList(
                          value = 0, step = 1
             ),
             numericInput("scale_cauchy", "Scale \\(\\gamma\\):",
-                         value = 1, min = 0, step = 1
+                         value = 1, min = 0.001, step = 1
             )
           ),
           conditionalPanel(
@@ -79,7 +79,7 @@ ui <- shiny::tagList(
           conditionalPanel(
             condition = "input.distribution == 'Exponential'",
             numericInput("rate_exponential", "Rate \\(\\lambda\\):",
-                         value = 1, min = 0, step = 0.5
+                         value = 1, min = 0.001, step = 0.5
             )
           ),
           conditionalPanel(
@@ -94,10 +94,10 @@ ui <- shiny::tagList(
           conditionalPanel(
             condition = "input.distribution == 'Gamma'",
             numericInput("alpha_gamma", "Shape \\(\\alpha\\):",
-                         value = 3, min = 0, step = 1
+                         value = 3, min = 0.001, step = 1
             ),
             numericInput("beta_gamma", "Rate \\(\\beta\\):",
-                         value = 2, min = 0, step = 1
+                         value = 2, min = 0.001, step = 1
             )
           ),
           conditionalPanel(
@@ -130,7 +130,7 @@ ui <- shiny::tagList(
                          value = 0, step = 1
             ),
             numericInput("scale_logistic", "Scale \\(s\\):",
-                         value = 1, min = 0, step = 1
+                         value = 1, min = 0.001, step = 1
             )
           ),
           conditionalPanel(
@@ -150,13 +150,13 @@ ui <- shiny::tagList(
           conditionalPanel(
             condition = "input.distribution == 'Log-Normal' && input.variance_sd_lognormal == 'variance_true'",
             numericInput("variance_lognormal", "Variance \\(\\sigma^2\\):",
-                         value = 1, min = 0, step = 1
+                         value = 1, min = 0.001, step = 1
             )
           ),
           conditionalPanel(
             condition = "input.distribution == 'Log-Normal' && input.variance_sd_lognormal == 'variance_false'",
             numericInput("sd_lognormal", "Standard deviation \\(\\sigma\\):",
-                         value = 1, min = 0, step = 1
+                         value = 1, min = 0.001, step = 1
             )
           ),
           conditionalPanel(
@@ -194,13 +194,13 @@ ui <- shiny::tagList(
           conditionalPanel(
             condition = "input.distribution == 'Normal' && input.variance_sd == 'variance_true'",
             numericInput("variance_normal", "Variance \\(\\sigma^2\\):",
-                         value = 1, min = 0, step = 1
+                         value = 1, min = 0.001, step = 1
             )
           ),
           conditionalPanel(
             condition = "input.distribution == 'Normal' && input.variance_sd == 'variance_false'",
             numericInput("sd_normal", "Standard deviation \\(\\sigma\\):",
-                         value = 1, min = 0, step = 1
+                         value = 1, min = 0.001, step = 1
             )
           ),
           conditionalPanel(
@@ -218,10 +218,10 @@ ui <- shiny::tagList(
           conditionalPanel(
             condition = "input.distribution == 'Weibull'",
             numericInput("alpha_weibull", "Shape \\(\\alpha\\):",
-                         value = 5, min = 0, step = 1
+                         value = 5, min = 0.001, step = 1
             ),
             numericInput("beta_weibull", "Scale \\(\\beta\\):",
-                         value = 1, min = 0, step = 1
+                         value = 1, min = 0.001, step = 1
             )
           ),
           hr(),

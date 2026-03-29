@@ -32,3 +32,11 @@ body {
     padding: 3%;
     margin-top: 4%;
 }
+
+@media (max-width: 600px) {
+    .footer_container {
+        grid-template-columns: 1fr;
+        row-gap: 1.5em;
+        justify-items: start;
+    }
+}
