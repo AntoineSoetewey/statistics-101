@@ -22,11 +22,11 @@ Users select a distribution, set its parameters, choose a probability type (lowe
   - Discrete: Binomial, Geometric (I), Geometric (II), Hypergeometric, Negative Binomial (I), Negative Binomial (II), Poisson
   - Continuous: Beta, Cauchy, Chi-square, Exponential, Fisher, Gamma, Logistic, Log-Normal, Normal, Student, Weibull
 - **Three probability types** for each distribution:
-  - Lower tail: P(X ≤ x)
-  - Upper tail: P(X > x)
-  - Interval: P(a ≤ X ≤ b)
+  - Lower tail: $P(X \le x)$
+  - Upper tail: $P(X > x)$
+  - Interval: $P(a \le X \le b)$
 - **Interactive parameter inputs** — distribution parameters update in real time, with constraints to prevent invalid values
-- **LaTeX-rendered output** — probability results are displayed using MathJax notation (e.g., X ~ N(μ = 0, σ² = 1) and P(X ≤ 1.96) = 0.975)
+- **LaTeX-rendered output** — probability results are displayed using MathJax notation (e.g., $X \sim N(\mu = 0, \sigma^2 = 1)$ and $P(X \le 1.96) = 0.975$)
 - **Distribution plots** — each query is accompanied by a ggplot2 visualization with the probability area shaded
 - **Flexible parameterization** — for distributions like Normal and Log-Normal, users can specify either variance or standard deviation
 
@@ -74,7 +74,7 @@ The app will open in your default browser.
 
 This app is part of a set of three complementary Shiny applications developed for students while I was a teaching assistant at UCLouvain. All three apps are still actively used in introductory statistics and probability courses.
 
-- **statistics-101** — compute probabilities for the main probability distributions: https://github.com/AntoineSoetewey/statistics-101
+- **statistics-101** — compute probabilities for the main probability distributions: https://github.com/AntoineSoetewey/statistics-101 (this app)
 - **statistics-201** — perform statistical inference on mean(s), proportion(s), and variance(s): https://github.com/AntoineSoetewey/statistics-201
 - **statistics-202** — simple linear regression by hand: https://github.com/AntoineSoetewey/statistics-202
 
