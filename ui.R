@@ -14,16 +14,8 @@ ui <- shiny::tagList(
       class = "app_title", 
       
       titlePanel(
-        title = "Statistics 101 - Probability distributions", 
+        title = "Statistics 101 - Probability distributions",
         windowTitle = "Probability Distributions"
-      ),
-      
-      tags$h4(
-        tags$a(
-          href = "https://antoinesoetewey.com/", 
-          target = "_blank", 
-          "Antoine Soetewey"
-        )
       )
     ),
     

@@ -2,10 +2,6 @@ body {
     font-size: 20px;
 }
 
-.help-block {
-    font-size: 20px !important;
-}
-
 .app_title {
     display: flex;
     flex-direction: column;
@@ -33,10 +29,10 @@ body {
     margin-top: 4%;
 }
 
-@media (max-width: 600px) {
-    .footer_container {
-        grid-template-columns: 1fr;
-        row-gap: 1.5em;
-        justify-items: start;
-    }
+.footer_container a {
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.footer_container a:hover {
+    color: white;
 }
