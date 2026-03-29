@@ -14,7 +14,7 @@ authors:
 affiliations:
   - name: HEC Liège, ULiège, Rue Louvrex 14, 4000 Liège, Belgium
     index: 1
-date: 29 March 2026
+date: 30 March 2026
 bibliography: paper.bib
 ---
 
