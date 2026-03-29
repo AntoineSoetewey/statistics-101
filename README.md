@@ -44,20 +44,16 @@ install.packages(c("shiny", "shinycssloaders", "shinythemes", "dplyr", "ggplot2"
 
 ### Launch
 
-Clone the repository and run the app from the project root:
+1. Clone or download this repository.
+2. Open `statistics-101.Rproj` in RStudio, or set the repository root as your working directory in R.
+3. Install the dependencies listed above if needed.
+4. Launch the app:
 
 ```r
-# In R or RStudio
 shiny::runApp()
 ```
 
-Or from the terminal:
-
-```bash
-Rscript -e "shiny::runApp()"
-```
-
-The app will open in your default browser at `http://127.0.0.1:<port>`.
+The app will open in your default browser.
 
 ---
 
