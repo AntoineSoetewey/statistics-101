@@ -1076,7 +1076,7 @@ server <- function(input, output) {
         helpText("where \\( 0 \\leq x \\leq 1, \\alpha > 0, \\beta > 0\\)"),
         br(),
         helpText("\\(\\mu = E(X) = \\dfrac{\\alpha}{\\alpha + \\beta} = \\)", round(input$alpha_beta / (input$alpha_beta + input$beta_beta), 3)),
-        helpText("\\(\\sigma = SD(X) = \\sqrt{\\dfrac{\\alpha\\beta}{(\\alpha + \\beta)^2(\\alpha + \\beta+1)}} = \\)", round(sqrt((input$alpha_beta * input$beta_beta) / (((input$alpha_beta + input$beta_beta)^2) * (input$alpha_beta + input$beta_beta + 1))), 3)),
+        helpText("\\(\\sigma = SD(X) = \\sqrt{\\frac{\\alpha\\beta}{(\\alpha + \\beta)^2(\\alpha + \\beta+1)}} = \\)", round(sqrt((input$alpha_beta * input$beta_beta) / (((input$alpha_beta + input$beta_beta)^2) * (input$alpha_beta + input$beta_beta + 1))), 3)),
         helpText("\\(\\sigma^2 = Var(X) = \\dfrac{\\alpha\\beta}{(\\alpha + \\beta)^2(\\alpha + \\beta+1)} = \\)", round((input$alpha_beta * input$beta_beta) / (((input$alpha_beta + input$beta_beta)^2) * (input$alpha_beta + input$beta_beta + 1)), 3))
       )
     } else if (input$distribution == "Binomial") {
@@ -1123,7 +1123,7 @@ server <- function(input, output) {
         helpText("where \\( df_1, df_2 > 0, x \\geq 0\\)"),
         br(),
         helpText("\\(\\mu = E(X) = \\dfrac{df_2}{df_2 - 2} = \\)", ifelse(input$df2_fisher > 2, round(input$df2_fisher / (input$df2_fisher - 2), 3), "Undefined")),
-        helpText("\\(\\sigma = SD(X) = \\sqrt{\\dfrac{2df^2_2(df_1 + df_2 - 2)}{df_1(df_2 - 2)^2(df_2 - 4)}} = \\)", ifelse(input$df2_fisher > 4, round(sqrt((2 * input$df2_fisher^2 * (input$df1_fisher + input$df2_fisher - 2)) / (input$df1_fisher * (input$df2_fisher - 2)^2 * (input$df2_fisher - 4))), 3), "Undefined")),
+        helpText("\\(\\sigma = SD(X) = \\sqrt{\\frac{2df^2_2(df_1 + df_2 - 2)}{df_1(df_2 - 2)^2(df_2 - 4)}} = \\)", ifelse(input$df2_fisher > 4, round(sqrt((2 * input$df2_fisher^2 * (input$df1_fisher + input$df2_fisher - 2)) / (input$df1_fisher * (input$df2_fisher - 2)^2 * (input$df2_fisher - 4))), 3), "Undefined")),
         helpText("\\(\\sigma^2 = Var(X) = \\dfrac{2df^2_2(df_1 + df_2 - 2)}{df_1(df_2 - 2)^2(df_2 - 4)} = \\)", ifelse(input$df2_fisher > 4, round((2 * input$df2_fisher^2 * (input$df1_fisher + input$df2_fisher - 2)) / (input$df1_fisher * (input$df2_fisher - 2)^2 * (input$df2_fisher - 4)), 3), "Undefined"))
       )
     } else if (input$distribution == "Gamma") {
@@ -1132,7 +1132,7 @@ server <- function(input, output) {
         helpText("where \\( x > 0, \\alpha > 0, \\beta > 0\\)"),
         br(),
         helpText("\\(\\mu = E(X) = \\dfrac{\\alpha}{\\beta} = \\)", round(input$alpha_gamma / input$beta_gamma, 3)),
-        helpText("\\(\\sigma = SD(X) = \\sqrt{\\dfrac{\\alpha}{\\beta^2}} = \\)", round(sqrt(input$alpha_gamma / (input$beta_gamma^2)), 3)),
+        helpText("\\(\\sigma = SD(X) = \\sqrt{\\frac{\\alpha}{\\beta^2}} = \\)", round(sqrt(input$alpha_gamma / (input$beta_gamma^2)), 3)),
         helpText("\\(\\sigma^2 = Var(X) = \\dfrac{\\alpha}{\\beta^2} = \\)", round(input$alpha_gamma / (input$beta_gamma^2), 3))
       )
     } else if (input$distribution == "Geometric (I)") {
@@ -1141,7 +1141,7 @@ server <- function(input, output) {
         helpText("where \\( x = 0, 1, 2, \\dots \\) and \\( 0 < p \\leq 1 \\)"),
         br(),
         helpText("\\(\\mu = E(X) = \\dfrac{1-p}{p} = \\)", round((1 - input$p_geometric) / input$p_geometric, 3)),
-        helpText("\\(\\sigma = SD(X) = \\sqrt{\\dfrac{1-p}{p^2}} = \\)", round(sqrt((1 - input$p_geometric) / (input$p_geometric^2)), 3)),
+        helpText("\\(\\sigma = SD(X) = \\sqrt{\\frac{1-p}{p^2}} = \\)", round(sqrt((1 - input$p_geometric) / (input$p_geometric^2)), 3)),
         helpText("\\(\\sigma^2 = Var(X) = \\dfrac{1-p}{p^2} = \\)", round((1 - input$p_geometric) / (input$p_geometric^2), 3))
       )
     } else if (input$distribution == "Geometric (II)") {
@@ -1150,7 +1150,7 @@ server <- function(input, output) {
         helpText("where \\( x = 1, 2, \\dots \\) and \\( 0 < p \\leq 1 \\)"),
         br(),
         helpText("\\(\\mu = E(X) = \\dfrac{1}{p} = \\)", round((1) / input$p_geometric2, 3)),
-        helpText("\\(\\sigma = SD(X) = \\sqrt{\\dfrac{1-p}{p^2}} = \\)", round(sqrt((1 - input$p_geometric2) / (input$p_geometric2^2)), 3)),
+        helpText("\\(\\sigma = SD(X) = \\sqrt{\\frac{1-p}{p^2}} = \\)", round(sqrt((1 - input$p_geometric2) / (input$p_geometric2^2)), 3)),
         helpText("\\(\\sigma^2 = Var(X) = \\dfrac{1-p}{p^2} = \\)", round((1 - input$p_geometric2) / (input$p_geometric2^2), 3))
       )
     } else if (input$distribution == "Hypergeometric") {
@@ -1169,7 +1169,7 @@ server <- function(input, output) {
         helpText("where \\( -\\infty < x < \\infty, -\\infty < \\mu < \\infty, s > 0\\)"),
         br(),
         helpText("\\(\\mu = E(X) = \\mu = \\)", round(input$location_logistic, 3)),
-        helpText("\\(\\sigma = SD(X) = \\sqrt{\\dfrac{s^2\\pi^2}{3}} = \\)", round(sqrt(((input$scale_logistic^2) * (pi^2)) / 3), 3)),
+        helpText("\\(\\sigma = SD(X) = \\sqrt{\\frac{s^2\\pi^2}{3}} = \\)", round(sqrt(((input$scale_logistic^2) * (pi^2)) / 3), 3)),
         helpText("\\(\\sigma^2 = Var(X) = \\dfrac{s^2\\pi^2}{3} = \\)", round(((input$scale_logistic^2) * (pi^2)) / 3, 3))
       )
     } else if (input$distribution == "Log-Normal") {
@@ -1187,7 +1187,7 @@ server <- function(input, output) {
         helpText("where \\( x = 0, 1, 2, \\dots, r = 1, 2, \\dots \\) and \\( 0 < p \\leq 1 \\)"),
         br(),
         helpText("\\(\\mu = E(X) = \\dfrac{r(1-p)}{p} = \\)", round((input$r_negativebinomial * (1 - input$p_negativebinomial) / input$p_negativebinomial), 3)),
-        helpText("\\(\\sigma = SD(X) = \\sqrt{\\dfrac{r(1-p)}{p^2}} = \\)", round(sqrt((input$r_negativebinomial * (1 - input$p_negativebinomial) / (input$p_negativebinomial^2))), 3)),
+        helpText("\\(\\sigma = SD(X) = \\sqrt{\\frac{r(1-p)}{p^2}} = \\)", round(sqrt((input$r_negativebinomial * (1 - input$p_negativebinomial) / (input$p_negativebinomial^2))), 3)),
         helpText("\\(\\sigma^2 = Var(X) = \\dfrac{r(1-p)}{p^2} = \\)", round((input$r_negativebinomial * (1 - input$p_negativebinomial) / (input$p_negativebinomial^2)), 3))
       )
     } else if (input$distribution == "Negative Binomial (II)") {
@@ -1196,7 +1196,7 @@ server <- function(input, output) {
         helpText("where \\( x = r, r+1, \\dots \\) and \\( 0 < p \\leq 1 \\)"),
         br(),
         helpText("\\(\\mu = E(X) = \\dfrac{r}{p} = \\)", round((input$r_negativebinomial2 / input$p_negativebinomial2), 3)),
-        helpText("\\(\\sigma = SD(X) = \\sqrt{\\dfrac{r(1-p)}{p^2}} = \\)", round(sqrt((input$r_negativebinomial2 * (1 - input$p_negativebinomial2) / (input$p_negativebinomial2^2))), 3)),
+        helpText("\\(\\sigma = SD(X) = \\sqrt{\\frac{r(1-p)}{p^2}} = \\)", round(sqrt((input$r_negativebinomial2 * (1 - input$p_negativebinomial2) / (input$p_negativebinomial2^2))), 3)),
         helpText("\\(\\sigma^2 = Var(X) = \\dfrac{r(1-p)}{p^2} = \\)", round((input$r_negativebinomial2 * (1 - input$p_negativebinomial2) / (input$p_negativebinomial2^2)), 3))
       )
     } else if (input$distribution == "Normal") {
@@ -1224,7 +1224,7 @@ server <- function(input, output) {
         helpText("where \\( -\\infty < x < \\infty, df > 0\\)"),
         br(),
         helpText("\\(\\mu = E(X) = \\)", ifelse(input$df_student > 1, 0, "Undefined")),
-        helpText("\\(\\sigma = SD(X) = \\sqrt{\\dfrac{df}{df - 2}} = \\)", ifelse(input$df_student > 2, round(sqrt(input$df_student / (input$df_student - 2)), 3), "Undefined")),
+        helpText("\\(\\sigma = SD(X) = \\sqrt{\\frac{df}{df - 2}} = \\)", ifelse(input$df_student > 2, round(sqrt(input$df_student / (input$df_student - 2)), 3), "Undefined")),
         helpText("\\(\\sigma^2 = Var(X) = \\dfrac{df}{df-2} = \\)", ifelse(input$df_student > 2, round(input$df_student / (input$df_student - 2), 3), "Undefined"))
       )
     } else if (input$distribution == "Weibull") {
