@@ -305,7 +305,7 @@ server <- function(input, output) {
         stat_function(fun = dchisq, args = list(df = input$df_chisquare)) +
         stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
         theme_minimal() +
-        ggtitle(paste0(input$distribution, " distribution: Chi(", input$df_chisquare, ")")) +
+        ggtitle(paste0(input$distribution, " distribution: \u03C7\u00B2(", input$df_chisquare, ")")) +
         theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
         ylab("Density") +
         xlab("x")
@@ -320,7 +320,7 @@ server <- function(input, output) {
         stat_function(fun = dchisq, args = list(df = input$df_chisquare)) +
         stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
         theme_minimal() +
-        ggtitle(paste0(input$distribution, " distribution: Chi(", input$df_chisquare, ")")) +
+        ggtitle(paste0(input$distribution, " distribution: \u03C7\u00B2(", input$df_chisquare, ")")) +
         theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
         ylab("Density") +
         xlab("x")
@@ -335,7 +335,7 @@ server <- function(input, output) {
         stat_function(fun = dchisq, args = list(df = input$df_chisquare)) +
         stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
         theme_minimal() +
-        ggtitle(paste0(input$distribution, " distribution: Chi(", input$df_chisquare, ")")) +
+        ggtitle(paste0(input$distribution, " distribution: \u03C7\u00B2(", input$df_chisquare, ")")) +
         theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
         ylab("Density") +
         xlab("x")
@@ -391,7 +391,7 @@ server <- function(input, output) {
         y[x > input$x1_fisher] <- NA
         return(y)
       }
-      p <- ggplot(data.frame(x = c(0, 5)), aes(x = x)) +
+      p <- ggplot(data.frame(x = c(0, qf(0.999, df1 = input$df1_fisher, df2 = input$df2_fisher, lower.tail = TRUE))), aes(x = x)) +
         stat_function(fun = df, args = list(df1 = input$df1_fisher, df2 = input$df2_fisher)) +
         stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
         theme_minimal() +
@@ -406,7 +406,7 @@ server <- function(input, output) {
         y[x < input$x2_fisher] <- NA
         return(y)
       }
-      p <- ggplot(data.frame(x = c(0, 5)), aes(x = x)) +
+      p <- ggplot(data.frame(x = c(0, qf(0.999, df1 = input$df1_fisher, df2 = input$df2_fisher, lower.tail = TRUE))), aes(x = x)) +
         stat_function(fun = df, args = list(df1 = input$df1_fisher, df2 = input$df2_fisher)) +
         stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
         theme_minimal() +
@@ -421,7 +421,7 @@ server <- function(input, output) {
         y[x < input$a_fisher | x > input$b_fisher] <- NA
         return(y)
       }
-      p <- ggplot(data.frame(x = c(0, 5)), aes(x = x)) +
+      p <- ggplot(data.frame(x = c(0, qf(0.999, df1 = input$df1_fisher, df2 = input$df2_fisher, lower.tail = TRUE))), aes(x = x)) +
         stat_function(fun = df, args = list(df1 = input$df1_fisher, df2 = input$df2_fisher)) +
         stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
         theme_minimal() +
@@ -476,7 +476,7 @@ server <- function(input, output) {
         xlab("x")
       p
     } else if (input$distribution == 'Geometric (I)' && input$lower_tail_geometric == 'lower.tail') {
-      p <- data.frame(heads = 0:(input$p_geometric + (5 * sqrt((1 - input$p_geometric) / (input$p_geometric^2)))), prob = dgeom(x = 0:(input$p_geometric + (5 * sqrt((1 - input$p_geometric) / (input$p_geometric^2)))), prob = input$p_geometric)) %>%
+      p <- data.frame(heads = 0:((1 - input$p_geometric) / input$p_geometric + (5 * sqrt((1 - input$p_geometric) / (input$p_geometric^2)))), prob = dgeom(x = 0:((1 - input$p_geometric) / input$p_geometric + (5 * sqrt((1 - input$p_geometric) / (input$p_geometric^2)))), prob = input$p_geometric)) %>%
         mutate(Heads = ifelse(heads <= input$x1_geometric, "2", "Other")) %>%
         ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
         geom_col() +
@@ -494,7 +494,7 @@ server <- function(input, output) {
         xlab("x")
       p
     } else if (input$distribution == 'Geometric (I)' && input$lower_tail_geometric == 'upper.tail') {
-      p <- data.frame(heads = 0:(input$p_geometric + (5 * sqrt((1 - input$p_geometric) / (input$p_geometric^2)))), prob = dgeom(x = 0:(input$p_geometric + (5 * sqrt((1 - input$p_geometric) / (input$p_geometric^2)))), prob = input$p_geometric)) %>%
+      p <- data.frame(heads = 0:((1 - input$p_geometric) / input$p_geometric + (5 * sqrt((1 - input$p_geometric) / (input$p_geometric^2)))), prob = dgeom(x = 0:((1 - input$p_geometric) / input$p_geometric + (5 * sqrt((1 - input$p_geometric) / (input$p_geometric^2)))), prob = input$p_geometric)) %>%
         mutate(Heads = ifelse(heads > input$x2_geometric, "2", "other")) %>%
         ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
         geom_col() +
@@ -512,7 +512,7 @@ server <- function(input, output) {
         xlab("x")
       p
     } else if (input$distribution == 'Geometric (I)' && input$lower_tail_geometric == 'interval') {
-      p <- data.frame(heads = 0:(input$p_geometric + (5 * sqrt((1 - input$p_geometric) / (input$p_geometric^2)))), prob = dgeom(x = 0:(input$p_geometric + (5 * sqrt((1 - input$p_geometric) / (input$p_geometric^2)))), prob = input$p_geometric)) %>%
+      p <- data.frame(heads = 0:((1 - input$p_geometric) / input$p_geometric + (5 * sqrt((1 - input$p_geometric) / (input$p_geometric^2)))), prob = dgeom(x = 0:((1 - input$p_geometric) / input$p_geometric + (5 * sqrt((1 - input$p_geometric) / (input$p_geometric^2)))), prob = input$p_geometric)) %>%
         mutate(Heads = ifelse(heads >= input$a_geometric & heads <= input$b_geometric, "2", "other")) %>%
         ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
         geom_col() +
@@ -530,7 +530,7 @@ server <- function(input, output) {
         xlab("x")
       p
     } else if (input$distribution == 'Geometric (II)' && input$lower_tail_geometric2 == 'lower.tail') {
-      p <- data.frame(heads = 1:(input$p_geometric2 + (5 * sqrt((1 - input$p_geometric2) / (input$p_geometric2^2))) + 1), prob = dgeom(x = 0:(input$p_geometric2 + (5 * sqrt((1 - input$p_geometric2) / (input$p_geometric2^2)))), prob = input$p_geometric2)) %>%
+      p <- data.frame(heads = 1:(1 / input$p_geometric2 + (5 * sqrt((1 - input$p_geometric2) / (input$p_geometric2^2))) + 1), prob = dgeom(x = 0:(1 / input$p_geometric2 + (5 * sqrt((1 - input$p_geometric2) / (input$p_geometric2^2)))), prob = input$p_geometric2)) %>%
         mutate(Heads = ifelse(heads <= input$x1_geometric2, "2", "Other")) %>%
         ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
         geom_col() +
@@ -548,7 +548,7 @@ server <- function(input, output) {
         xlab("x")
       p
     } else if (input$distribution == 'Geometric (II)' && input$lower_tail_geometric2 == 'upper.tail') {
-      p <- data.frame(heads = 1:(input$p_geometric2 + (5 * sqrt((1 - input$p_geometric2) / (input$p_geometric2^2))) + 1), prob = dgeom(x = 0:(input$p_geometric2 + (5 * sqrt((1 - input$p_geometric2) / (input$p_geometric2^2)))), prob = input$p_geometric2)) %>%
+      p <- data.frame(heads = 1:(1 / input$p_geometric2 + (5 * sqrt((1 - input$p_geometric2) / (input$p_geometric2^2))) + 1), prob = dgeom(x = 0:(1 / input$p_geometric2 + (5 * sqrt((1 - input$p_geometric2) / (input$p_geometric2^2)))), prob = input$p_geometric2)) %>%
         mutate(Heads = ifelse(heads > input$x2_geometric2, "2", "other")) %>%
         ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
         geom_col() +
@@ -566,7 +566,7 @@ server <- function(input, output) {
         xlab("x")
       p
     } else if (input$distribution == 'Geometric (II)' && input$lower_tail_geometric2 == 'interval') {
-      p <- data.frame(heads = 1:(input$p_geometric2 + (5 * sqrt((1 - input$p_geometric2) / (input$p_geometric2^2))) + 1), prob = dgeom(x = 0:(input$p_geometric2 + (5 * sqrt((1 - input$p_geometric2) / (input$p_geometric2^2)))), prob = input$p_geometric2)) %>%
+      p <- data.frame(heads = 1:(1 / input$p_geometric2 + (5 * sqrt((1 - input$p_geometric2) / (input$p_geometric2^2))) + 1), prob = dgeom(x = 0:(1 / input$p_geometric2 + (5 * sqrt((1 - input$p_geometric2) / (input$p_geometric2^2)))), prob = input$p_geometric2)) %>%
         mutate(Heads = ifelse(heads >= input$a_geometric2 & heads <= input$b_geometric2, "2", "other")) %>%
         ggplot(aes(x = factor(heads), y = prob, fill = Heads)) +
         geom_col() +
@@ -691,7 +691,7 @@ server <- function(input, output) {
         y[x > input$x1_lognormal] <- NA
         return(y)
       }
-      p <- ggplot(data.frame(x = c(0, qlnorm(0.9, meanlog = input$mean_lognormal, sdlog = input$sd_lognormal))), aes(x = x)) +
+      p <- ggplot(data.frame(x = c(0, qlnorm(0.99999, meanlog = input$mean_lognormal, sdlog = ifelse(input$variance_sd_lognormal == "variance_true", sqrt(input$variance_lognormal), input$sd_lognormal)))), aes(x = x)) +
         stat_function(fun = dlnorm, args = list(
           meanlog = input$mean_lognormal,
           sdlog = ifelse(input$variance_sd_lognormal == "variance_true", sqrt(input$variance_lognormal), input$sd_lognormal)
@@ -712,7 +712,7 @@ server <- function(input, output) {
         y[x < input$x2_lognormal] <- NA
         return(y)
       }
-      p <- ggplot(data.frame(x = c(0, qlnorm(0.9, meanlog = input$mean_lognormal, sdlog = input$sd_lognormal))), aes(x = x)) +
+      p <- ggplot(data.frame(x = c(0, qlnorm(0.99999, meanlog = input$mean_lognormal, sdlog = ifelse(input$variance_sd_lognormal == "variance_true", sqrt(input$variance_lognormal), input$sd_lognormal)))), aes(x = x)) +
         stat_function(fun = dlnorm, args = list(
           meanlog = input$mean_lognormal,
           sdlog = ifelse(input$variance_sd_lognormal == "variance_true", sqrt(input$variance_lognormal), input$sd_lognormal)
@@ -733,7 +733,7 @@ server <- function(input, output) {
         y[x < input$a_lognormal | x > input$b_lognormal] <- NA
         return(y)
       }
-      p <- ggplot(data.frame(x = c(0, qlnorm(0.9, meanlog = input$mean_lognormal, sdlog = input$sd_lognormal))), aes(x = x)) +
+      p <- ggplot(data.frame(x = c(0, qlnorm(0.99999, meanlog = input$mean_lognormal, sdlog = ifelse(input$variance_sd_lognormal == "variance_true", sqrt(input$variance_lognormal), input$sd_lognormal)))), aes(x = x)) +
         stat_function(fun = dlnorm, args = list(
           meanlog = input$mean_lognormal,
           sdlog = ifelse(input$variance_sd_lognormal == "variance_true", sqrt(input$variance_lognormal), input$sd_lognormal)
@@ -1091,7 +1091,7 @@ server <- function(input, output) {
     } else if (input$distribution == "Cauchy") {
       withMathJax(
         helpText("Probability density function: $$ f(x) = \\dfrac{1}{\\pi\\gamma \\Big[ 1 + \\big(\\dfrac{x - x_0}{\\gamma}\\big)^2\\Big]} $$"),
-        helpText("where \\( -\\infty < x_0 < \\infty, -\\infty < x < \\infty, y > 0\\)"),
+        helpText("where \\( -\\infty < x_0 < \\infty, -\\infty < x < \\infty, \\gamma > 0\\)"),
         br(),
         helpText("\\(\\mu = E(X) = Undefined\\)"),
         helpText("\\(\\sigma = SD(X) = Undefined\\)"),

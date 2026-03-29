@@ -198,7 +198,7 @@ ui <- shiny::tagList(
           conditionalPanel(
             condition = "input.distribution == 'Poisson'",
             numericInput("lambda_poisson", "Rate \\(\\lambda\\):",
-                         value = 4, min = 1, step = 1
+                         value = 4, min = 0.001, step = 1
             )
           ),
           conditionalPanel(
@@ -626,7 +626,7 @@ ui <- shiny::tagList(
                          value = 2, min = 1, step = 1
             ),
             numericInput("b_geometric2", "b: \\( (a \\leq b) \\)",
-                         value = 4, min = 0, step = 1
+                         value = 4, min = 1, step = 1
             )
           ),
           conditionalPanel(
