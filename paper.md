@@ -22,7 +22,7 @@ bibliography: paper.bib
 
 Statistics 101, 201, and 202 are three open-source interactive web applications built with R [@R] and Shiny [@shiny] to support the teaching of introductory statistics and probability. The apps are intended to help students carry out common statistical computations (computing probabilities from standard probability distributions, constructing confidence intervals, conducting hypothesis tests, and fitting simple linear regression models) without requiring prior knowledge of R or any other programming language. Each app provides numerical results, plots rendered with `ggplot2` [@ggplot2], and inline mathematical derivations typeset with MathJax [@cervone2012mathjax], so that computation and statistical reasoning appear side by side in a single interface.
 
-The suite was developed during the author's doctoral research and teaching assistantship at UCLouvain and continues to be used as an invited lecturer at UCLouvain and UNamur in courses on probability, inferential statistics, and linear regression. The three apps are organised around a broad pedagogical progression: Statistics 101 introduces probability distributions and their properties; Statistics 201 addresses confidence intervals and hypothesis tests; and Statistics 202 covers the simple linear model. All three apps are freely accessible online and their source code is released under a CC-BY-4.0 license.
+The suite was developed during the author's doctoral research and teaching assistantship at UCLouvain and continues to be used as an invited lecturer at UCLouvain and UNamur in courses on probability, inferential statistics, and linear regression. The three apps are organised around a broad pedagogical progression: Statistics 101 introduces probability distributions and their properties; Statistics 201 addresses confidence intervals and hypothesis tests; and Statistics 202 covers the simple linear model. All three apps are freely accessible online and their source code is released under a MIT license.
 
 # Statement of Need
 
@@ -104,7 +104,7 @@ The apps were originally developed in response to a practical difficulty observe
 
 # Availability and Reproducibility
 
-All three apps are hosted on [shinyapps.io](https://www.shinyapps.io/) and their source code is publicly available on GitHub under a CC-BY-4.0 license:
+All three apps are hosted on [shinyapps.io](https://www.shinyapps.io/) and their source code is publicly available on GitHub under a MIT license:
 
 - Statistics 101: [github.com/AntoineSoetewey/statistics-101](https://github.com/AntoineSoetewey/statistics-101)
 - Statistics 201: [github.com/AntoineSoetewey/statistics-201](https://github.com/AntoineSoetewey/statistics-201)
