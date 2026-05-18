@@ -116,4 +116,6 @@ Each app's GitHub repository includes a README file with instructions on how to 
 
 The author thanks Prof. Dominique Deprins and Prof. Eugen Pircalabelu for their comments on previous versions of the apps. The author is grateful to his PhD supervisors, Prof. Catherine Legrand and Prof. Michel Denuit, for their support and for allowing him to work on these apps during his doctoral studies at UCLouvain. Finally, the author thanks the students at UCLouvain, without whom these apps would not exist.
 
+The author used ChatGPT to obtain suggestions for English phrasing and to improve clarity and readability during the writing process. All content was critically reviewed and finalized by the author.
+
 # References
