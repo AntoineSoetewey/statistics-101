@@ -823,13 +823,25 @@ ui <- shiny::tagList(
             numericInput("b_weibull", "b: \\( (a \\leq b) \\)",
                          value = 1.2, min = 0, step = 1
             )
+          ),
+          hr(),
+          tags$p(
+            tags$small(
+              "New to probability distributions? See ",
+              tags$a(
+                "this guide",
+                href = "https://statsandr.com/blog/a-guide-on-how-to-read-statistical-tables/",
+                target = "_blank"
+              ),
+              " for help on how to read this app."
+            )
           )
         ),
-        
+
         # Show a plot of the generated distribution
         mainPanel(
-          width = 8, 
-          
+          width = 8,
+
           br(),
           tags$b("Solution:"),
           uiOutput("results_distribution"),
