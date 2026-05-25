@@ -187,7 +187,177 @@ server <- function(input, output) {
   
   # reactive to contain plot:
   r_plot <- reactive({
-    res <- if (input$distribution == "Beta" && input$lower_tail_beta == "lower.tail") {
+    res <- if (isTRUE(input$plot_type == "cdf")) {
+      if (input$distribution == "Beta") {
+        cdf_continuous(
+          pfun = pbeta,
+          x_range = c(qbeta(0.99999, shape1 = input$alpha_beta, shape2 = input$beta_beta, lower.tail = FALSE), qbeta(0.99999, shape1 = input$alpha_beta, shape2 = input$beta_beta, lower.tail = TRUE)),
+          args = list(shape1 = input$alpha_beta, shape2 = input$beta_beta),
+          tail_type = input$lower_tail_beta,
+          x1 = input$x1_beta, x2 = input$x2_beta, a = input$a_beta, b = input$b_beta,
+          title = paste0(input$distribution, " distribution: Beta(", input$alpha_beta, ", ", input$beta_beta, ")")
+        )
+      } else if (input$distribution == "Binomial") {
+        x_vals <- qbinom(0.99999, size = input$n_binomial, prob = input$p_binomial, lower.tail = FALSE):qbinom(0.99999, size = input$n_binomial, prob = input$p_binomial, lower.tail = TRUE)
+        cdf_discrete(
+          x_vals = x_vals,
+          prob_vals = dbinom(x_vals, size = input$n_binomial, prob = input$p_binomial),
+          tail_type = input$lower_tail_binomial,
+          x1 = input$x1_binomial, x2 = input$x2_binomial, a = input$a_binomial, b = input$b_binomial,
+          title = paste0(input$distribution, " distribution: Bin(", input$n_binomial, ", ", input$p_binomial, ")")
+        )
+      } else if (input$distribution == "Cauchy") {
+        cdf_continuous(
+          pfun = pcauchy,
+          x_range = c(input$location_cauchy - (6 * input$scale_cauchy), input$location_cauchy + (6 * input$scale_cauchy)),
+          args = list(location = input$location_cauchy, scale = input$scale_cauchy),
+          tail_type = input$lower_tail_cauchy,
+          x1 = input$x1_cauchy, x2 = input$x2_cauchy, a = input$a_cauchy, b = input$b_cauchy,
+          title = paste0(input$distribution, " distribution: Cauchy(", input$location_cauchy, ", ", input$scale_cauchy, ")")
+        )
+      } else if (input$distribution == "Chi-square") {
+        cdf_continuous(
+          pfun = pchisq,
+          x_range = c(qchisq(0.99999, df = input$df_chisquare, lower.tail = FALSE), qchisq(0.99999, df = input$df_chisquare, lower.tail = TRUE)),
+          args = list(df = input$df_chisquare),
+          tail_type = input$lower_tail_chisquare,
+          x1 = input$x1_chisquare, x2 = input$x2_chisquare, a = input$a_chisquare, b = input$b_chisquare,
+          title = paste0(input$distribution, " distribution: χ²(", input$df_chisquare, ")")
+        )
+      } else if (input$distribution == "Exponential") {
+        cdf_continuous(
+          pfun = pexp,
+          x_range = c(qexp(0.99999, rate = input$rate_exponential, lower.tail = FALSE), qexp(0.99999, rate = input$rate_exponential, lower.tail = TRUE)),
+          args = list(rate = input$rate_exponential),
+          tail_type = input$lower_tail_exponential,
+          x1 = input$x1_exponential, x2 = input$x2_exponential, a = input$a_exponential, b = input$b_exponential,
+          title = paste0(input$distribution, " distribution: Exp(", input$rate_exponential, ")")
+        )
+      } else if (input$distribution == "Fisher") {
+        cdf_continuous(
+          pfun = pf,
+          x_range = c(qf(0.99999, df1 = input$df1_fisher, df2 = input$df2_fisher, lower.tail = FALSE), qf(0.99999, df1 = input$df1_fisher, df2 = input$df2_fisher, lower.tail = TRUE)),
+          args = list(df1 = input$df1_fisher, df2 = input$df2_fisher),
+          tail_type = input$lower_tail_fisher,
+          x1 = input$x1_fisher, x2 = input$x2_fisher, a = input$a_fisher, b = input$b_fisher,
+          title = paste0(input$distribution, " distribution: F(", input$df1_fisher, ", ", input$df2_fisher, ")")
+        )
+      } else if (input$distribution == "Gamma") {
+        cdf_continuous(
+          pfun = pgamma,
+          x_range = c(qgamma(0.99999, shape = input$alpha_gamma, rate = input$beta_gamma, lower.tail = FALSE), qgamma(0.99999, shape = input$alpha_gamma, rate = input$beta_gamma, lower.tail = TRUE)),
+          args = list(shape = input$alpha_gamma, rate = input$beta_gamma),
+          tail_type = input$lower_tail_gamma,
+          x1 = input$x1_gamma, x2 = input$x2_gamma, a = input$a_gamma, b = input$b_gamma,
+          title = paste0(input$distribution, " distribution: Gamma(", input$alpha_gamma, ", ", input$beta_gamma, ")")
+        )
+      } else if (input$distribution == "Geometric (I)") {
+        x_max_geom <- floor((1 - input$p_geometric) / input$p_geometric + (5 * sqrt((1 - input$p_geometric) / (input$p_geometric^2))))
+        x_vals <- 0:x_max_geom
+        cdf_discrete(
+          x_vals = x_vals,
+          prob_vals = dgeom(x_vals, prob = input$p_geometric),
+          tail_type = input$lower_tail_geometric,
+          x1 = input$x1_geometric, x2 = input$x2_geometric, a = input$a_geometric, b = input$b_geometric,
+          title = paste0(input$distribution, " distribution: Geom(", input$p_geometric, ")")
+        )
+      } else if (input$distribution == "Geometric (II)") {
+        x_max_raw <- floor(1 / input$p_geometric2 + (5 * sqrt((1 - input$p_geometric2) / (input$p_geometric2^2))))
+        x_vals <- 1:(x_max_raw + 1)
+        cdf_discrete(
+          x_vals = x_vals,
+          prob_vals = dgeom(0:x_max_raw, prob = input$p_geometric2),
+          tail_type = input$lower_tail_geometric2,
+          x1 = input$x1_geometric2, x2 = input$x2_geometric2, a = input$a_geometric2, b = input$b_geometric2,
+          title = paste0(input$distribution, " distribution: Geom(", input$p_geometric2, ")")
+        )
+      } else if (input$distribution == "Hypergeometric") {
+        x_vals <- qhyper(0.99999, m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric, lower.tail = FALSE):qhyper(0.99999, m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric, lower.tail = TRUE)
+        cdf_discrete(
+          x_vals = x_vals,
+          prob_vals = dhyper(x_vals, m = input$M_hypergeometric, n = (input$N_hypergeometric - input$M_hypergeometric), k = input$n_hypergeometric),
+          tail_type = input$lower_tail_hypergeometric,
+          x1 = input$x1_hypergeometric, x2 = input$x2_hypergeometric, a = input$a_hypergeometric, b = input$b_hypergeometric,
+          title = paste0(input$distribution, " distribution: HG(", input$n_hypergeometric, ", ", input$N_hypergeometric, ", ", input$M_hypergeometric, ")")
+        )
+      } else if (input$distribution == "Logistic") {
+        cdf_continuous(
+          pfun = plogis,
+          x_range = c(qlogis(0.99999, location = input$location_logistic, scale = input$scale_logistic, lower.tail = FALSE), qlogis(0.99999, location = input$location_logistic, scale = input$scale_logistic, lower.tail = TRUE)),
+          args = list(location = input$location_logistic, scale = input$scale_logistic),
+          tail_type = input$lower_tail_logistic,
+          x1 = input$x1_logistic, x2 = input$x2_logistic, a = input$a_logistic, b = input$b_logistic,
+          title = paste0(input$distribution, " distribution: Logi(", input$location_logistic, ", ", input$scale_logistic, ")")
+        )
+      } else if (input$distribution == "Log-Normal") {
+        sdlog_ln <- ifelse(input$variance_sd_lognormal == "variance_true", sqrt(input$variance_lognormal), input$sd_lognormal)
+        cdf_continuous(
+          pfun = plnorm,
+          x_range = c(0, qlnorm(0.99999, meanlog = input$mean_lognormal, sdlog = sdlog_ln)),
+          args = list(meanlog = input$mean_lognormal, sdlog = sdlog_ln),
+          tail_type = input$lower_tail_lognormal,
+          x1 = input$x1_lognormal, x2 = input$x2_lognormal, a = input$a_lognormal, b = input$b_lognormal,
+          title = paste0(input$distribution, " distribution: Lognormal(", input$mean_lognormal, ", ", ifelse(input$variance_sd_lognormal == "variance_true", input$variance_lognormal, (input$sd_lognormal^2)), ")")
+        )
+      } else if (input$distribution == "Negative Binomial (I)") {
+        x_vals <- qnbinom(0.999, size = input$r_negativebinomial, prob = input$p_negativebinomial, lower.tail = FALSE):qnbinom(0.999, size = input$r_negativebinomial, prob = input$p_negativebinomial, lower.tail = TRUE)
+        cdf_discrete(
+          x_vals = x_vals,
+          prob_vals = dnbinom(x_vals, size = input$r_negativebinomial, prob = input$p_negativebinomial),
+          tail_type = input$lower_tail_negativebinomial,
+          x1 = input$x1_negativebinomial, x2 = input$x2_negativebinomial, a = input$a_negativebinomial, b = input$b_negativebinomial,
+          title = paste0(input$distribution, " distribution: NG(", input$r_negativebinomial, ", ", input$p_negativebinomial, ")")
+        )
+      } else if (input$distribution == "Negative Binomial (II)") {
+        x_max_raw <- qnbinom(0.999, size = input$r_negativebinomial2, prob = input$p_negativebinomial2, lower.tail = TRUE)
+        x_vals <- input$r_negativebinomial2:(x_max_raw + input$r_negativebinomial2)
+        cdf_discrete(
+          x_vals = x_vals,
+          prob_vals = dnbinom(0:x_max_raw, size = input$r_negativebinomial2, prob = input$p_negativebinomial2),
+          tail_type = input$lower_tail_negativebinomial2,
+          x1 = input$x1_negativebinomial2, x2 = input$x2_negativebinomial2, a = input$a_negativebinomial2, b = input$b_negativebinomial2,
+          title = paste0(input$distribution, " distribution: NG(", input$r_negativebinomial2, ", ", input$p_negativebinomial2, ")")
+        )
+      } else if (input$distribution == "Normal") {
+        sd_n <- ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal)
+        cdf_continuous(
+          pfun = pnorm,
+          x_range = c(qnorm(0.99999, mean = input$mean_normal, sd = sd_n, lower.tail = FALSE), qnorm(0.99999, mean = input$mean_normal, sd = sd_n, lower.tail = TRUE)),
+          args = list(mean = input$mean_normal, sd = sd_n),
+          tail_type = input$lower_tail_normal,
+          x1 = input$x1_normal, x2 = input$x2_normal, a = input$a_normal, b = input$b_normal,
+          title = paste0(input$distribution, " distribution: N(", input$mean_normal, ", ", ifelse(input$variance_sd == "variance_true", input$variance_normal, (input$sd_normal^2)), ")")
+        )
+      } else if (input$distribution == "Poisson") {
+        x_vals <- qpois(0.99999, lambda = input$lambda_poisson, lower.tail = FALSE):qpois(0.99999, lambda = input$lambda_poisson, lower.tail = TRUE)
+        cdf_discrete(
+          x_vals = x_vals,
+          prob_vals = dpois(x_vals, lambda = input$lambda_poisson),
+          tail_type = input$lower_tail_poisson,
+          x1 = input$x1_poisson, x2 = input$x2_poisson, a = input$a_poisson, b = input$b_poisson,
+          title = paste0(input$distribution, " distribution: Pois(", input$lambda_poisson, ")")
+        )
+      } else if (input$distribution == "Student") {
+        cdf_continuous(
+          pfun = pt,
+          x_range = c(qt(0.99999, df = input$df_student, lower.tail = FALSE), qt(0.99999, df = input$df_student, lower.tail = TRUE)),
+          args = list(df = input$df_student),
+          tail_type = input$lower_tail_student,
+          x1 = input$x1_student, x2 = input$x2_student, a = input$a_student, b = input$b_student,
+          title = paste0(input$distribution, " distribution: St(", input$df_student, ")")
+        )
+      } else if (input$distribution == "Weibull") {
+        cdf_continuous(
+          pfun = pweibull,
+          x_range = c(qweibull(0.99999, shape = input$alpha_weibull, scale = input$beta_weibull, lower.tail = FALSE), qweibull(0.99999, shape = input$alpha_weibull, scale = input$beta_weibull, lower.tail = TRUE)),
+          args = list(shape = input$alpha_weibull, scale = input$beta_weibull),
+          tail_type = input$lower_tail_weibull,
+          x1 = input$x1_weibull, x2 = input$x2_weibull, a = input$a_weibull, b = input$b_weibull,
+          title = paste0(input$distribution, " distribution: Weibull(", input$alpha_weibull, ", ", input$beta_weibull, ")")
+        )
+      }
+    } else {
+      if (input$distribution == "Beta" && input$lower_tail_beta == "lower.tail") {
       funcShaded <- function(x) {
         y <- dbeta(x, shape1 = input$alpha_beta, shape2 = input$beta_beta)
         y[x > input$x1_beta] <- NA
@@ -1097,10 +1267,11 @@ server <- function(input, output) {
         xlab("x")
       p
     }
-    
+    }
+
     return(res)
   })
-  
+
   output$plots <- renderPlot({
     r_plot()
   })

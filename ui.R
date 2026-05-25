@@ -847,8 +847,15 @@ ui <- shiny::tagList(
           uiOutput("results_distribution"),
           br(),
           
+          radioButtons(
+            inputId = "plot_type",
+            label = NULL,
+            choices = c("PDF / PMF" = "pdf", "CDF" = "cdf"),
+            inline = TRUE
+          ),
+
           # ----plots----
-          plotOutput(outputId = "plots") |> 
+          plotOutput(outputId = "plots") |>
             shinycssloaders::withSpinner(
               type = 2, 
               color.background = "white"
