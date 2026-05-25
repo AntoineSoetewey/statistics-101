@@ -158,8 +158,8 @@ server <- function(input, output) {
         return(y)
       }
       p <- ggplot(data.frame(x = c(qbeta(0.99999, shape1 = input$alpha_beta, shape2 = input$beta_beta, lower.tail = FALSE), qbeta(0.99999, shape1 = input$alpha_beta, shape2 = input$beta_beta, lower.tail = TRUE))), aes(x = x)) +
-        stat_function(fun = dbeta, args = list(shape1 = input$alpha_beta, shape2 = input$beta_beta)) +
-        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        stat_function(fun = dbeta, args = list(shape1 = input$alpha_beta, shape2 = input$beta_beta), n = 1000) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8, n = 1000) +
         theme_minimal() +
         ggtitle(paste0(input$distribution, " distribution: Beta(", input$alpha_beta, ", ", input$beta_beta, ")")) +
         theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
@@ -173,8 +173,8 @@ server <- function(input, output) {
         return(y)
       }
       p <- ggplot(data.frame(x = c(qbeta(0.99999, shape1 = input$alpha_beta, shape2 = input$beta_beta, lower.tail = FALSE), qbeta(0.99999, shape1 = input$alpha_beta, shape2 = input$beta_beta, lower.tail = TRUE))), aes(x = x)) +
-        stat_function(fun = dbeta, args = list(shape1 = input$alpha_beta, shape2 = input$beta_beta)) +
-        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        stat_function(fun = dbeta, args = list(shape1 = input$alpha_beta, shape2 = input$beta_beta), n = 1000) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8, n = 1000) +
         theme_minimal() +
         ggtitle(paste0(input$distribution, " distribution: Beta(", input$alpha_beta, ", ", input$beta_beta, ")")) +
         theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
@@ -188,8 +188,8 @@ server <- function(input, output) {
         return(y)
       }
       p <- ggplot(data.frame(x = c(qbeta(0.99999, shape1 = input$alpha_beta, shape2 = input$beta_beta, lower.tail = FALSE), qbeta(0.99999, shape1 = input$alpha_beta, shape2 = input$beta_beta, lower.tail = TRUE))), aes(x = x)) +
-        stat_function(fun = dbeta, args = list(shape1 = input$alpha_beta, shape2 = input$beta_beta)) +
-        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        stat_function(fun = dbeta, args = list(shape1 = input$alpha_beta, shape2 = input$beta_beta), n = 1000) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8, n = 1000) +
         theme_minimal() +
         ggtitle(paste0(input$distribution, " distribution: Beta(", input$alpha_beta, ", ", input$beta_beta, ")")) +
         theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
@@ -257,8 +257,8 @@ server <- function(input, output) {
         return(y)
       }
       p <- ggplot(data.frame(x = c(input$location_cauchy - (6 * input$scale_cauchy), input$location_cauchy + (6 * input$scale_cauchy))), aes(x = x)) +
-        stat_function(fun = dcauchy, args = list(location = input$location_cauchy, scale = input$scale_cauchy)) +
-        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        stat_function(fun = dcauchy, args = list(location = input$location_cauchy, scale = input$scale_cauchy), n = 1000) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8, n = 1000) +
         theme_minimal() +
         ggtitle(paste0(input$distribution, " distribution: Cauchy(", input$location_cauchy, ", ", input$scale_cauchy, ")")) +
         theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
@@ -272,8 +272,8 @@ server <- function(input, output) {
         return(y)
       }
       p <- ggplot(data.frame(x = c(input$location_cauchy - (6 * input$scale_cauchy), input$location_cauchy + (6 * input$scale_cauchy))), aes(x = x)) +
-        stat_function(fun = dcauchy, args = list(location = input$location_cauchy, scale = input$scale_cauchy)) +
-        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        stat_function(fun = dcauchy, args = list(location = input$location_cauchy, scale = input$scale_cauchy), n = 1000) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8, n = 1000) +
         theme_minimal() +
         ggtitle(paste0(input$distribution, " distribution: Cauchy(", input$location_cauchy, ", ", input$scale_cauchy, ")")) +
         theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
@@ -287,8 +287,8 @@ server <- function(input, output) {
         return(y)
       }
       p <- ggplot(data.frame(x = c(input$location_cauchy - (6 * input$scale_cauchy), input$location_cauchy + (6 * input$scale_cauchy))), aes(x = x)) +
-        stat_function(fun = dcauchy, args = list(location = input$location_cauchy, scale = input$scale_cauchy)) +
-        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        stat_function(fun = dcauchy, args = list(location = input$location_cauchy, scale = input$scale_cauchy), n = 1000) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8, n = 1000) +
         theme_minimal() +
         ggtitle(paste0(input$distribution, " distribution: Cauchy(", input$location_cauchy, ", ", input$scale_cauchy, ")")) +
         theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
@@ -302,8 +302,8 @@ server <- function(input, output) {
         return(y)
       }
       p <- ggplot(data.frame(x = c(qchisq(0.99999, df = input$df_chisquare, lower.tail = FALSE), qchisq(0.99999, df = input$df_chisquare, lower.tail = TRUE))), aes(x = x)) +
-        stat_function(fun = dchisq, args = list(df = input$df_chisquare)) +
-        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        stat_function(fun = dchisq, args = list(df = input$df_chisquare), n = 1000) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8, n = 1000) +
         theme_minimal() +
         ggtitle(paste0(input$distribution, " distribution: \u03C7\u00B2(", input$df_chisquare, ")")) +
         theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
@@ -317,8 +317,8 @@ server <- function(input, output) {
         return(y)
       }
       p <- ggplot(data.frame(x = c(qchisq(0.99999, df = input$df_chisquare, lower.tail = FALSE), qchisq(0.99999, df = input$df_chisquare, lower.tail = TRUE))), aes(x = x)) +
-        stat_function(fun = dchisq, args = list(df = input$df_chisquare)) +
-        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        stat_function(fun = dchisq, args = list(df = input$df_chisquare), n = 1000) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8, n = 1000) +
         theme_minimal() +
         ggtitle(paste0(input$distribution, " distribution: \u03C7\u00B2(", input$df_chisquare, ")")) +
         theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
@@ -332,8 +332,8 @@ server <- function(input, output) {
         return(y)
       }
       p <- ggplot(data.frame(x = c(qchisq(0.99999, df = input$df_chisquare, lower.tail = FALSE), qchisq(0.99999, df = input$df_chisquare, lower.tail = TRUE))), aes(x = x)) +
-        stat_function(fun = dchisq, args = list(df = input$df_chisquare)) +
-        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        stat_function(fun = dchisq, args = list(df = input$df_chisquare), n = 1000) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8, n = 1000) +
         theme_minimal() +
         ggtitle(paste0(input$distribution, " distribution: \u03C7\u00B2(", input$df_chisquare, ")")) +
         theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
@@ -347,8 +347,8 @@ server <- function(input, output) {
         return(y)
       }
       p <- ggplot(data.frame(x = c(qexp(0.99999, rate = input$rate_exponential, lower.tail = FALSE), qexp(0.99999, rate = input$rate_exponential, lower.tail = TRUE))), aes(x = x)) +
-        stat_function(fun = dexp, args = list(rate = input$rate_exponential)) +
-        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        stat_function(fun = dexp, args = list(rate = input$rate_exponential), n = 1000) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8, n = 1000) +
         theme_minimal() +
         ggtitle(paste0(input$distribution, " distribution: Exp(", input$rate_exponential, ")")) +
         theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
@@ -362,8 +362,8 @@ server <- function(input, output) {
         return(y)
       }
       p <- ggplot(data.frame(x = c(qexp(0.99999, rate = input$rate_exponential, lower.tail = FALSE), qexp(0.99999, rate = input$rate_exponential, lower.tail = TRUE))), aes(x = x)) +
-        stat_function(fun = dexp, args = list(rate = input$rate_exponential)) +
-        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        stat_function(fun = dexp, args = list(rate = input$rate_exponential), n = 1000) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8, n = 1000) +
         theme_minimal() +
         ggtitle(paste0(input$distribution, " distribution: Exp(", input$rate_exponential, ")")) +
         theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
@@ -377,8 +377,8 @@ server <- function(input, output) {
         return(y)
       }
       p <- ggplot(data.frame(x = c(qexp(0.99999, rate = input$rate_exponential, lower.tail = FALSE), qexp(0.99999, rate = input$rate_exponential, lower.tail = TRUE))), aes(x = x)) +
-        stat_function(fun = dexp, args = list(rate = input$rate_exponential)) +
-        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        stat_function(fun = dexp, args = list(rate = input$rate_exponential), n = 1000) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8, n = 1000) +
         theme_minimal() +
         ggtitle(paste0(input$distribution, " distribution: Exp(", input$rate_exponential, ")")) +
         theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
@@ -392,8 +392,8 @@ server <- function(input, output) {
         return(y)
       }
       p <- ggplot(data.frame(x = c(0, qf(0.999, df1 = input$df1_fisher, df2 = input$df2_fisher, lower.tail = TRUE))), aes(x = x)) +
-        stat_function(fun = df, args = list(df1 = input$df1_fisher, df2 = input$df2_fisher)) +
-        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        stat_function(fun = df, args = list(df1 = input$df1_fisher, df2 = input$df2_fisher), n = 1000) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8, n = 1000) +
         theme_minimal() +
         ggtitle(paste0(input$distribution, " distribution: F(", input$df1_fisher, ", ", input$df2_fisher, ")")) +
         theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
@@ -407,8 +407,8 @@ server <- function(input, output) {
         return(y)
       }
       p <- ggplot(data.frame(x = c(0, qf(0.999, df1 = input$df1_fisher, df2 = input$df2_fisher, lower.tail = TRUE))), aes(x = x)) +
-        stat_function(fun = df, args = list(df1 = input$df1_fisher, df2 = input$df2_fisher)) +
-        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        stat_function(fun = df, args = list(df1 = input$df1_fisher, df2 = input$df2_fisher), n = 1000) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8, n = 1000) +
         theme_minimal() +
         ggtitle(paste0(input$distribution, " distribution: F(", input$df1_fisher, ", ", input$df2_fisher, ")")) +
         theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
@@ -422,8 +422,8 @@ server <- function(input, output) {
         return(y)
       }
       p <- ggplot(data.frame(x = c(0, qf(0.999, df1 = input$df1_fisher, df2 = input$df2_fisher, lower.tail = TRUE))), aes(x = x)) +
-        stat_function(fun = df, args = list(df1 = input$df1_fisher, df2 = input$df2_fisher)) +
-        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        stat_function(fun = df, args = list(df1 = input$df1_fisher, df2 = input$df2_fisher), n = 1000) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8, n = 1000) +
         theme_minimal() +
         ggtitle(paste0(input$distribution, " distribution: F(", input$df1_fisher, ", ", input$df2_fisher, ")")) +
         theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
@@ -437,8 +437,8 @@ server <- function(input, output) {
         return(y)
       }
       p <- ggplot(data.frame(x = c(qgamma(0.99999, shape = input$alpha_gamma, rate = input$beta_gamma, lower.tail = FALSE), qgamma(0.99999, shape = input$alpha_gamma, rate = input$beta_gamma, lower.tail = TRUE))), aes(x = x)) +
-        stat_function(fun = dgamma, args = list(shape = input$alpha_gamma, rate = input$beta_gamma)) +
-        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        stat_function(fun = dgamma, args = list(shape = input$alpha_gamma, rate = input$beta_gamma), n = 1000) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8, n = 1000) +
         theme_minimal() +
         ggtitle(paste0(input$distribution, " distribution: Gamma(", input$alpha_gamma, ", ", input$beta_gamma, ")")) +
         theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
@@ -452,8 +452,8 @@ server <- function(input, output) {
         return(y)
       }
       p <- ggplot(data.frame(x = c(qgamma(0.99999, shape = input$alpha_gamma, rate = input$beta_gamma, lower.tail = FALSE), qgamma(0.99999, shape = input$alpha_gamma, rate = input$beta_gamma, lower.tail = TRUE))), aes(x = x)) +
-        stat_function(fun = dgamma, args = list(shape = input$alpha_gamma, rate = input$beta_gamma)) +
-        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        stat_function(fun = dgamma, args = list(shape = input$alpha_gamma, rate = input$beta_gamma), n = 1000) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8, n = 1000) +
         theme_minimal() +
         ggtitle(paste0(input$distribution, " distribution: Gamma(", input$alpha_gamma, ", ", input$beta_gamma, ")")) +
         theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
@@ -467,8 +467,8 @@ server <- function(input, output) {
         return(y)
       }
       p <- ggplot(data.frame(x = c(qgamma(0.99999, shape = input$alpha_gamma, rate = input$beta_gamma, lower.tail = FALSE), qgamma(0.99999, shape = input$alpha_gamma, rate = input$beta_gamma, lower.tail = TRUE))), aes(x = x)) +
-        stat_function(fun = dgamma, args = list(shape = input$alpha_gamma, rate = input$beta_gamma)) +
-        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        stat_function(fun = dgamma, args = list(shape = input$alpha_gamma, rate = input$beta_gamma), n = 1000) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8, n = 1000) +
         theme_minimal() +
         ggtitle(paste0(input$distribution, " distribution: Gamma(", input$alpha_gamma, ", ", input$beta_gamma, ")")) +
         theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
@@ -644,8 +644,8 @@ server <- function(input, output) {
         return(y)
       }
       p <- ggplot(data.frame(x = c(qlogis(0.99999, location = input$location_logistic, scale = input$scale_logistic, lower.tail = FALSE), qlogis(0.99999, location = input$location_logistic, scale = input$scale_logistic, lower.tail = TRUE))), aes(x = x)) +
-        stat_function(fun = dlogis, args = list(location = input$location_logistic, scale = input$scale_logistic)) +
-        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        stat_function(fun = dlogis, args = list(location = input$location_logistic, scale = input$scale_logistic), n = 1000) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8, n = 1000) +
         theme_minimal() +
         ggtitle(paste0(input$distribution, " distribution: Logi(", input$location_logistic, ", ", input$scale_logistic, ")")) +
         theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
@@ -659,8 +659,8 @@ server <- function(input, output) {
         return(y)
       }
       p <- ggplot(data.frame(x = c(qlogis(0.99999, location = input$location_logistic, scale = input$scale_logistic, lower.tail = FALSE), qlogis(0.99999, location = input$location_logistic, scale = input$scale_logistic, lower.tail = TRUE))), aes(x = x)) +
-        stat_function(fun = dlogis, args = list(location = input$location_logistic, scale = input$scale_logistic)) +
-        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        stat_function(fun = dlogis, args = list(location = input$location_logistic, scale = input$scale_logistic), n = 1000) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8, n = 1000) +
         theme_minimal() +
         ggtitle(paste0(input$distribution, " distribution: Logi(", input$location_logistic, ", ", input$scale_logistic, ")")) +
         theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
@@ -674,8 +674,8 @@ server <- function(input, output) {
         return(y)
       }
       p <- ggplot(data.frame(x = c(qlogis(0.99999, location = input$location_logistic, scale = input$scale_logistic, lower.tail = FALSE), qlogis(0.99999, location = input$location_logistic, scale = input$scale_logistic, lower.tail = TRUE))), aes(x = x)) +
-        stat_function(fun = dlogis, args = list(location = input$location_logistic, scale = input$scale_logistic)) +
-        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        stat_function(fun = dlogis, args = list(location = input$location_logistic, scale = input$scale_logistic), n = 1000) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8, n = 1000) +
         theme_minimal() +
         ggtitle(paste0(input$distribution, " distribution: Logi(", input$location_logistic, ", ", input$scale_logistic, ")")) +
         theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
@@ -695,8 +695,8 @@ server <- function(input, output) {
         stat_function(fun = dlnorm, args = list(
           meanlog = input$mean_lognormal,
           sdlog = ifelse(input$variance_sd_lognormal == "variance_true", sqrt(input$variance_lognormal), input$sd_lognormal)
-        )) +
-        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        ), n = 1000) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8, n = 1000) +
         theme_minimal() +
         ggtitle(paste0(input$distribution, " distribution: Lognormal(", input$mean_lognormal, ", ", ifelse(input$variance_sd_lognormal == "variance_true", input$variance_lognormal, (input$sd_lognormal^2)), ")")) +
         theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
@@ -716,8 +716,8 @@ server <- function(input, output) {
         stat_function(fun = dlnorm, args = list(
           meanlog = input$mean_lognormal,
           sdlog = ifelse(input$variance_sd_lognormal == "variance_true", sqrt(input$variance_lognormal), input$sd_lognormal)
-        )) +
-        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        ), n = 1000) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8, n = 1000) +
         theme_minimal() +
         ggtitle(paste0(input$distribution, " distribution: Lognormal(", input$mean_lognormal, ", ", ifelse(input$variance_sd_lognormal == "variance_true", input$variance_lognormal, (input$sd_lognormal^2)), ")")) +
         theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
@@ -737,8 +737,8 @@ server <- function(input, output) {
         stat_function(fun = dlnorm, args = list(
           meanlog = input$mean_lognormal,
           sdlog = ifelse(input$variance_sd_lognormal == "variance_true", sqrt(input$variance_lognormal), input$sd_lognormal)
-        )) +
-        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        ), n = 1000) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8, n = 1000) +
         theme_minimal() +
         ggtitle(paste0(input$distribution, " distribution: Lognormal(", input$mean_lognormal, ", ", ifelse(input$variance_sd_lognormal == "variance_true", input$variance_lognormal, (input$sd_lognormal^2)), ")")) +
         theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
@@ -866,8 +866,8 @@ server <- function(input, output) {
         stat_function(fun = dnorm, args = list(
           mean = input$mean_normal,
           sd = ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal)
-        )) +
-        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        ), n = 1000) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8, n = 1000) +
         theme_minimal() +
         ggtitle(paste0(input$distribution, " distribution: N(", input$mean_normal, ", ", ifelse(input$variance_sd == "variance_true", input$variance_normal, (input$sd_normal^2)), ")")) +
         theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
@@ -887,8 +887,8 @@ server <- function(input, output) {
         stat_function(fun = dnorm, args = list(
           mean = input$mean_normal,
           sd = ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal)
-        )) +
-        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        ), n = 1000) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8, n = 1000) +
         theme_minimal() +
         ggtitle(paste0(input$distribution, " distribution: N(", input$mean_normal, ", ", ifelse(input$variance_sd == "variance_true", input$variance_normal, (input$sd_normal^2)), ")")) +
         theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
@@ -908,8 +908,8 @@ server <- function(input, output) {
         stat_function(fun = dnorm, args = list(
           mean = input$mean_normal,
           sd = ifelse(input$variance_sd == "variance_true", sqrt(input$variance_normal), input$sd_normal)
-        )) +
-        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        ), n = 1000) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8, n = 1000) +
         theme_minimal() +
         ggtitle(paste0(input$distribution, " distribution: N(", input$mean_normal, ", ", ifelse(input$variance_sd == "variance_true", input$variance_normal, (input$sd_normal^2)), ")")) +
         theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
@@ -977,8 +977,8 @@ server <- function(input, output) {
         return(y)
       }
       p <- ggplot(data.frame(x = c(qt(0.99999, df = input$df_student, lower.tail = FALSE), qt(0.99999, df = input$df_student, lower.tail = TRUE))), aes(x = x)) +
-        stat_function(fun = dt, args = list(df = input$df_student)) +
-        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        stat_function(fun = dt, args = list(df = input$df_student), n = 1000) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8, n = 1000) +
         theme_minimal() +
         ggtitle(paste0(input$distribution, " distribution: St(", input$df_student, ")")) +
         theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
@@ -992,8 +992,8 @@ server <- function(input, output) {
         return(y)
       }
       p <- ggplot(data.frame(x = c(qt(0.99999, df = input$df_student, lower.tail = FALSE), qt(0.99999, df = input$df_student, lower.tail = TRUE))), aes(x = x)) +
-        stat_function(fun = dt, args = list(df = input$df_student)) +
-        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        stat_function(fun = dt, args = list(df = input$df_student), n = 1000) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8, n = 1000) +
         theme_minimal() +
         ggtitle(paste0(input$distribution, " distribution: St(", input$df_student, ")")) +
         theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
@@ -1007,8 +1007,8 @@ server <- function(input, output) {
         return(y)
       }
       p <- ggplot(data.frame(x = c(qt(0.99999, df = input$df_student, lower.tail = FALSE), qt(0.99999, df = input$df_student, lower.tail = TRUE))), aes(x = x)) +
-        stat_function(fun = dt, args = list(df = input$df_student)) +
-        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        stat_function(fun = dt, args = list(df = input$df_student), n = 1000) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8, n = 1000) +
         theme_minimal() +
         ggtitle(paste0(input$distribution, " distribution: St(", input$df_student, ")")) +
         theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
@@ -1022,8 +1022,8 @@ server <- function(input, output) {
         return(y)
       }
       p <- ggplot(data.frame(x = c(qweibull(0.99999, shape = input$alpha_weibull, scale = input$beta_weibull, lower.tail = FALSE), qweibull(0.99999, shape = input$alpha_weibull, scale = input$beta_weibull, lower.tail = TRUE))), aes(x = x)) +
-        stat_function(fun = dweibull, args = list(shape = input$alpha_weibull, scale = input$beta_weibull)) +
-        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        stat_function(fun = dweibull, args = list(shape = input$alpha_weibull, scale = input$beta_weibull), n = 1000) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8, n = 1000) +
         theme_minimal() +
         ggtitle(paste0(input$distribution, " distribution: Weibull(", input$alpha_weibull, ", ", input$beta_weibull, ")")) +
         theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
@@ -1037,8 +1037,8 @@ server <- function(input, output) {
         return(y)
       }
       p <- ggplot(data.frame(x = c(qweibull(0.99999, shape = input$alpha_weibull, scale = input$beta_weibull, lower.tail = FALSE), qweibull(0.99999, shape = input$alpha_weibull, scale = input$beta_weibull, lower.tail = TRUE))), aes(x = x)) +
-        stat_function(fun = dweibull, args = list(shape = input$alpha_weibull, scale = input$beta_weibull)) +
-        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        stat_function(fun = dweibull, args = list(shape = input$alpha_weibull, scale = input$beta_weibull), n = 1000) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8, n = 1000) +
         theme_minimal() +
         ggtitle(paste0(input$distribution, " distribution: Weibull(", input$alpha_weibull, ", ", input$beta_weibull, ")")) +
         theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
@@ -1052,8 +1052,8 @@ server <- function(input, output) {
         return(y)
       }
       p <- ggplot(data.frame(x = c(qweibull(0.99999, shape = input$alpha_weibull, scale = input$beta_weibull, lower.tail = FALSE), qweibull(0.99999, shape = input$alpha_weibull, scale = input$beta_weibull, lower.tail = TRUE))), aes(x = x)) +
-        stat_function(fun = dweibull, args = list(shape = input$alpha_weibull, scale = input$beta_weibull)) +
-        stat_function(fun = funcShaded, geom = "area", alpha = 0.8) +
+        stat_function(fun = dweibull, args = list(shape = input$alpha_weibull, scale = input$beta_weibull), n = 1000) +
+        stat_function(fun = funcShaded, geom = "area", alpha = 0.8, n = 1000) +
         theme_minimal() +
         ggtitle(paste0(input$distribution, " distribution: Weibull(", input$alpha_weibull, ", ", input$beta_weibull, ")")) +
         theme(plot.title = element_text(face = "bold", hjust = 0.5)) +
