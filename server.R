@@ -1284,7 +1284,9 @@ server <- function(input, output) {
         br(),
         helpText("\\(\\mu = E(X) = \\dfrac{\\alpha}{\\alpha + \\beta} = \\)", round(input$alpha_beta / (input$alpha_beta + input$beta_beta), 3)),
         helpText("\\(\\sigma = SD(X) = \\sqrt{\\frac{\\alpha\\beta}{(\\alpha + \\beta)^2(\\alpha + \\beta+1)}} = \\)", round(sqrt((input$alpha_beta * input$beta_beta) / (((input$alpha_beta + input$beta_beta)^2) * (input$alpha_beta + input$beta_beta + 1))), 3)),
-        helpText("\\(\\sigma^2 = Var(X) = \\dfrac{\\alpha\\beta}{(\\alpha + \\beta)^2(\\alpha + \\beta+1)} = \\)", round((input$alpha_beta * input$beta_beta) / (((input$alpha_beta + input$beta_beta)^2) * (input$alpha_beta + input$beta_beta + 1)), 3))
+        helpText("\\(\\sigma^2 = Var(X) = \\dfrac{\\alpha\\beta}{(\\alpha + \\beta)^2(\\alpha + \\beta+1)} = \\)", round((input$alpha_beta * input$beta_beta) / (((input$alpha_beta + input$beta_beta)^2) * (input$alpha_beta + input$beta_beta + 1)), 3)),
+        helpText("\\(\\text{Skewness} = \\dfrac{2(\\beta-\\alpha)\\sqrt{\\alpha+\\beta+1}}{(\\alpha+\\beta+2)\\sqrt{\\alpha\\beta}} = \\)", round(2*(input$beta_beta-input$alpha_beta)*sqrt(input$alpha_beta+input$beta_beta+1)/((input$alpha_beta+input$beta_beta+2)*sqrt(input$alpha_beta*input$beta_beta)), 3)),
+        helpText("\\(\\text{Excess kurtosis} = \\dfrac{6[(\\alpha-\\beta)^2(\\alpha+\\beta+1)-\\alpha\\beta(\\alpha+\\beta+2)]}{\\alpha\\beta(\\alpha+\\beta+2)(\\alpha+\\beta+3)} = \\)", round(6*((input$alpha_beta-input$beta_beta)^2*(input$alpha_beta+input$beta_beta+1)-input$alpha_beta*input$beta_beta*(input$alpha_beta+input$beta_beta+2))/(input$alpha_beta*input$beta_beta*(input$alpha_beta+input$beta_beta+2)*(input$alpha_beta+input$beta_beta+3)), 3))
       )
     } else if (input$distribution == "Binomial") {
       withMathJax(
@@ -1293,7 +1295,9 @@ server <- function(input, output) {
         br(),
         helpText("\\(\\mu = E(X) = np = \\)", round(input$n_binomial * input$p_binomial, 3)),
         helpText("\\(\\sigma = SD(X) = \\sqrt{np(1-p)} = \\)", round(sqrt(input$n_binomial * input$p_binomial * (1 - input$p_binomial)), 3)),
-        helpText("\\(\\sigma^2 = Var(X) = np(1-p) = \\)", round(input$n_binomial * input$p_binomial * (1 - input$p_binomial), 3))
+        helpText("\\(\\sigma^2 = Var(X) = np(1-p) = \\)", round(input$n_binomial * input$p_binomial * (1 - input$p_binomial), 3)),
+        helpText("\\(\\text{Skewness} = \\dfrac{1-2p}{\\sqrt{np(1-p)}} = \\)", round((1-2*input$p_binomial)/sqrt(input$n_binomial*input$p_binomial*(1-input$p_binomial)), 3)),
+        helpText("\\(\\text{Excess kurtosis} = \\dfrac{1-6p(1-p)}{np(1-p)} = \\)", round((1-6*input$p_binomial*(1-input$p_binomial))/(input$n_binomial*input$p_binomial*(1-input$p_binomial)), 3))
       )
     } else if (input$distribution == "Cauchy") {
       withMathJax(
@@ -1304,7 +1308,9 @@ server <- function(input, output) {
         helpText("\\(\\sigma = SD(X) = Undefined\\)"),
         helpText("\\(\\sigma^2 = Var(X) = Undefined \\)"),
         helpText("\\(median = x_0 = \\)", round(input$location_cauchy, 3)),
-        helpText("\\(mode = x_0 = \\)", round(input$location_cauchy, 3))
+        helpText("\\(mode = x_0 = \\)", round(input$location_cauchy, 3)),
+        helpText("\\(\\text{Skewness} = Undefined\\)"),
+        helpText("\\(\\text{Excess kurtosis} = Undefined\\)")
       )
     } else if (input$distribution == "Chi-square") {
       withMathJax(
@@ -1313,7 +1319,9 @@ server <- function(input, output) {
         br(),
         helpText("\\(\\mu = E(X) = df = \\)", round(input$df_chisquare, 3)),
         helpText("\\(\\sigma = SD(X) = \\sqrt{2df} = \\)", round(sqrt(2 * input$df_chisquare), 3)),
-        helpText("\\(\\sigma^2 = Var(X) = 2df = \\)", round(2 * input$df_chisquare, 3))
+        helpText("\\(\\sigma^2 = Var(X) = 2df = \\)", round(2 * input$df_chisquare, 3)),
+        helpText("\\(\\text{Skewness} = \\sqrt{\\dfrac{8}{df}} = \\)", round(sqrt(8/input$df_chisquare), 3)),
+        helpText("\\(\\text{Excess kurtosis} = \\dfrac{12}{df} = \\)", round(12/input$df_chisquare, 3))
       )
     } else if (input$distribution == "Exponential") {
       withMathJax(
@@ -1322,7 +1330,9 @@ server <- function(input, output) {
         br(),
         helpText("\\(\\mu = E(X) = \\dfrac{1}{\\lambda} = \\)", round(1 / input$rate_exponential, 3)),
         helpText("\\(\\sigma = SD(X) = \\dfrac{1}{\\lambda} = \\)", round(1 / input$rate_exponential, 3)),
-        helpText("\\(\\sigma^2 = Var(X) = \\dfrac{1}{\\lambda^2} = \\)", round(1 / (input$rate_exponential^2), 3))
+        helpText("\\(\\sigma^2 = Var(X) = \\dfrac{1}{\\lambda^2} = \\)", round(1 / (input$rate_exponential^2), 3)),
+        helpText("\\(\\text{Skewness} = 2\\)"),
+        helpText("\\(\\text{Excess kurtosis} = 6\\)")
       )
     } else if (input$distribution == "Fisher") {
       withMathJax(
@@ -1331,7 +1341,9 @@ server <- function(input, output) {
         br(),
         helpText("\\(\\mu = E(X) = \\dfrac{df_2}{df_2 - 2} = \\)", ifelse(input$df2_fisher > 2, round(input$df2_fisher / (input$df2_fisher - 2), 3), "Undefined")),
         helpText("\\(\\sigma = SD(X) = \\sqrt{\\frac{2df^2_2(df_1 + df_2 - 2)}{df_1(df_2 - 2)^2(df_2 - 4)}} = \\)", ifelse(input$df2_fisher > 4, round(sqrt((2 * input$df2_fisher^2 * (input$df1_fisher + input$df2_fisher - 2)) / (input$df1_fisher * (input$df2_fisher - 2)^2 * (input$df2_fisher - 4))), 3), "Undefined")),
-        helpText("\\(\\sigma^2 = Var(X) = \\dfrac{2df^2_2(df_1 + df_2 - 2)}{df_1(df_2 - 2)^2(df_2 - 4)} = \\)", ifelse(input$df2_fisher > 4, round((2 * input$df2_fisher^2 * (input$df1_fisher + input$df2_fisher - 2)) / (input$df1_fisher * (input$df2_fisher - 2)^2 * (input$df2_fisher - 4)), 3), "Undefined"))
+        helpText("\\(\\sigma^2 = Var(X) = \\dfrac{2df^2_2(df_1 + df_2 - 2)}{df_1(df_2 - 2)^2(df_2 - 4)} = \\)", ifelse(input$df2_fisher > 4, round((2 * input$df2_fisher^2 * (input$df1_fisher + input$df2_fisher - 2)) / (input$df1_fisher * (input$df2_fisher - 2)^2 * (input$df2_fisher - 4)), 3), "Undefined")),
+        helpText("\\(\\text{Skewness} = \\dfrac{(2df_1+df_2-2)\\sqrt{8(df_2-4)}}{(df_2-6)\\sqrt{df_1(df_1+df_2-2)}} = \\)", ifelse(input$df2_fisher > 6, round((2*input$df1_fisher+input$df2_fisher-2)*sqrt(8*(input$df2_fisher-4))/((input$df2_fisher-6)*sqrt(input$df1_fisher*(input$df1_fisher+input$df2_fisher-2))), 3), "Undefined")),
+        helpText("\\(\\text{Excess kurtosis} = \\)", ifelse(input$df2_fisher > 8, round(12*(input$df1_fisher*(5*input$df2_fisher-22)*(input$df1_fisher+input$df2_fisher-2)+(input$df2_fisher-4)*(input$df2_fisher-2)^2)/(input$df1_fisher*(input$df2_fisher-6)*(input$df2_fisher-8)*(input$df1_fisher+input$df2_fisher-2)), 3), "Undefined"))
       )
     } else if (input$distribution == "Gamma") {
       withMathJax(
@@ -1340,7 +1352,9 @@ server <- function(input, output) {
         br(),
         helpText("\\(\\mu = E(X) = \\dfrac{\\alpha}{\\beta} = \\)", round(input$alpha_gamma / input$beta_gamma, 3)),
         helpText("\\(\\sigma = SD(X) = \\sqrt{\\frac{\\alpha}{\\beta^2}} = \\)", round(sqrt(input$alpha_gamma / (input$beta_gamma^2)), 3)),
-        helpText("\\(\\sigma^2 = Var(X) = \\dfrac{\\alpha}{\\beta^2} = \\)", round(input$alpha_gamma / (input$beta_gamma^2), 3))
+        helpText("\\(\\sigma^2 = Var(X) = \\dfrac{\\alpha}{\\beta^2} = \\)", round(input$alpha_gamma / (input$beta_gamma^2), 3)),
+        helpText("\\(\\text{Skewness} = \\dfrac{2}{\\sqrt{\\alpha}} = \\)", round(2/sqrt(input$alpha_gamma), 3)),
+        helpText("\\(\\text{Excess kurtosis} = \\dfrac{6}{\\alpha} = \\)", round(6/input$alpha_gamma, 3))
       )
     } else if (input$distribution == "Geometric (I)") {
       withMathJax(
@@ -1349,7 +1363,9 @@ server <- function(input, output) {
         br(),
         helpText("\\(\\mu = E(X) = \\dfrac{1-p}{p} = \\)", round((1 - input$p_geometric) / input$p_geometric, 3)),
         helpText("\\(\\sigma = SD(X) = \\sqrt{\\frac{1-p}{p^2}} = \\)", round(sqrt((1 - input$p_geometric) / (input$p_geometric^2)), 3)),
-        helpText("\\(\\sigma^2 = Var(X) = \\dfrac{1-p}{p^2} = \\)", round((1 - input$p_geometric) / (input$p_geometric^2), 3))
+        helpText("\\(\\sigma^2 = Var(X) = \\dfrac{1-p}{p^2} = \\)", round((1 - input$p_geometric) / (input$p_geometric^2), 3)),
+        helpText("\\(\\text{Skewness} = \\dfrac{2-p}{\\sqrt{1-p}} = \\)", ifelse(input$p_geometric < 1, round((2-input$p_geometric)/sqrt(1-input$p_geometric), 3), "Undefined")),
+        helpText("\\(\\text{Excess kurtosis} = \\dfrac{p^2+6(1-p)}{1-p} = \\)", ifelse(input$p_geometric < 1, round((input$p_geometric^2+6*(1-input$p_geometric))/(1-input$p_geometric), 3), "Undefined"))
       )
     } else if (input$distribution == "Geometric (II)") {
       withMathJax(
@@ -1358,7 +1374,9 @@ server <- function(input, output) {
         br(),
         helpText("\\(\\mu = E(X) = \\dfrac{1}{p} = \\)", round((1) / input$p_geometric2, 3)),
         helpText("\\(\\sigma = SD(X) = \\sqrt{\\frac{1-p}{p^2}} = \\)", round(sqrt((1 - input$p_geometric2) / (input$p_geometric2^2)), 3)),
-        helpText("\\(\\sigma^2 = Var(X) = \\dfrac{1-p}{p^2} = \\)", round((1 - input$p_geometric2) / (input$p_geometric2^2), 3))
+        helpText("\\(\\sigma^2 = Var(X) = \\dfrac{1-p}{p^2} = \\)", round((1 - input$p_geometric2) / (input$p_geometric2^2), 3)),
+        helpText("\\(\\text{Skewness} = \\dfrac{2-p}{\\sqrt{1-p}} = \\)", ifelse(input$p_geometric2 < 1, round((2-input$p_geometric2)/sqrt(1-input$p_geometric2), 3), "Undefined")),
+        helpText("\\(\\text{Excess kurtosis} = \\dfrac{p^2+6(1-p)}{1-p} = \\)", ifelse(input$p_geometric2 < 1, round((input$p_geometric2^2+6*(1-input$p_geometric2))/(1-input$p_geometric2), 3), "Undefined"))
       )
     } else if (input$distribution == "Hypergeometric") {
       withMathJax(
@@ -1368,7 +1386,9 @@ server <- function(input, output) {
         br(),
         helpText("\\(\\mu = E(X) = n\\dfrac{M}{N} = \\)", round(input$n_hypergeometric * (input$M_hypergeometric / input$N_hypergeometric), 3)),
         helpText("\\(\\sigma = SD(X) = \\sqrt{n\\dfrac{M}{N}\\Big(1 - \\dfrac{M}{N}\\Big)\\Big(\\dfrac{N-n}{N-1}\\Big)} = \\)", round(sqrt(input$n_hypergeometric * input$M_hypergeometric / input$N_hypergeometric * (1 - (input$M_hypergeometric / input$N_hypergeometric)) * ((input$N_hypergeometric - input$n_hypergeometric) / (input$N_hypergeometric - 1))), 3)),
-        helpText("\\(\\sigma^2 = Var(X) = n\\dfrac{M}{N}\\Big(1 - \\dfrac{M}{N}\\Big)\\Big(\\dfrac{N-n}{N-1}\\Big) = \\)", round(input$n_hypergeometric * input$M_hypergeometric / input$N_hypergeometric * (1 - (input$M_hypergeometric / input$N_hypergeometric)) * ((input$N_hypergeometric - input$n_hypergeometric) / (input$N_hypergeometric - 1)), 3))
+        helpText("\\(\\sigma^2 = Var(X) = n\\dfrac{M}{N}\\Big(1 - \\dfrac{M}{N}\\Big)\\Big(\\dfrac{N-n}{N-1}\\Big) = \\)", round(input$n_hypergeometric * input$M_hypergeometric / input$N_hypergeometric * (1 - (input$M_hypergeometric / input$N_hypergeometric)) * ((input$N_hypergeometric - input$n_hypergeometric) / (input$N_hypergeometric - 1)), 3)),
+        helpText("\\(\\text{Skewness} = \\dfrac{(N-2M)\\sqrt{N-1}\\,(N-2n)}{\\sqrt{nM(N-M)(N-n)}\\,(N-2)} = \\)", ifelse(input$N_hypergeometric > 2, round((input$N_hypergeometric-2*input$M_hypergeometric)*sqrt(input$N_hypergeometric-1)*(input$N_hypergeometric-2*input$n_hypergeometric)/(sqrt(input$n_hypergeometric*input$M_hypergeometric*(input$N_hypergeometric-input$M_hypergeometric)*(input$N_hypergeometric-input$n_hypergeometric))*(input$N_hypergeometric-2)), 3), "Undefined")),
+        helpText("\\(\\text{Excess kurtosis} = \\)", ifelse(input$N_hypergeometric > 3, round(((input$N_hypergeometric-1)*input$N_hypergeometric^2*(input$N_hypergeometric*(input$N_hypergeometric+1)-6*input$M_hypergeometric*(input$N_hypergeometric-input$M_hypergeometric)-6*input$n_hypergeometric*(input$N_hypergeometric-input$n_hypergeometric))+6*input$n_hypergeometric*input$M_hypergeometric*(input$N_hypergeometric-input$M_hypergeometric)*(input$N_hypergeometric-input$n_hypergeometric)*(5*input$N_hypergeometric-6))/(input$n_hypergeometric*input$M_hypergeometric*(input$N_hypergeometric-input$M_hypergeometric)*(input$N_hypergeometric-input$n_hypergeometric)*(input$N_hypergeometric-2)*(input$N_hypergeometric-3)), 3), "Undefined"))
       )
     } else if (input$distribution == "Logistic") {
       withMathJax(
@@ -1377,7 +1397,9 @@ server <- function(input, output) {
         br(),
         helpText("\\(\\mu = E(X) = \\mu = \\)", round(input$location_logistic, 3)),
         helpText("\\(\\sigma = SD(X) = \\sqrt{\\frac{s^2\\pi^2}{3}} = \\)", round(sqrt(((input$scale_logistic^2) * (pi^2)) / 3), 3)),
-        helpText("\\(\\sigma^2 = Var(X) = \\dfrac{s^2\\pi^2}{3} = \\)", round(((input$scale_logistic^2) * (pi^2)) / 3, 3))
+        helpText("\\(\\sigma^2 = Var(X) = \\dfrac{s^2\\pi^2}{3} = \\)", round(((input$scale_logistic^2) * (pi^2)) / 3, 3)),
+        helpText("\\(\\text{Skewness} = 0\\)"),
+        helpText("\\(\\text{Excess kurtosis} = \\dfrac{6}{5} = 1.2\\)")
       )
     } else if (input$distribution == "Log-Normal") {
       withMathJax(
@@ -1386,7 +1408,9 @@ server <- function(input, output) {
         br(),
         helpText("\\(E(X) = e^{\\mu + \\dfrac{\\sigma^2}{2}} = \\)", round(exp(input$mean_lognormal + ifelse(input$variance_sd_lognormal == "variance_true", input$variance_lognormal / 2, (input$sd_lognormal^2) / 2)), 3)),
         helpText("\\(SD(X) = \\sqrt{(e^{\\sigma^2} - 1)e^{2\\mu + \\sigma^2}} = \\)", round(sqrt((exp(ifelse(input$variance_sd_lognormal == "variance_true", input$variance_lognormal, (input$sd_lognormal^2))) - 1) * exp((2 * input$mean_lognormal) + ifelse(input$variance_sd_lognormal == "variance_true", input$variance_lognormal, (input$sd_lognormal^2)))), 3)),
-        helpText("\\(Var(X) = (e^{\\sigma^2} - 1)e^{2\\mu + \\sigma^2} = \\)", round((exp(ifelse(input$variance_sd_lognormal == "variance_true", input$variance_lognormal, (input$sd_lognormal^2))) - 1) * exp((2 * input$mean_lognormal) + ifelse(input$variance_sd_lognormal == "variance_true", input$variance_lognormal, (input$sd_lognormal^2))), 3))
+        helpText("\\(Var(X) = (e^{\\sigma^2} - 1)e^{2\\mu + \\sigma^2} = \\)", round((exp(ifelse(input$variance_sd_lognormal == "variance_true", input$variance_lognormal, (input$sd_lognormal^2))) - 1) * exp((2 * input$mean_lognormal) + ifelse(input$variance_sd_lognormal == "variance_true", input$variance_lognormal, (input$sd_lognormal^2))), 3)),
+        helpText("\\(\\text{Skewness} = (e^{\\sigma^2}+2)\\sqrt{e^{\\sigma^2}-1} = \\)", round((exp(ifelse(input$variance_sd_lognormal=="variance_true",input$variance_lognormal,input$sd_lognormal^2))+2)*sqrt(exp(ifelse(input$variance_sd_lognormal=="variance_true",input$variance_lognormal,input$sd_lognormal^2))-1), 3)),
+        helpText("\\(\\text{Excess kurtosis} = e^{4\\sigma^2}+2e^{3\\sigma^2}+3e^{2\\sigma^2}-6 = \\)", round({s2 <- ifelse(input$variance_sd_lognormal=="variance_true",input$variance_lognormal,input$sd_lognormal^2); exp(4*s2)+2*exp(3*s2)+3*exp(2*s2)-6}, 3))
       )
     } else if (input$distribution == "Negative Binomial (I)") {
       withMathJax(
@@ -1395,7 +1419,9 @@ server <- function(input, output) {
         br(),
         helpText("\\(\\mu = E(X) = \\dfrac{r(1-p)}{p} = \\)", round((input$r_negativebinomial * (1 - input$p_negativebinomial) / input$p_negativebinomial), 3)),
         helpText("\\(\\sigma = SD(X) = \\sqrt{\\frac{r(1-p)}{p^2}} = \\)", round(sqrt((input$r_negativebinomial * (1 - input$p_negativebinomial) / (input$p_negativebinomial^2))), 3)),
-        helpText("\\(\\sigma^2 = Var(X) = \\dfrac{r(1-p)}{p^2} = \\)", round((input$r_negativebinomial * (1 - input$p_negativebinomial) / (input$p_negativebinomial^2)), 3))
+        helpText("\\(\\sigma^2 = Var(X) = \\dfrac{r(1-p)}{p^2} = \\)", round((input$r_negativebinomial * (1 - input$p_negativebinomial) / (input$p_negativebinomial^2)), 3)),
+        helpText("\\(\\text{Skewness} = \\dfrac{2-p}{\\sqrt{r(1-p)}} = \\)", round((2-input$p_negativebinomial)/sqrt(input$r_negativebinomial*(1-input$p_negativebinomial)), 3)),
+        helpText("\\(\\text{Excess kurtosis} = \\dfrac{p^2+6(1-p)}{r(1-p)} = \\)", round((input$p_negativebinomial^2+6*(1-input$p_negativebinomial))/(input$r_negativebinomial*(1-input$p_negativebinomial)), 3))
       )
     } else if (input$distribution == "Negative Binomial (II)") {
       withMathJax(
@@ -1404,7 +1430,9 @@ server <- function(input, output) {
         br(),
         helpText("\\(\\mu = E(X) = \\dfrac{r}{p} = \\)", round((input$r_negativebinomial2 / input$p_negativebinomial2), 3)),
         helpText("\\(\\sigma = SD(X) = \\sqrt{\\frac{r(1-p)}{p^2}} = \\)", round(sqrt((input$r_negativebinomial2 * (1 - input$p_negativebinomial2) / (input$p_negativebinomial2^2))), 3)),
-        helpText("\\(\\sigma^2 = Var(X) = \\dfrac{r(1-p)}{p^2} = \\)", round((input$r_negativebinomial2 * (1 - input$p_negativebinomial2) / (input$p_negativebinomial2^2)), 3))
+        helpText("\\(\\sigma^2 = Var(X) = \\dfrac{r(1-p)}{p^2} = \\)", round((input$r_negativebinomial2 * (1 - input$p_negativebinomial2) / (input$p_negativebinomial2^2)), 3)),
+        helpText("\\(\\text{Skewness} = \\dfrac{2-p}{\\sqrt{r(1-p)}} = \\)", round((2-input$p_negativebinomial2)/sqrt(input$r_negativebinomial2*(1-input$p_negativebinomial2)), 3)),
+        helpText("\\(\\text{Excess kurtosis} = \\dfrac{p^2+6(1-p)}{r(1-p)} = \\)", round((input$p_negativebinomial2^2+6*(1-input$p_negativebinomial2))/(input$r_negativebinomial2*(1-input$p_negativebinomial2)), 3))
       )
     } else if (input$distribution == "Normal") {
       withMathJax(
@@ -1413,7 +1441,9 @@ server <- function(input, output) {
         br(),
         helpText("\\(\\mu = E(X) = \\)", round(input$mean_normal, 3)),
         helpText("\\(\\sigma = SD(X) = \\)", ifelse(input$variance_sd == "variance_true", round(sqrt(input$variance_normal), 3), round(input$sd_normal, 3))),
-        helpText("\\(\\sigma^2 = Var(X) = \\)", ifelse(input$variance_sd == "variance_true", round(input$variance_normal, 3), round(input$sd_normal^2, 3)))
+        helpText("\\(\\sigma^2 = Var(X) = \\)", ifelse(input$variance_sd == "variance_true", round(input$variance_normal, 3), round(input$sd_normal^2, 3))),
+        helpText("\\(\\text{Skewness} = 0\\)"),
+        helpText("\\(\\text{Excess kurtosis} = 0\\)")
       )
     } else if (input$distribution == "Poisson") {
       withMathJax(
@@ -1423,7 +1453,9 @@ server <- function(input, output) {
         br(),
         helpText("\\(\\mu = E(X) = \\lambda = \\)", round(input$lambda_poisson, 3)),
         helpText("\\(\\sigma = SD(X) = \\sqrt{\\lambda} = \\)", round(sqrt(input$lambda_poisson), 3)),
-        helpText("\\(\\sigma^2 = Var(X) = \\lambda = \\)", round(input$lambda_poisson, 3))
+        helpText("\\(\\sigma^2 = Var(X) = \\lambda = \\)", round(input$lambda_poisson, 3)),
+        helpText("\\(\\text{Skewness} = \\dfrac{1}{\\sqrt{\\lambda}} = \\)", round(1/sqrt(input$lambda_poisson), 3)),
+        helpText("\\(\\text{Excess kurtosis} = \\dfrac{1}{\\lambda} = \\)", round(1/input$lambda_poisson, 3))
       )
     } else if (input$distribution == "Student") {
       withMathJax(
@@ -1432,7 +1464,9 @@ server <- function(input, output) {
         br(),
         helpText("\\(\\mu = E(X) = \\)", ifelse(input$df_student > 1, 0, "Undefined")),
         helpText("\\(\\sigma = SD(X) = \\sqrt{\\frac{df}{df - 2}} = \\)", ifelse(input$df_student > 2, round(sqrt(input$df_student / (input$df_student - 2)), 3), "Undefined")),
-        helpText("\\(\\sigma^2 = Var(X) = \\dfrac{df}{df-2} = \\)", ifelse(input$df_student > 2, round(input$df_student / (input$df_student - 2), 3), "Undefined"))
+        helpText("\\(\\sigma^2 = Var(X) = \\dfrac{df}{df-2} = \\)", ifelse(input$df_student > 2, round(input$df_student / (input$df_student - 2), 3), "Undefined")),
+        helpText("\\(\\text{Skewness} = \\)", ifelse(input$df_student > 3, 0, "Undefined")),
+        helpText("\\(\\text{Excess kurtosis} = \\dfrac{6}{df-4} = \\)", ifelse(input$df_student > 4, round(6/(input$df_student-4), 3), "Undefined"))
       )
     } else if (input$distribution == "Weibull") {
       withMathJax(
@@ -1441,7 +1475,9 @@ server <- function(input, output) {
         br(),
         helpText("\\(\\mu = E(X) = \\beta\\Gamma\\big(1 + \\dfrac{1}{\\alpha}\\big) = \\)", round(weibullparinv(shape = input$alpha_weibull, scale = input$beta_weibull, loc = 0)$mu, 3)),
         helpText("\\(\\sigma = SD(X) = \\sqrt{\\beta^2\\Big(\\Gamma\\big(1 + \\dfrac{2}{\\alpha}\\big) - \\Gamma\\big(1 + \\dfrac{1}{\\alpha}\\big)^2\\Big)} = \\)", round(weibullparinv(shape = input$alpha_weibull, scale = input$beta_weibull, loc = 0)$sigma, 3)),
-        helpText("\\(\\sigma^2 = Var(X) = \\beta^2\\Big(\\Gamma\\big(1 + \\dfrac{2}{\\alpha}\\big) - \\Gamma\\big(1 + \\dfrac{1}{\\alpha}\\big)^2\\Big) = \\)", round(weibullparinv(shape = input$alpha_weibull, scale = input$beta_weibull, loc = 0)$sigma^2, 3))
+        helpText("\\(\\sigma^2 = Var(X) = \\beta^2\\Big(\\Gamma\\big(1 + \\dfrac{2}{\\alpha}\\big) - \\Gamma\\big(1 + \\dfrac{1}{\\alpha}\\big)^2\\Big) = \\)", round(weibullparinv(shape = input$alpha_weibull, scale = input$beta_weibull, loc = 0)$sigma^2, 3)),
+        helpText("\\(\\text{Skewness} = \\dfrac{\\Gamma(1+3/\\alpha)-3\\Gamma(1+2/\\alpha)\\Gamma(1+1/\\alpha)+2\\Gamma(1+1/\\alpha)^3}{[\\Gamma(1+2/\\alpha)-\\Gamma(1+1/\\alpha)^2]^{3/2}} = \\)", round((gamma(1+3/input$alpha_weibull)-3*gamma(1+2/input$alpha_weibull)*gamma(1+1/input$alpha_weibull)+2*gamma(1+1/input$alpha_weibull)^3)/(gamma(1+2/input$alpha_weibull)-gamma(1+1/input$alpha_weibull)^2)^(3/2), 3)),
+        helpText("\\(\\text{Excess kurtosis} = \\dfrac{\\Gamma(1+4/\\alpha)-4\\Gamma(1+3/\\alpha)\\Gamma(1+1/\\alpha)+6\\Gamma(1+2/\\alpha)\\Gamma(1+1/\\alpha)^2-3\\Gamma(1+1/\\alpha)^4}{[\\Gamma(1+2/\\alpha)-\\Gamma(1+1/\\alpha)^2]^{2}}-3 = \\)", round((gamma(1+4/input$alpha_weibull)-4*gamma(1+3/input$alpha_weibull)*gamma(1+1/input$alpha_weibull)+6*gamma(1+2/input$alpha_weibull)*gamma(1+1/input$alpha_weibull)^2-3*gamma(1+1/input$alpha_weibull)^4)/(gamma(1+2/input$alpha_weibull)-gamma(1+1/input$alpha_weibull)^2)^2-3, 3))
       )
     } else {
       print("loading...")
