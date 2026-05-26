@@ -1,4 +1,4 @@
-server <- function(input, output) {
+server <- function(input, output, session) {
   output$results_distribution <- renderUI({
     if (input$distribution == "Beta") {
       tagList(
