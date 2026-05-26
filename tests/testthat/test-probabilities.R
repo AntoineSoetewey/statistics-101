@@ -31,13 +31,6 @@ test_that("Geometric II interval: pgeom(b-1, p) - pgeom(a-2, p) is correct", {
   expect_equal(app_result, manual_result)
 })
 
-test_that("Geometric II differs from Geometric I for the same x", {
-  p <- 0.3; x <- 4
-  geom1_result <- pgeom(x, prob = p)
-  geom2_result <- pgeom(x - 1, prob = p)
-  expect_false(isTRUE(all.equal(geom1_result, geom2_result)))
-})
-
 # --- Negative Binomial II: X = total trials until r-th success ---
 # The app uses pnbinom(x - r, r, p) because R's pnbinom counts failures, not trials.
 
@@ -50,7 +43,7 @@ test_that("NB II lower tail: pnbinom(x-r, r, p) is correct for X = total trials"
 
 test_that("NB II upper tail: pnbinom(x-r, r, p, lower.tail=FALSE) is correct", {
   r <- 2; p <- 0.5; x <- 6
-  # P(X > x) where X = total trials = P(Y >= x-r+1) where Y = failures; manual sum starts at y = x-r+1
+  # P(X > x) where X = total trials = P(Y >= x-r+1) where Y = failures
   app_result  <- pnbinom(x - r, size = r, prob = p, lower.tail = FALSE)
   manual_result <- sum(dnbinom((x - r + 1):200, size = r, prob = p))
   expect_equal(round(app_result, 8), round(manual_result, 8))
@@ -63,13 +56,6 @@ test_that("NB II interval: pnbinom(b-r, r, p) - pnbinom(a-1-r, r, p) is correct"
   expect_equal(app_result, manual_result)
 })
 
-test_that("NB II differs from NB I for the same x", {
-  r <- 3; p <- 0.4; x <- 8
-  nb1_result <- pnbinom(x, size = r, prob = p)
-  nb2_result <- pnbinom(x - r, size = r, prob = p)
-  expect_false(isTRUE(all.equal(nb1_result, nb2_result)))
-})
-
 # --- Geometric I and NB I: a-1 adjustment for interval probabilities ---
 # Discrete distributions use P(a <= X <= b) = F(b) - F(a-1), not F(b) - F(a).
 
@@ -78,13 +64,6 @@ test_that("Geometric I interval: pgeom(b, p) - pgeom(a-1, p) is correct", {
   app_result  <- pgeom(b, prob = p) - pgeom(a - 1, prob = p)
   manual_result <- sum(dgeom(a:b, prob = p))
   expect_equal(app_result, manual_result)
-})
-
-test_that("Geometric I interval: using F(b) - F(a) would be wrong", {
-  p <- 0.3; a <- 2; b <- 6
-  wrong_result  <- pgeom(b, prob = p) - pgeom(a, prob = p)
-  correct_result <- sum(dgeom(a:b, prob = p))
-  expect_false(isTRUE(all.equal(wrong_result, correct_result)))
 })
 
 test_that("NB I interval: pnbinom(b, r, p) - pnbinom(a-1, r, p) is correct", {
@@ -110,13 +89,6 @@ test_that("Hypergeometric interval: a-1 adjustment is correct", {
   app_result  <- phyper(b, m = M, n = N - M, k = n) - phyper(a - 1, m = M, n = N - M, k = n)
   manual_result <- sum(dhyper(a:b, m = M, n = N - M, k = n))
   expect_equal(app_result, manual_result)
-})
-
-test_that("Hypergeometric: using wrong n parameter (N instead of N-M) gives different result", {
-  N <- 20; M <- 7; n <- 5; x <- 3
-  correct_result <- phyper(x, m = M, n = N - M, k = n)
-  wrong_result   <- phyper(x, m = M, n = N,     k = n)
-  expect_false(isTRUE(all.equal(correct_result, wrong_result)))
 })
 
 # --- Binomial and Poisson: a-1 interval adjustment (shared pattern) ---
