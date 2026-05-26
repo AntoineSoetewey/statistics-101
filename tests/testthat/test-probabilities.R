@@ -1,176 +1,136 @@
 library(testthat)
 
-# --- Continuous distributions ---
+# Tests for the app-specific probability reparameterizations used in server.R.
+# These are non-trivial choices made by the app: Geometric II shifts x by -1,
+# Negative Binomial II shifts x by -r, and interval formulas use a-1 (or a-2,
+# a-r-1) adjustments to convert inclusive bounds into R's p-function arguments.
 
-test_that("Normal: P(X <= 0) = 0.5 for standard normal", {
-  expect_equal(pnorm(0, mean = 0, sd = 1), 0.5)
-})
+# --- Geometric II: X = number of trials until first success ---
+# The app uses pgeom(x - 1, p) because R's pgeom counts failures, not trials.
 
-test_that("Normal: P(X <= 1.96) ~ 0.975", {
-  expect_equal(round(pnorm(1.96, mean = 0, sd = 1), 3), 0.975)
-})
-
-test_that("Normal: upper tail P(X > x) = 1 - P(X <= x)", {
-  x <- 1.5; mu <- 2; sd <- 3
-  expect_equal(pnorm(x, mu, sd, lower.tail = FALSE), 1 - pnorm(x, mu, sd))
-})
-
-test_that("Normal: interval P(a <= X <= b) = P(X <= b) - P(X <= a)", {
-  a <- -1; b <- 1
-  expect_equal(pnorm(b) - pnorm(a), pnorm(b) - pnorm(a))
-  expect_equal(round(pnorm(b) - pnorm(a), 4), 0.6827)
-})
-
-test_that("Exponential: P(X <= x) formula", {
-  x <- 2; rate <- 0.5
-  expect_equal(pexp(x, rate), 1 - exp(-rate * x))
-})
-
-test_that("Chi-square: CDF is consistent with density integral", {
-  df <- 5
-  # P(X <= 5) via pchisq and numerical integration should be close
-  expect_equal(round(pchisq(5, df), 4), round(integrate(function(x) dchisq(x, df), 0, 5)$value, 4))
-})
-
-test_that("Student t: symmetric around 0", {
-  df <- 10
-  expect_equal(pt(-1, df), 1 - pt(1, df))
-})
-
-test_that("Beta: CDF at x=1 equals 1", {
-  expect_equal(pbeta(1, shape1 = 2, shape2 = 3), 1)
-})
-
-test_that("Beta: CDF at x=0 equals 0", {
-  expect_equal(pbeta(0, shape1 = 2, shape2 = 3), 0)
-})
-
-test_that("Gamma: CDF is consistent with density integral", {
-  shape <- 2; rate <- 1
-  expect_equal(
-    round(pgamma(3, shape, rate), 4),
-    round(integrate(function(x) dgamma(x, shape, rate), 0, 3)$value, 4)
-  )
-})
-
-test_that("Weibull: CDF at x=0 equals 0", {
-  expect_equal(pweibull(0, shape = 2, scale = 1), 0)
-})
-
-test_that("Log-Normal: P(X <= exp(mu)) = 0.5", {
-  mu <- 1; sigma <- 1
-  expect_equal(plnorm(exp(mu), meanlog = mu, sdlog = sigma), 0.5)
-})
-
-test_that("Cauchy: CDF at median equals 0.5", {
-  expect_equal(pcauchy(5, location = 5, scale = 1), 0.5)
-})
-
-test_that("Logistic: CDF at location equals 0.5", {
-  expect_equal(plogis(3, location = 3, scale = 1), 0.5)
-})
-
-test_that("Fisher: CDF at x=0 equals 0", {
-  expect_equal(pf(0, df1 = 5, df2 = 10), 0)
-})
-
-# --- Discrete distributions ---
-
-test_that("Binomial: lower tail P(X <= x) matches sum of PMF", {
-  n <- 10; p <- 0.4; x <- 4
-  expect_equal(pbinom(x, n, p), sum(dbinom(0:x, n, p)))
-})
-
-test_that("Binomial: upper tail P(X > x) = 1 - P(X <= x)", {
-  n <- 10; p <- 0.3; x <- 5
-  expect_equal(pbinom(x, n, p, lower.tail = FALSE), 1 - pbinom(x, n, p))
-})
-
-test_that("Binomial: interval P(a <= X <= b) uses a-1 adjustment", {
-  n <- 10; p <- 0.5; a <- 3; b <- 7
-  formula_result <- pbinom(b, n, p) - pbinom(a - 1, n, p)
-  direct_sum <- sum(dbinom(a:b, n, p))
-  expect_equal(formula_result, direct_sum)
-})
-
-test_that("Poisson: lower tail matches sum of PMF", {
-  lambda <- 3; x <- 4
-  expect_equal(ppois(x, lambda), sum(dpois(0:x, lambda)))
-})
-
-test_that("Poisson: interval uses a-1 adjustment", {
-  lambda <- 5; a <- 2; b <- 6
-  formula_result <- ppois(b, lambda) - ppois(a - 1, lambda)
-  direct_sum <- sum(dpois(a:b, lambda))
-  expect_equal(formula_result, direct_sum)
-})
-
-test_that("Geometric I (failures): P(X <= x) = pgeom(x, p)", {
-  p <- 0.3; x <- 3
-  # X = number of failures before first success; X ~ Geom(p) in R
-  expect_equal(pgeom(x, p), sum(dgeom(0:x, p)))
-})
-
-test_that("Geometric II (trials): P(X <= x) = pgeom(x-1, p)", {
+test_that("Geometric II lower tail: pgeom(x-1, p) is correct for X = trials", {
   p <- 0.3; x <- 4
-  # X = number of trials until first success; X = Y + 1 where Y ~ Geom(p)
-  formula_result <- pgeom(x - 1, p)
-  direct_sum <- sum(dgeom(0:(x - 1), p))
-  expect_equal(formula_result, direct_sum)
+  app_result  <- pgeom(x - 1, prob = p)
+  manual_result <- sum(dgeom(0:(x - 1), prob = p))
+  expect_equal(app_result, manual_result)
 })
 
-test_that("Geometric II: interval P(a <= X <= b) uses pgeom(b-1, p) - pgeom(a-2, p)", {
+test_that("Geometric II upper tail: pgeom(x-1, p, lower.tail=FALSE) is correct", {
+  p <- 0.4; x <- 3
+  # P(X > x) where X = trials = P(Y >= x) where Y = failures; manual sum starts at y = x
+  app_result  <- pgeom(x - 1, prob = p, lower.tail = FALSE)
+  manual_result <- sum(dgeom(x:200, prob = p))
+  expect_equal(round(app_result, 8), round(manual_result, 8))
+})
+
+test_that("Geometric II interval: pgeom(b-1, p) - pgeom(a-2, p) is correct", {
   p <- 0.4; a <- 2; b <- 5
-  formula_result <- pgeom(b - 1, p) - pgeom(a - 2, p)
-  direct_sum <- sum(dgeom((a - 1):(b - 1), p))
-  expect_equal(formula_result, direct_sum)
+  # P(a <= X <= b) where X = trials = P(a-1 <= Y <= b-1) where Y = failures
+  app_result  <- pgeom(b - 1, prob = p) - pgeom(a - 2, prob = p)
+  manual_result <- sum(dgeom((a - 1):(b - 1), prob = p))
+  expect_equal(app_result, manual_result)
 })
 
-test_that("Negative Binomial I (failures): P(X <= x) = pnbinom(x, r, p)", {
-  r <- 3; p <- 0.4; x <- 5
-  expect_equal(pnbinom(x, r, p), sum(dnbinom(0:x, r, p)))
+test_that("Geometric II differs from Geometric I for the same x", {
+  p <- 0.3; x <- 4
+  geom1_result <- pgeom(x, prob = p)
+  geom2_result <- pgeom(x - 1, prob = p)
+  expect_false(isTRUE(all.equal(geom1_result, geom2_result)))
 })
 
-test_that("Negative Binomial II (trials): P(X <= x) = pnbinom(x-r, r, p)", {
+# --- Negative Binomial II: X = total trials until r-th success ---
+# The app uses pnbinom(x - r, r, p) because R's pnbinom counts failures, not trials.
+
+test_that("NB II lower tail: pnbinom(x-r, r, p) is correct for X = total trials", {
   r <- 3; p <- 0.4; x <- 8
-  # X = total trials; X = Y + r where Y ~ NB(r, p) in R
-  formula_result <- pnbinom(x - r, r, p)
-  direct_sum <- sum(dnbinom(0:(x - r), r, p))
-  expect_equal(formula_result, direct_sum)
+  app_result  <- pnbinom(x - r, size = r, prob = p)
+  manual_result <- sum(dnbinom(0:(x - r), size = r, prob = p))
+  expect_equal(app_result, manual_result)
 })
 
-test_that("Negative Binomial II: interval uses pnbinom(b-r, r, p) - pnbinom(a-r-1, r, p)", {
+test_that("NB II upper tail: pnbinom(x-r, r, p, lower.tail=FALSE) is correct", {
+  r <- 2; p <- 0.5; x <- 6
+  # P(X > x) where X = total trials = P(Y >= x-r+1) where Y = failures; manual sum starts at y = x-r+1
+  app_result  <- pnbinom(x - r, size = r, prob = p, lower.tail = FALSE)
+  manual_result <- sum(dnbinom((x - r + 1):200, size = r, prob = p))
+  expect_equal(round(app_result, 8), round(manual_result, 8))
+})
+
+test_that("NB II interval: pnbinom(b-r, r, p) - pnbinom(a-1-r, r, p) is correct", {
   r <- 2; p <- 0.5; a <- 3; b <- 7
-  formula_result <- pnbinom(b - r, r, p) - pnbinom(a - r - 1, r, p)
-  direct_sum <- sum(dnbinom((a - r):(b - r), r, p))
-  expect_equal(formula_result, direct_sum)
+  app_result  <- pnbinom(b - r, size = r, prob = p) - pnbinom(a - 1 - r, size = r, prob = p)
+  manual_result <- sum(dnbinom((a - r):(b - r), size = r, prob = p))
+  expect_equal(app_result, manual_result)
 })
 
-test_that("Hypergeometric: lower tail matches sum of PMF", {
-  N <- 20; K <- 7; n <- 5; x <- 3
-  expect_equal(phyper(x, K, N - K, n), sum(dhyper(0:x, K, N - K, n)))
+test_that("NB II differs from NB I for the same x", {
+  r <- 3; p <- 0.4; x <- 8
+  nb1_result <- pnbinom(x, size = r, prob = p)
+  nb2_result <- pnbinom(x - r, size = r, prob = p)
+  expect_false(isTRUE(all.equal(nb1_result, nb2_result)))
 })
 
-test_that("Hypergeometric: interval uses a-1 adjustment", {
-  N <- 20; K <- 7; n <- 5; a <- 1; b <- 3
-  formula_result <- phyper(b, K, N - K, n) - phyper(a - 1, K, N - K, n)
-  direct_sum <- sum(dhyper(a:b, K, N - K, n))
-  expect_equal(formula_result, direct_sum)
+# --- Geometric I and NB I: a-1 adjustment for interval probabilities ---
+# Discrete distributions use P(a <= X <= b) = F(b) - F(a-1), not F(b) - F(a).
+
+test_that("Geometric I interval: pgeom(b, p) - pgeom(a-1, p) is correct", {
+  p <- 0.3; a <- 2; b <- 6
+  app_result  <- pgeom(b, prob = p) - pgeom(a - 1, prob = p)
+  manual_result <- sum(dgeom(a:b, prob = p))
+  expect_equal(app_result, manual_result)
 })
 
-# --- Distribution parameter boundary checks ---
-
-test_that("Binomial probabilities sum to 1", {
-  n <- 8; p <- 0.6
-  expect_equal(round(sum(dbinom(0:n, n, p)), 10), 1)
+test_that("Geometric I interval: using F(b) - F(a) would be wrong", {
+  p <- 0.3; a <- 2; b <- 6
+  wrong_result  <- pgeom(b, prob = p) - pgeom(a, prob = p)
+  correct_result <- sum(dgeom(a:b, prob = p))
+  expect_false(isTRUE(all.equal(wrong_result, correct_result)))
 })
 
-test_that("Poisson probabilities are non-negative", {
-  lambda <- 4
-  expect_true(all(dpois(0:20, lambda) >= 0))
+test_that("NB I interval: pnbinom(b, r, p) - pnbinom(a-1, r, p) is correct", {
+  r <- 3; p <- 0.4; a <- 2; b <- 8
+  app_result  <- pnbinom(b, size = r, prob = p) - pnbinom(a - 1, size = r, prob = p)
+  manual_result <- sum(dnbinom(a:b, size = r, prob = p))
+  expect_equal(app_result, manual_result)
 })
 
-test_that("Normal PDF integrates to 1", {
-  result <- integrate(function(x) dnorm(x, mean = 0, sd = 1), -Inf, Inf)$value
-  expect_equal(round(result, 6), 1)
+# --- Hypergeometric: parameter mapping N, M, n → m, n, k in R's phyper ---
+# The app calls phyper(x, m = M, n = N - M, k = n) where N = population size,
+# M = number of successes in population, n = sample size (app notation).
+
+test_that("Hypergeometric lower tail: phyper with app's parameter mapping is correct", {
+  N <- 20; M <- 7; n <- 5; x <- 3
+  app_result  <- phyper(x, m = M, n = N - M, k = n)
+  manual_result <- sum(dhyper(0:x, m = M, n = N - M, k = n))
+  expect_equal(app_result, manual_result)
+})
+
+test_that("Hypergeometric interval: a-1 adjustment is correct", {
+  N <- 20; M <- 7; n <- 5; a <- 1; b <- 3
+  app_result  <- phyper(b, m = M, n = N - M, k = n) - phyper(a - 1, m = M, n = N - M, k = n)
+  manual_result <- sum(dhyper(a:b, m = M, n = N - M, k = n))
+  expect_equal(app_result, manual_result)
+})
+
+test_that("Hypergeometric: using wrong n parameter (N instead of N-M) gives different result", {
+  N <- 20; M <- 7; n <- 5; x <- 3
+  correct_result <- phyper(x, m = M, n = N - M, k = n)
+  wrong_result   <- phyper(x, m = M, n = N,     k = n)
+  expect_false(isTRUE(all.equal(correct_result, wrong_result)))
+})
+
+# --- Binomial and Poisson: a-1 interval adjustment (shared pattern) ---
+
+test_that("Binomial interval: pbinom(b) - pbinom(a-1) is correct", {
+  n <- 10; p <- 0.5; a <- 3; b <- 7
+  app_result  <- pbinom(b, n, p) - pbinom(a - 1, n, p)
+  manual_result <- sum(dbinom(a:b, n, p))
+  expect_equal(app_result, manual_result)
+})
+
+test_that("Poisson interval: ppois(b) - ppois(a-1) is correct", {
+  lambda <- 5; a <- 2; b <- 6
+  app_result  <- ppois(b, lambda) - ppois(a - 1, lambda)
+  manual_result <- sum(dpois(a:b, lambda))
+  expect_equal(app_result, manual_result)
 })
