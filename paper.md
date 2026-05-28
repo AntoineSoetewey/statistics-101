@@ -114,7 +114,7 @@ Each app's GitHub repository includes a README file with instructions on how to 
 
 # Acknowledgements
 
-The author thanks Prof. Dominique Deprins and Prof. Eugen Pircalabelu for their comments on previous versions of the apps. The author is grateful to his PhD supervisors, Prof. Catherine Legrand and Prof. Michel Denuit, for their support and for allowing him to work on these apps during his doctoral studies at UCLouvain. Finally, the author thanks the students at UCLouvain, without whom these apps would not exist. Finally, the authors thank the editor and the anonymous referee for comments that have been very helpful in revising a previous version of the present work.
+The author thanks Prof. Dominique Deprins and Prof. Eugen Pircalabelu for their comments on previous versions of the apps. The author is grateful to his PhD supervisors, Prof. Catherine Legrand and Prof. Michel Denuit, for their support and for allowing him to work on these apps during his doctoral studies at UCLouvain. The author also thanks the students at UCLouvain, without whom these apps would not exist. Finally, the authors thank the editor and the anonymous referee for comments that have been very helpful in revising a previous version of the present work.
 
 The author used ChatGPT to obtain suggestions for English phrasing and to improve clarity and readability during the writing process. All content was critically reviewed and finalized by the author.
 
